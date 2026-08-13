@@ -64,13 +64,13 @@ def init_db() -> None:
     admin_u = os.getenv("ADMIN_USER", "").strip()
     admin_p = os.getenv("ADMIN_PASSWORD", "").strip()
     if admin_u and admin_p:
-        existing = c.execute("SELECT id FROM users WHERE username=?", (admin_u,)).fetchone()
-        if not existing:
-            c.execute(
-                "INSERT INTO users (username, password_hash) VALUES (?,?)",
-                (admin_u, pwd_ctx.hash(admin_p)),
-            )
-            c.commit()
+        # Always upsert: creates user if missing, updates password if already exists
+        c.execute(
+            "INSERT INTO users (username, password_hash) VALUES (?,?) "
+            "ON CONFLICT(username) DO UPDATE SET password_hash=excluded.password_hash",
+            (admin_u, pwd_ctx.hash(admin_p)),
+        )
+        c.commit()
     c.close()
 
 init_db()
