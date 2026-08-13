@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NLP Complete Book — Classical to GenAI on Azure | AI Engineer's Handbook</title>
+<style>
+/* ═══════════════════════════════════════════
+   RESET & ROOT VARIABLES
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:16px;}
+:root{
+  --bg:#0b0e17;
+  --bg2:#10131e;
+  --bg3:#161925;
+  --border:#1e2235;
+  --blue:#0078d4;
+  --blue-light:#38bdf8;
+  --blue-pale:#bfdbfe;
+  --green:#22c55e;
+  --green-dark:#0d2b1e;
+  --yellow:#f59e0b;
+  --yellow-dark:#2b1a0d;
+  --red:#ef4444;
+  --red-dark:#2b0d0d;
+  --purple:#a78bfa;
+  --cyan:#a5f3fc;
+  --text:#e2e8f0;
+  --text-muted:#94a3b8;
+  --text-dim:#64748b;
+  --sidebar-w:280px;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar{width:7px;height:7px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:4px;}
+
+/* ═══════════════════════════════════════════
+   BODY
+═══════════════════════════════════════════ */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  line-height:1.8;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+#sidebar{
+  position:fixed;top:0;left:0;
+  width:var(--sidebar-w);height:100vh;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  overflow-y:auto;z-index:200;
+  display:flex;flex-direction:column;
+}
+.sb-logo{
+  padding:20px 18px 16px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.sb-logo .title{font-size:.95rem;font-weight:800;color:var(--blue-light);line-height:1.3;}
+.sb-logo .sub{font-size:.7rem;color:var(--text-dim);margin-top:3px;}
+.sb-search{padding:10px 14px;flex-shrink:0;}
+.sb-search input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;padding:7px 10px;color:var(--text);
+  font-size:.78rem;outline:none;
+}
+.sb-search input::placeholder{color:var(--text-dim);}
+.sb-nav{flex:1;overflow-y:auto;padding-bottom:20px;}
+.sb-phase{
+  padding:12px 18px 4px;
+  font-size:.65rem;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text-dim);
+}
+.sb-nav a{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 18px;
+  color:var(--text-muted);text-decoration:none;
+  font-size:.8rem;border-left:3px solid transparent;
+  transition:all .18s;
+}
+.sb-nav a:hover,.sb-nav a.active{
+  color:var(--blue-light);
+  border-left-color:var(--blue);
+  background:rgba(0,120,212,.07);
+}
+.sb-nav a .num{
+  width:18px;height:18px;background:var(--blue);
+  border-radius:50%;text-align:center;line-height:18px;
+  font-size:.6rem;font-weight:800;color:#fff;flex-shrink:0;
+}
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════════ */
+#main{margin-left:var(--sidebar-w);min-height:100vh;}
+
+/* ─── BOOK COVER ─── */
+.cover{
+  background:linear-gradient(135deg,#001a3a 0%,#003270 40%,#0052a3 70%,#0078d4 100%);
+  padding:80px 64px 64px;
+  position:relative;overflow:hidden;
+  border-bottom:2px solid var(--border);
+}
+.cover::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);
+}
+.cover .phase-pill{
+  display:inline-block;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);border-radius:20px;
+  padding:5px 16px;font-size:.78rem;color:#e0f2fe;margin-bottom:20px;
+}
+.cover h1{font-size:3rem;font-weight:900;line-height:1.1;max-width:700px;}
+.cover h1 span{color:#7dd3fc;}
+.cover .subtitle{font-size:1.1rem;color:#bfdbfe;margin:16px 0 28px;max-width:600px;}
+.cover .stats{display:flex;gap:28px;flex-wrap:wrap;}
+.cover .stat{text-align:center;}
+.cover .stat .n{font-size:2rem;font-weight:800;color:#7dd3fc;}
+.cover .stat .l{font-size:.75rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ─── PHASE HEADER ─── */
+.phase-header{
+  padding:48px 64px 0;
+  border-top:3px solid var(--border);
+  margin-top:4px;
+}
+.phase-header .phase-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,120,212,.15);border:1px solid rgba(0,120,212,.4);
+  border-radius:8px;padding:6px 14px;font-size:.8rem;
+  color:var(--blue-light);font-weight:700;margin-bottom:16px;
+}
+.phase-header h2{font-size:2rem;font-weight:800;color:var(--text);}
+.phase-header .desc{font-size:.95rem;color:var(--text-muted);margin-top:8px;max-width:700px;}
+.week-tag{
+  display:inline-block;background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;padding:3px 10px;font-size:.75rem;color:var(--text-dim);margin-top:8px;
+}
+
+/* ─── SECTION ─── */
+.section{padding:40px 64px;border-bottom:1px solid var(--border);scroll-margin-top:20px;}
+.section h3{
+  font-size:1.5rem;font-weight:800;color:var(--blue-light);
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.section h3 .icon{font-size:1.4rem;}
+.section h4{
+  font-size:1.1rem;font-weight:700;color:var(--cyan);
+  margin:28px 0 12px;padding-left:12px;
+  border-left:3px solid var(--blue);
+}
+.section h5{
+  font-size:.95rem;font-weight:700;color:var(--purple);
+  margin:20px 0 8px;
+}
+p{color:var(--text-muted);margin-bottom:14px;font-size:.92rem;}
+
+/* ─── AZURE AI FOUNDRY CALLOUT ─── */
+.azure-foundry{
+  background:linear-gradient(135deg,rgba(0,120,212,.12) 0%,rgba(0,82,163,.08) 100%);
+  border:1px solid rgba(0,120,212,.4);
+  border-left:4px solid var(--blue);
+  border-radius:10px;padding:18px 22px;margin:20px 0;
+}
+.azure-foundry .af-header{
+  display:flex;align-items:center;gap:8px;
+  font-size:.85rem;font-weight:800;color:var(--blue-light);
+  margin-bottom:8px;
+}
+.azure-foundry p{font-size:.85rem;margin-bottom:6px;}
+.azure-foundry .af-link{
+  display:inline-block;font-size:.78rem;color:var(--blue-light);
+  background:rgba(0,120,212,.2);border:1px solid rgba(0,120,212,.4);
+  border-radius:4px;padding:3px 10px;margin-top:6px;text-decoration:none;
+}
+
+/* ─── INFO BOXES ─── */
+.box{border-radius:10px;padding:16px 20px;margin:16px 0;border-left:4px solid;}
+.box .bhead{font-size:.82rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.box p{font-size:.84rem;margin:0;}
+.box ul{padding-left:18px;margin-top:6px;}
+.box ul li{font-size:.84rem;color:var(--text-muted);margin-bottom:3px;}
+.box.info{background:#0c1e35;border-color:var(--blue);}
+.box.info .bhead{color:#60a5fa;}
+.box.tip{background:var(--green-dark);border-color:var(--green);}
+.box.tip .bhead{color:#4ade80;}
+.box.warn{background:var(--yellow-dark);border-color:var(--yellow);}
+.box.warn .bhead{color:#fbbf24;}
+.box.danger{background:var(--red-dark);border-color:var(--red);}
+.box.danger .bhead{color:#f87171;}
+.box.azure{background:rgba(0,120,212,.08);border-color:var(--blue-light);}
+.box.azure .bhead{color:var(--blue-light);}
+
+/* ─── CODE ─── */
+pre{
+  background:#07090f;
+  border:1px solid var(--border);border-radius:10px;
+  padding:20px 24px;overflow-x:auto;margin:16px 0;
+  font-family:'Cascadia Code','Fira Code',Consolas,monospace;
+  font-size:.82rem;line-height:1.65;
+  position:relative;
+}
+.pre-label{
+  position:absolute;top:10px;right:14px;
+  font-size:.65rem;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:1px;
+  font-family:sans-serif;
+}
+code{color:var(--cyan);}
+.cm{color:#3d4f6b;}
+.kw{color:#f472b6;}
+.st{color:#86efac;}
+.fn{color:#fbbf24;}
+.va{color:#c4b5fd;}
+.nu{color:#fb923c;}
+ic{background:var(--bg3);color:var(--cyan);padding:2px 7px;border-radius:4px;
+   font-family:'Cascadia Code',Consolas,monospace;font-size:.83em;}
+
+/* ─── CARDS ─── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin:20px 0;}
+.card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:18px;
+  transition:transform .2s,border-color .2s;
+}
+.card:hover{transform:translateY(-3px);border-color:var(--blue);}
+.card .ci{font-size:1.7rem;margin-bottom:8px;}
+.card h4{color:var(--blue-light);font-size:.9rem;margin:0 0 6px;font-weight:700;}
+.card p{font-size:.82rem;margin:0;color:var(--text-muted);}
+.card .tag{
+  display:inline-block;margin-top:8px;
+  font-size:.68rem;background:rgba(0,120,212,.2);
+  color:var(--blue-light);border-radius:3px;padding:2px 7px;
+}
+
+/* ─── COMPARE ─── */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.cbox{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.cbox h5{margin-bottom:10px;font-size:.88rem;}
+.cbox ul{padding-left:16px;}
+.cbox li{font-size:.82rem;color:var(--text-muted);margin-bottom:4px;}
+
+/* ─── TABLE ─── */
+.tw{overflow-x:auto;margin:16px 0;}
+table{width:100%;border-collapse:collapse;font-size:.84rem;}
+th{background:#111827;color:var(--blue-light);padding:10px 14px;text-align:left;font-weight:700;white-space:nowrap;}
+td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--text-muted);}
+tr:hover td{background:var(--bg3);}
+td strong{color:var(--text);}
+
+/* ─── PIPELINE ─── */
+.pipe{display:flex;align-items:stretch;flex-wrap:wrap;gap:0;margin:20px 0;}
+.pstep{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:12px 14px;
+  font-size:.78rem;text-align:center;min-width:100px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.pstep .pe{font-size:1.3rem;margin-bottom:4px;}
+.pstep span{color:var(--text-muted);display:block;}
+.parr{color:var(--blue);font-size:1.2rem;padding:0 4px;display:flex;align-items:center;}
+
+/* ─── PHASE COLORS ─── */
+.phase-2 .phase-badge{color:#86efac;background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);}
+.phase-2 .section h3{color:#86efac;}
+.phase-2 h4{color:#4ade80;border-color:var(--green);}
+.phase-3 .phase-badge{color:#f9a8d4;background:rgba(236,72,153,.12);border-color:rgba(236,72,153,.4);}
+.phase-3 .section h3{color:#f9a8d4;}
+.phase-3 h4{color:#f472b6;border-color:#ec4899;}
+.phase-4 .phase-badge{color:#c4b5fd;background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.4);}
+.phase-4 .section h3{color:#c4b5fd;}
+.phase-4 h4{color:#a78bfa;border-color:#8b5cf6;}
+.phase-5 .phase-badge{color:#fcd34d;background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.4);}
+.phase-5 .section h3{color:#fcd34d;}
+.phase-5 h4{color:#fbbf24;border-color:var(--yellow);}
+
+/* ─── PROGRESS BAR ─── */
+.progress{background:var(--bg3);border-radius:8px;height:6px;margin:6px 0 16px;}
+.progress-fill{height:6px;border-radius:8px;}
+.p-blue{background:linear-gradient(90deg,#0078d4,#38bdf8);}
+.p-green{background:linear-gradient(90deg,#16a34a,#22c55e);}
+.p-pink{background:linear-gradient(90deg,#db2777,#ec4899);}
+.p-purple{background:linear-gradient(90deg,#7c3aed,#a78bfa);}
+.p-yellow{background:linear-gradient(90deg,#d97706,#f59e0b);}
+
+/* ─── FOOTER ─── */
+footer{
+  margin-left:0;padding:32px 64px;
+  border-top:1px solid var(--border);
+  text-align:center;font-size:.78rem;color:var(--text-dim);
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:860px){
+  #sidebar{display:none;}
+  #main{margin-left:0;}
+  .cover,.phase-header,.section{padding:28px 20px;}
+  .compare{grid-template-columns:1fr;}
+  .cover h1{font-size:1.8rem;}
+}
+
+/* ─── UTILITY ─── */
+ul.ul{padding-left:20px;margin:10px 0 14px;}
+ul.ul li{color:var(--text-muted);font-size:.88rem;margin-bottom:5px;}
+ol.ol{padding-left:20px;margin:10px 0 14px;}
+ol.ol li{color:var(--text-muted);font-size:.88rem;margin-bottom:5px;}
+.chip{
+  display:inline-block;background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;padding:3px 10px;font-size:.74rem;color:var(--text-muted);margin:2px;
+}
+.chip.blue{background:rgba(0,120,212,.15);color:var(--blue-light);border-color:rgba(0,120,212,.35);}
+.chip.green{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.3);}
+.chip.purple{background:rgba(139,92,246,.12);color:#c4b5fd;border-color:rgba(139,92,246,.3);}
+.chip.yellow{background:rgba(245,158,11,.12);color:#fcd34d;border-color:rgba(245,158,11,.3);}
+.divider{height:1px;background:var(--border);margin:28px 0;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="title">📚 NLP Engineer's Handbook</div>
+    <div class="sub">Classical → GenAI · Azure AI Edition</div>
+  </div>
+  <div class="sb-search">
+    <input type="text" placeholder="🔍 Search topics..." id="searchInput" oninput="filterNav(this.value)"/>
+  </div>
+  <div class="sb-nav" id="navLinks">
+    <div class="sb-phase">📌 Overview</div>
+    <a href="#cover"><span class="num">★</span> Book Cover</a>
+
+    <div class="sb-phase">📚 Phase 2 — Classical NLP</div>
+    <a href="#p2-preprocess"><span class="num">1</span> Text Preprocessing</a>
+    <a href="#p2-stopwords"><span class="num">2</span> Stopwords & Normalization</a>
+    <a href="#p2-bow"><span class="num">3</span> Bag of Words & TF-IDF</a>
+    <a href="#p2-ngrams"><span class="num">4</span> N-Grams</a>
+    <a href="#p2-ml"><span class="num">5</span> Traditional ML for NLP</a>
+    <a href="#p2-features"><span class="num">6</span> Feature Engineering</a>
+    <a href="#p2-tools"><span class="num">7</span> NLTK, spaCy, Sklearn</a>
+    <a href="#p2-azure"><span class="num">8</span> Azure AI Language</a>
+
+    <div class="sb-phase">🧠 Phase 3 — Deep Learning</div>
+    <a href="#p3-nn"><span class="num">9</span> Neural Networks Basics</a>
+    <a href="#p3-rnn"><span class="num">10</span> RNNs, LSTMs, GRUs</a>
+    <a href="#p3-seq2seq"><span class="num">11</span> Seq2Seq Models</a>
+    <a href="#p3-embeddings"><span class="num">12</span> Word Embeddings</a>
+    <a href="#p3-tasks"><span class="num">13</span> Deep NLP Tasks</a>
+    <a href="#p3-tools"><span class="num">14</span> TF / PyTorch / Keras</a>
+    <a href="#p3-azure"><span class="num">15</span> Azure ML for DL</a>
+
+    <div class="sb-phase">🚀 Phase 4 — Transformers</div>
+    <a href="#p4-attention"><span class="num">16</span> Attention Mechanism</a>
+    <a href="#p4-transformer"><span class="num">17</span> Transformer Architecture</a>
+    <a href="#p4-models"><span class="num">18</span> BERT, GPT, T5, RoBERTa</a>
+    <a href="#p4-finetune"><span class="num">19</span> Fine-Tuning</a>
+    <a href="#p4-peft"><span class="num">20</span> LoRA & PEFT</a>
+    <a href="#p4-hf"><span class="num">21</span> HuggingFace</a>
+    <a href="#p4-azure"><span class="num">22</span> Azure AI Foundry Finetune</a>
+
+    <div class="sb-phase">⚙️ Phase 5 — Applied NLP</div>
+    <a href="#p5-classification"><span class="num">23</span> Text Classification</a>
+    <a href="#p5-ner"><span class="num">24</span> Named Entity Recognition</a>
+    <a href="#p5-qa"><span class="num">25</span> QA Systems</a>
+    <a href="#p5-summary"><span class="num">26</span> Summarization</a>
+    <a href="#p5-translation"><span class="num">27</span> Translation</a>
+    <a href="#p5-generation"><span class="num">28</span> Text Generation</a>
+    <a href="#p5-azure"><span class="num">29</span> Azure Applied NLP</a>
+    <a href="#p5-rag"><span class="num">30</span> RAG Architecture</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN
+════════════════════════════════════════════════════════ -->
+<main id="main">
+
+<!-- ──────────────── COVER ──────────────── -->
+<div class="cover" id="cover">
+  <div class="phase-pill">🎓 Complete Learning Path · Phases 2 → 5</div>
+  <h1>The NLP Engineer's<br/><span>Complete Handbook</span></h1>
+  <p class="subtitle">
+    From Classical NLP to Transformers, GenAI & LLMs — with traditional code and
+    Azure AI Foundry service alternatives, explained simply for absolute beginners.
+  </p>
+  <div class="stats">
+    <div class="stat"><div class="n">4</div><div class="l">Phases</div></div>
+    <div class="stat"><div class="n">30+</div><div class="l">Topics</div></div>
+    <div class="stat"><div class="n">26</div><div class="l">Weeks</div></div>
+    <div class="stat"><div class="n">100+</div><div class="l">Code Samples</div></div>
+    <div class="stat"><div class="n">🔵</div><div class="l">Azure Ready</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PHASE 2 — CLASSICAL NLP
+══════════════════════════════════════════════════════════ -->
+<div class="phase-2">
+
+<div class="phase-header" id="phase2">
+  <div class="phase-badge">📚 Phase 2 · Weeks 5–8</div>
+  <h2>Classical NLP</h2>
+  <p class="desc">The old-school way of processing text — still used in production! Understanding these foundations makes modern Deep Learning methods make much more sense.</p>
+  <div class="week-tag">📅 Weeks 5 – 8</div>
+  <div class="progress" style="margin-top:14px;"><div class="progress-fill p-green" style="width:25%"></div></div>
+</div>
+
+<!-- ─── 1. TEXT PREPROCESSING ─── -->
+<div class="section" id="p2-preprocess">
+  <h3><span class="icon">🧹</span> Text Preprocessing — Cleaning Before Anything Else</h3>
+  <p>
+    Imagine you want to count words in a book, but the book is full of typos, HTML tags, weird
+    symbols, and inconsistent capitalization. <strong>Preprocessing</strong> is the act of cleaning
+    all that mess up so algorithms can work properly.
+  </p>
+  <div class="box info">
+    <div class="bhead">🧠 Why it matters</div>
+    <p>"Hello!" and "hello" and "HELLO" — are these the same word? To a naive algorithm, NO.
+    After normalization, they all become "hello". This dramatically improves model accuracy.</p>
+  </div>
+
+  <h4>Step-by-Step Preprocessing Pipeline</h4>
+  <div class="pipe">
+    <div class="pstep"><div class="pe">📥</div><span>Raw Text</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">🗑️</div><span>Remove Noise<br/>(HTML/URLs)</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">🔡</div><span>Lowercase</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">✂️</div><span>Tokenize</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">🌿</div><span>Stem / Lemmatize</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">✅</div><span>Clean Tokens</span></div>
+  </div>
+
+  <h4>Traditional Code — Python</h4>
+<pre><code><span class="cm"># Install: pip install nltk re</span>
+<span class="kw">import</span> re
+<span class="kw">import</span> nltk
+nltk.<span class="fn">download</span>(<span class="st">'punkt'</span>)
+nltk.<span class="fn">download</span>(<span class="st">'wordnet'</span>)
+
+<span class="kw">from</span> nltk.tokenize <span class="kw">import</span> word_tokenize
+<span class="kw">from</span> nltk.stem <span class="kw">import</span> WordNetLemmatizer, PorterStemmer
+
+<span class="va">text</span> = <span class="st">"Hello! Visit https://azure.com for &lt;b&gt;Azure AI&lt;/b&gt; Services. Running 3 models..."</span>
+
+<span class="cm"># Step 1: Remove HTML tags</span>
+<span class="va">text</span> = re.<span class="fn">sub</span>(<span class="st">r'&lt;.*?&gt;'</span>, <span class="st">''</span>, <span class="va">text</span>)
+
+<span class="cm"># Step 2: Remove URLs</span>
+<span class="va">text</span> = re.<span class="fn">sub</span>(<span class="st">r'http\S+'</span>, <span class="st">''</span>, <span class="va">text</span>)
+
+<span class="cm"># Step 3: Lowercase</span>
+<span class="va">text</span> = text.<span class="fn">lower</span>()
+
+<span class="cm"># Step 4: Remove special characters</span>
+<span class="va">text</span> = re.<span class="fn">sub</span>(<span class="st">r'[^a-z\s]'</span>, <span class="st">''</span>, <span class="va">text</span>)
+
+<span class="cm"># Step 5: Tokenize</span>
+<span class="va">tokens</span> = <span class="fn">word_tokenize</span>(<span class="va">text</span>)
+
+<span class="cm"># Step 6: Stem (aggressive, fast)</span>
+<span class="va">stemmer</span> = <span class="fn">PorterStemmer</span>()
+<span class="va">stemmed</span> = [stemmer.<span class="fn">stem</span>(<span class="va">t</span>) <span class="kw">for</span> <span class="va">t</span> <span class="kw">in</span> <span class="va">tokens</span>]
+<span class="fn">print</span>(<span class="st">"Stemmed:"</span>, <span class="va">stemmed</span>)
+<span class="cm"># ['hello', 'azur', 'ai', 'servic', 'run', 'model']</span>
+
+<span class="cm"># Step 7: Lemmatize (smarter, uses dictionary)</span>
+<span class="va">lemmatizer</span> = <span class="fn">WordNetLemmatizer</span>()
+<span class="va">lemmatized</span> = [lemmatizer.<span class="fn">lemmatize</span>(<span class="va">t</span>) <span class="kw">for</span> <span class="va">t</span> <span class="kw">in</span> <span class="va">tokens</span>]
+<span class="fn">print</span>(<span class="st">"Lemmatized:"</span>, <span class="va">lemmatized</span>)
+<span class="cm"># ['hello', 'azure', 'ai', 'service', 'running', 'model']</span></code></pre>
+
+  <div class="box tip">
+    <div class="bhead">✅ Stem vs Lemmatize — Simple Rule</div>
+    <p><strong>Stemming</strong> chops the end off words blindly → "running" → "run", "better" → "better" (wrong!)<br/>
+    <strong>Lemmatization</strong> uses a dictionary → "better" → "good" ✓, "running" → "run" ✓<br/>
+    Use lemmatization unless speed is critical.</p>
+  </div>
+
+  <div class="box warn">
+    <div class="bhead">⚠️ When NOT to preprocess heavily</div>
+    <p>For modern LLMs (GPT-4, BERT), <strong>don't lowercase or stem!</strong>
+    These models understand context and capitalization is useful signal.
+    Heavy preprocessing actually <em>hurts</em> transformer performance.</p>
+  </div>
+</div>
+
+<!-- ─── 2. STOPWORDS & NORMALIZATION ─── -->
+<div class="section" id="p2-stopwords">
+  <h3><span class="icon">🛑</span> Stop Words & Text Normalization</h3>
+  <p>
+    <strong>Stop words</strong> are very common words that carry little meaning on their own —
+    "the", "is", "a", "and", "in". Removing them reduces noise and speeds up processing for
+    classical ML models.
+  </p>
+
+  <div class="compare">
+    <div class="cbox">
+      <h5>❌ Before Stop Word Removal</h5>
+      <ul>
+        <li>"The quick <strong>brown</strong> fox <strong>jumped</strong> over the lazy dog"</li>
+        <li>12 words — many carry no meaning for classification</li>
+      </ul>
+    </div>
+    <div class="cbox">
+      <h5>✅ After Stop Word Removal</h5>
+      <ul>
+        <li>"quick brown fox jumped lazy dog"</li>
+        <li>6 words — all meaningful content words</li>
+      </ul>
+    </div>
+  </div>
+
+<pre><code><span class="kw">from</span> nltk.corpus <span class="kw">import</span> stopwords
+nltk.<span class="fn">download</span>(<span class="st">'stopwords'</span>)
+
+<span class="va">stop_words</span> = <span class="fn">set</span>(stopwords.<span class="fn">words</span>(<span class="st">'english'</span>))
+<span class="va">tokens</span> = [<span class="st">"the"</span>, <span class="st">"quick"</span>, <span class="st">"brown"</span>, <span class="st">"fox"</span>, <span class="st">"is"</span>, <span class="st">"amazing"</span>]
+
+<span class="va">filtered</span> = [<span class="va">w</span> <span class="kw">for</span> <span class="va">w</span> <span class="kw">in</span> <span class="va">tokens</span> <span class="kw">if</span> <span class="va">w</span> <span class="kw">not</span> <span class="kw">in</span> <span class="va">stop_words</span>]
+<span class="fn">print</span>(<span class="va">filtered</span>)  <span class="cm"># ['quick', 'brown', 'fox', 'amazing']</span>
+
+<span class="cm"># Custom stop words for domain-specific use</span>
+<span class="va">custom_stops</span> = stop_words | {<span class="st">"azure"</span>, <span class="st">"microsoft"</span>, <span class="st">"please"</span>}
+<span class="va">filtered_custom</span> = [<span class="va">w</span> <span class="kw">for</span> <span class="va">w</span> <span class="kw">in</span> <span class="va">tokens</span> <span class="kw">if</span> <span class="va">w</span> <span class="kw">not</span> <span class="kw">in</span> <span class="va">custom_stops</span>]</code></pre>
+
+  <h4>Text Normalization Techniques</h4>
+  <div class="tw">
+  <table>
+    <tr><th>Technique</th><th>Example Input</th><th>Example Output</th><th>When to Use</th></tr>
+    <tr><td>Lowercasing</td><td>Azure AI</td><td>azure ai</td><td>Classical ML</td></tr>
+    <tr><td>Accent removal</td><td>résumé</td><td>resume</td><td>Multilingual text</td></tr>
+    <tr><td>Contraction expansion</td><td>can't, won't</td><td>cannot, will not</td><td>Sentiment analysis</td></tr>
+    <tr><td>Spelling correction</td><td>amazng prodct</td><td>amazing product</td><td>User-generated content</td></tr>
+    <tr><td>Number normalization</td><td>1,000 / 1000 / 1k</td><td>1000</td><td>Financial text</td></tr>
+    <tr><td>Emoji → text</td><td>😊</td><td>happy face</td><td>Social media analysis</td></tr>
+  </table>
+  </div>
+
+  <div class="azure-foundry">
+    <div class="af-header">🔵 Azure AI Foundry Alternative — Key Phrase &amp; Language Detection</div>
+    <p>Instead of manually writing preprocessing + stop word logic, Azure AI Language Service
+    does intelligent text analysis out of the box. It identifies key phrases, language, sentiment
+    without you needing to preprocess anything yourself.</p>
+    <pre><code><span class="kw">from</span> azure.ai.textanalytics <span class="kw">import</span> TextAnalyticsClient
+<span class="kw">from</span> azure.core.credentials <span class="kw">import</span> AzureKeyCredential
+
+<span class="va">client</span> = <span class="fn">TextAnalyticsClient</span>(
+    endpoint=<span class="st">"https://YOUR-RESOURCE.cognitiveservices.azure.com/"</span>,
+    credential=<span class="fn">AzureKeyCredential</span>(<span class="st">"YOUR_KEY"</span>)
+)
+
+<span class="cm"># Auto-detect language — no preprocessing needed!</span>
+<span class="va">docs</span> = [<span class="st">"Azure AI is incredibly powerful for NLP tasks!"</span>]
+<span class="va">lang_result</span> = client.<span class="fn">detect_language</span>(<span class="va">docs</span>)
+<span class="kw">for</span> <span class="va">doc</span> <span class="kw">in</span> <span class="va">lang_result</span>:
+    <span class="fn">print</span>(<span class="va">doc</span>.primary_language.name, <span class="va">doc</span>.primary_language.confidence_score)
+<span class="cm"># English 1.0</span>
+
+<span class="cm"># Extract key phrases automatically</span>
+<span class="va">kp_result</span> = client.<span class="fn">extract_key_phrases</span>(<span class="va">docs</span>)
+<span class="kw">for</span> <span class="va">doc</span> <span class="kw">in</span> <span class="va">kp_result</span>:
+    <span class="fn">print</span>(<span class="va">doc</span>.key_phrases)
+<span class="cm"># ['Azure AI', 'NLP tasks', 'incredibly powerful']</span></code></pre>
+    <p style="margin-top:8px;font-size:.8rem;color:var(--text-dim);">💡 Azure AI Foundry → Azure AI Language Service → Key Phrase Extraction. No NLTK, no manual stop words, no code.</p>
+  </div>
+</div>
+
+<!-- ─── 3. BAG OF WORDS & TF-IDF ─── -->
+<div class="section" id="p2-bow">
+  <h3><span class="icon">🎒</span> Bag of Words (BoW) &amp; TF-IDF</h3>
+  <p>
+    Machine learning algorithms can't understand text — they only understand numbers.
+    <strong>BoW and TF-IDF</strong> are methods to convert text into numbers.
+  </p>
+
+  <h4>Bag of Words — The "Dumb" but Useful Method</h4>
+  <div class="box info">
+    <div class="bhead">🧠 Simple Explanation</div>
+    <p>Imagine you have a bag. You throw all words from a document into that bag.
+    You don't care about order, grammar, or meaning. You just count: how many times did
+    each word appear? That count-vector IS the Bag of Words.</p>
+  </div>
+<pre><code><span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> CountVectorizer
+
+<span class="va">docs</span> = [
+    <span class="st">"I love Azure AI"</span>,
+    <span class="st">"Azure AI is amazing"</span>,
+    <span class="st">"I love machine learning"</span>
+]
+
+<span class="va">vectorizer</span> = <span class="fn">CountVectorizer</span>()
+<span class="va">X</span> = vectorizer.<span class="fn">fit_transform</span>(<span class="va">docs</span>)
+
+<span class="fn">print</span>(vectorizer.vocabulary_)
+<span class="cm"># {'i':2, 'love':4, 'azure':1, 'ai':0, 'is':3, 'amazing':..., 'machine':..., 'learning':...}</span>
+
+<span class="fn">print</span>(<span class="va">X</span>.<span class="fn">toarray</span>())
+<span class="cm"># Doc1: [1, 1, 1, 0, 1, 0, 0, 0]  ← has azure, ai, i, love
+# Doc2: [1, 1, 0, 1, 0, 1, 0, 0]  ← has azure, ai, is, amazing
+# Doc3: [0, 0, 1, 0, 1, 0, 1, 1]  ← has i, love, machine, learning</span></code></pre>
+
+  <div class="box warn">
+    <div class="bhead">⚠️ BoW Limitations</div>
+    <p>❌ "I love NLP" and "NLP love I" produce identical BoW vectors (word order lost)<br/>
+    ❌ Common words like "the" dominate even if meaningless<br/>
+    ❌ Vocabulary grows huge with large datasets (sparse matrix problem)<br/>
+    ✅ TF-IDF fixes some of these issues!</p>
+  </div>
+
+  <h4>TF-IDF — Smarter Word Weighting</h4>
+  <p>
+    <strong>TF-IDF = Term Frequency × Inverse Document Frequency</strong><br/>
+    Idea: A word is important if it appears often in THIS document BUT rarely across ALL documents.
+  </p>
+  <div class="compare">
+    <div class="cbox">
+      <h5>TF (Term Frequency)</h5>
+      <ul>
+        <li>How often does word appear in THIS document?</li>
+        <li>"azure" appears 3 times in 100-word doc = TF = 0.03</li>
+        <li>More occurrences → higher TF</li>
+      </ul>
+    </div>
+    <div class="cbox">
+      <h5>IDF (Inverse Document Frequency)</h5>
+      <ul>
+        <li>How rare is the word across ALL documents?</li>
+        <li>"the" appears in every doc → very low IDF</li>
+        <li>"Kubernetes" appears in few docs → very high IDF</li>
+      </ul>
+    </div>
+  </div>
+<pre><code><span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> TfidfVectorizer
+
+<span class="va">docs</span> = [
+    <span class="st">"Azure AI is amazing for NLP tasks"</span>,
+    <span class="st">"NLP tasks include sentiment analysis and NER"</span>,
+    <span class="st">"Sentiment analysis is important in business"</span>
+]
+
+<span class="va">tfidf</span> = <span class="fn">TfidfVectorizer</span>(max_features=<span class="nu">10</span>)
+<span class="va">X</span> = tfidf.<span class="fn">fit_transform</span>(<span class="va">docs</span>)
+
+<span class="fn">print</span>(<span class="st">"Feature names:"</span>, tfidf.<span class="fn">get_feature_names_out</span>())
+<span class="fn">print</span>(<span class="st">"TF-IDF matrix shape:"</span>, <span class="va">X</span>.shape)  <span class="cm"># (3, 10)</span>
+
+<span class="cm"># Words that appear in ALL documents get low score ("is", "in")
+# Domain-specific words get high score ("azure", "ner", "kubernetes")</span></code></pre>
+
+  <div class="azure-foundry">
+    <div class="af-header">🔵 Azure AI Foundry Alternative — Semantic Embeddings Instead of TF-IDF</div>
+    <p>TF-IDF is keyword matching. Azure OpenAI embeddings understand <em>meaning</em>.
+    "joyful" and "happy" would have low TF-IDF similarity (different words) but
+    very high embedding similarity (same meaning). For production, use Azure OpenAI embeddings.</p>
+    <pre><code><span class="kw">from</span> openai <span class="kw">import</span> AzureOpenAI
+
+<span class="va">client</span> = <span class="fn">AzureOpenAI</span>(azure_endpoint=<span class="st">"https://YOUR.openai.azure.com/"</span>,
+                      api_key=<span class="st">"YOUR_KEY"</span>, api_version=<span class="st">"2024-02-01"</span>)
+
+<span class="va">texts</span> = [<span class="st">"Azure AI is amazing"</span>, <span class="st">"Microsoft cloud AI is great"</span>]
+<span class="va">response</span> = client.embeddings.<span class="fn">create</span>(input=<span class="va">texts</span>, model=<span class="st">"text-embedding-3-small"</span>)
+<span class="va">embeddings</span> = [item.embedding <span class="kw">for</span> item <span class="kw">in</span> <span class="va">response</span>.data]
+<span class="cm"># Each is a 1536-dim vector capturing MEANING — far richer than TF-IDF!</span></code></pre>
+    <p style="font-size:.8rem;color:var(--text-dim);">💡 Azure AI Foundry → Azure OpenAI → text-embedding-3-small deployment. Use this for any similarity/search task in production.</p>
+  </div>
+</div>
+
+<!-- ─── 4. N-GRAMS ─── -->
+<div class="section" id="p2-ngrams">
+  <h3><span class="icon">🔗</span> N-Grams — Capturing Word Sequences</h3>
+  <p>
+    BoW treats every word independently. But "not good" means something very different from "good".
+    <strong>N-grams</strong> capture consecutive word sequences, adding a sense of order and phrase context.
+  </p>
+  <div class="box info">
+    <div class="bhead">📖 N-gram Types</div>
+    <ul>
+      <li><strong>Unigram (n=1):</strong> ["I", "love", "NLP"] — individual words</li>
+      <li><strong>Bigram (n=2):</strong> ["I love", "love NLP"] — pairs of words</li>
+      <li><strong>Trigram (n=3):</strong> ["I love NLP"] — triples of words</li>
+      <li><strong>Character n-grams:</strong> work on characters, great for misspellings</li>
+    </ul>
+  </div>
+<pre><code><span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> CountVectorizer
+<span class="kw">from</span> nltk.util <span class="kw">import</span> ngrams
+<span class="kw">from</span> nltk.tokenize <span class="kw">import</span> word_tokenize
+
+<span class="cm"># Manual bigrams</span>
+<span class="va">text</span> = <span class="st">"not good product not recommended"</span>
+<span class="va">tokens</span> = <span class="fn">word_tokenize</span>(<span class="va">text</span>)
+<span class="va">bigrams</span> = <span class="fn">list</span>(<span class="fn">ngrams</span>(<span class="va">tokens</span>, <span class="nu">2</span>))
+<span class="fn">print</span>(<span class="va">bigrams</span>)
+<span class="cm"># [('not', 'good'), ('good', 'product'), ('product', 'not'), ('not', 'recommended')]</span>
+<span class="cm"># 'not good' is captured as a unit — BoW would have missed this!</span>
+
+<span class="cm"># Use n-grams in sklearn pipeline</span>
+<span class="va">vectorizer</span> = <span class="fn">CountVectorizer</span>(ngram_range=(<span class="nu">1</span>, <span class="nu">2</span>))  <span class="cm"># unigrams + bigrams</span>
+<span class="va">docs</span> = [<span class="st">"not good"</span>, <span class="st">"very good"</span>, <span class="st">"not bad"</span>]
+<span class="va">X</span> = vectorizer.<span class="fn">fit_transform</span>(<span class="va">docs</span>)
+<span class="fn">print</span>(vectorizer.<span class="fn">get_feature_names_out</span>())
+<span class="cm"># ['bad', 'good', 'not', 'not bad', 'not good', 'very', 'very good']</span>
+<span class="cm"># Now 'not good' and 'very good' are DIFFERENT features!</span></code></pre>
+
+  <div class="box tip">
+    <div class="bhead">✅ When to Use N-Grams</div>
+    <ul>
+      <li>Sentiment analysis (negation: "not good", "not happy")</li>
+      <li>Spam detection ("click here", "limited time", "act now")</li>
+      <li>Language modeling and text generation (traditional)</li>
+      <li>Character n-grams for spell correction and author identification</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ─── 5. TRADITIONAL ML FOR NLP ─── -->
+<div class="section" id="p2-ml">
+  <h3><span class="icon">🤖</span> Traditional Machine Learning for NLP</h3>
+  <p>
+    Once you have your text as numbers (via BoW or TF-IDF), you can feed them into
+    classic ML classifiers. These are fast, interpretable, and surprisingly effective.
+  </p>
+
+  <h4>Naive Bayes — The Probability Classifier</h4>
+  <div class="box info">
+    <div class="bhead">🧠 How Naive Bayes Works (Simple!)</div>
+    <p>It calculates: "Given these words in the email, what's the probability it's spam?"
+    It's "naive" because it assumes all words are independent (which isn't quite true, but it works great anyway!)
+    <br/>Training: count word frequencies in spam vs non-spam emails.
+    Prediction: multiply probabilities → "free money winner" → 95% spam.</p>
+  </div>
+<pre><code><span class="kw">from</span> sklearn.naive_bayes <span class="kw">import</span> MultinomialNB
+<span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> TfidfVectorizer
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report
+
+<span class="cm"># Sample dataset</span>
+<span class="va">texts</span> = [
+    <span class="st">"Win free money now click here"</span>,          <span class="cm"># spam</span>
+    <span class="st">"Limited offer buy now discount"</span>,          <span class="cm"># spam</span>
+    <span class="st">"Meeting at 3pm in conference room"</span>,        <span class="cm"># ham</span>
+    <span class="st">"Please review the attached report"</span>,        <span class="cm"># ham</span>
+    <span class="st">"Congratulations you won a prize"</span>,          <span class="cm"># spam</span>
+    <span class="st">"Can you join the call tomorrow morning"</span>,   <span class="cm"># ham</span>
+]
+<span class="va">labels</span> = [<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">0</span>, <span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">0</span>]  <span class="cm"># 1=spam, 0=ham</span>
+
+<span class="va">X_train</span>, <span class="va">X_test</span>, <span class="va">y_train</span>, <span class="va">y_test</span> = <span class="fn">train_test_split</span>(
+    <span class="va">texts</span>, <span class="va">labels</span>, test_size=<span class="nu">0.3</span>, random_state=<span class="nu">42</span>)
+
+<span class="cm"># Pipeline: TF-IDF → Naive Bayes</span>
+<span class="va">model</span> = <span class="fn">Pipeline</span>([
+    (<span class="st">'tfidf'</span>, <span class="fn">TfidfVectorizer</span>()),
+    (<span class="st">'clf'</span>,  <span class="fn">MultinomialNB</span>())
+])
+model.<span class="fn">fit</span>(<span class="va">X_train</span>, <span class="va">y_train</span>)
+<span class="va">predictions</span> = model.<span class="fn">predict</span>(<span class="va">X_test</span>)
+<span class="fn">print</span>(<span class="fn">classification_report</span>(<span class="va">y_test</span>, <span class="va">predictions</span>))</code></pre>
+
+  <h4>Logistic Regression for Text</h4>
+<pre><code><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+
+<span class="va">model</span> = <span class="fn">Pipeline</span>([
+    (<span class="st">'tfidf'</span>, <span class="fn">TfidfVectorizer</span>(ngram_range=(<span class="nu">1</span>,<span class="nu">2</span>), max_features=<span class="nu">5000</span>)),
+    (<span class="st">'clf'</span>,  <span class="fn">LogisticRegression</span>(max_iter=<span class="nu">1000</span>))
+])
+model.<span class="fn">fit</span>(<span class="va">X_train</span>, <span class="va">y_train</span>)
+
+<span class="cm"># Logistic Regression is great for text — often beats Naive Bayes
+# Works well even with limited data
+# You can see which words are most important for each class:</span>
+<span class="va">feature_names</span> = model.<span class="fn">named_steps</span>[<span class="st">'tfidf'</span>].<span class="fn">get_feature_names_out</span>()
+<span class="va">coefs</span> = model.<span class="fn">named_steps</span>[<span class="st">'clf'</span>].coef_[<span class="nu">0</span>]
+<span class="va">top_spam</span> = <span class="va">feature_names</span>[<span class="va">coefs</span>.<span class="fn">argsort</span>()[-<span class="nu">5</span>:]]
+<span class="fn">print</span>(<span class="st">"Top spam words:"</span>, <span class="va">top_spam</span>)</code></pre>
+
+  <h4>Support Vector Machine (SVM) for Text</h4>
+<pre><code><span class="kw">from</span> sklearn.svm <span class="kw">import</span> LinearSVC
+
+<span class="cm"># SVM is often the BEST classical classifier for text</span>
+<span class="cm"># It finds the optimal boundary between classes in high-dimensional space</span>
+<span class="va">model</span> = <span class="fn">Pipeline</span>([
+    (<span class="st">'tfidf'</span>, <span class="fn">TfidfVectorizer</span>(max_features=<span class="nu">10000</span>)),
+    (<span class="st">'clf'</span>,  <span class="fn">LinearSVC</span>(C=<span class="nu">1.0</span>))
+])
+model.<span class="fn">fit</span>(<span class="va">X_train</span>, <span class="va">y_train</span>)
+<span class="fn">print</span>(<span class="st">"Accuracy:"</span>, model.<span class="fn">score</span>(<span class="va">X_test</span>, <span class="va">y_test</span>))</code></pre>
+
+  <div class="tw">
+  <table>
+    <tr><th>Algorithm</th><th>Pros</th><th>Cons</th><th>Best For</th></tr>
+    <tr><td><strong>Naive Bayes</strong></td><td>Very fast, works with small data</td><td>Assumes word independence</td><td>Spam detection, basic classification</td></tr>
+    <tr><td><strong>Logistic Regression</strong></td><td>Interpretable, fast, probabilistic</td><td>Needs feature engineering</td><td>Sentiment, topic classification</td></tr>
+    <tr><td><strong>SVM (LinearSVC)</strong></td><td>Often best accuracy classically</td><td>Slow on very large datasets</td><td>News classification, NER pre-step</td></tr>
+    <tr><td><strong>Random Forest</strong></td><td>Handles nonlinear patterns</td><td>Slow, less interpretable</td><td>Feature importance analysis</td></tr>
+  </table>
+  </div>
+
+  <div class="azure-foundry">
+    <div class="af-header">🔵 Azure AI Foundry Alternative — Custom Text Classification</div>
+    <p>Instead of training Naive Bayes/SVM manually, Azure AI Language → Custom Text Classification
+    lets you upload labeled data in a CSV/JSON and trains a state-of-the-art transformer model for you.
+    No sklearn, no TF-IDF, no pipelines. Just label data in Language Studio and click Train.</p>
+    <pre><code><span class="kw">from</span> azure.ai.textanalytics <span class="kw">import</span> TextAnalyticsClient
+
+<span class="cm"># After training your custom model in Azure Language Studio:</span>
+<span class="va">result</span> = client.<span class="fn">classify_document</span>(
+    documents=[<span class="st">"Win free money click now!"</span>],
+    project_name=<span class="st">"spam-detector"</span>,
+    deployment_name=<span class="st">"production"</span>
+)
+<span class="kw">for</span> <span class="va">doc</span> <span class="kw">in</span> result:
+    <span class="fn">print</span>(<span class="va">doc</span>.classifications[<span class="nu">0</span>].category, <span class="va">doc</span>.classifications[<span class="nu">0</span>].confidence_score)
+<span class="cm"># spam 0.98</span></code></pre>
+    <p style="font-size:.8rem;color:var(--text-dim);">💡 Azure AI Foundry → Language Studio → Custom Text Classification → Train with your labels → Deploy → Call via SDK. Zero ML code needed.</p>
+  </div>
+</div>
+
+<!-- ─── 6. FEATURE ENGINEERING ─── -->
+<div class="section" id="p2-features">
+  <h3><span class="icon">🔧</span> Feature Engineering for Text Data</h3>
+  <p>
+    Beyond word counts, you can engineer powerful features that capture more signal from text.
+    This is the art of turning domain knowledge into model inputs.
+  </p>
+
+  <h4>Common Text Features</h4>
+<pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> re
+<span class="kw">from</span> textblob <span class="kw">import</span> TextBlob   <span class="cm"># pip install textblob</span>
+
+<span class="va">df</span> = pd.<span class="fn">DataFrame</span>({<span class="st">'text'</span>: [<span class="st">"I LOVE Azure!!!"</span>, <span class="st">"meh product not great"</span>]})
+
+<span class="cm"># Structural features</span>
+<span class="va">df</span>[<span class="st">'char_count'</span>]      = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="fn">len</span>)
+<span class="va">df</span>[<span class="st">'word_count'</span>]      = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="fn">len</span>(<span class="va">x</span>.<span class="fn">split</span>()))
+<span class="va">df</span>[<span class="st">'uppercase_ratio'</span>] = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="fn">sum</span>(<span class="nu">1</span> <span class="kw">for</span> <span class="va">c</span> <span class="kw">in</span> <span class="va">x</span> <span class="kw">if</span> <span class="va">c</span>.<span class="fn">isupper</span>())<span class="va">/len</span>(<span class="va">x</span>))
+<span class="va">df</span>[<span class="st">'exclamation_ct'</span>]  = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="va">x</span>.<span class="fn">count</span>(<span class="st">'!'</span>))
+<span class="va">df</span>[<span class="st">'question_marks'</span>]  = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="va">x</span>.<span class="fn">count</span>(<span class="st">'?'</span>))
+<span class="va">df</span>[<span class="st">'avg_word_len'</span>]    = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="fn">sum</span>(<span class="fn">len</span>(<span class="va">w</span>) <span class="kw">for</span> <span class="va">w</span> <span class="kw">in</span> <span class="va">x</span>.<span class="fn">split</span>())/<span class="fn">len</span>(<span class="va">x</span>.<span class="fn">split</span>()))
+
+<span class="cm"># Sentiment polarity as a feature (TextBlob)</span>
+<span class="va">df</span>[<span class="st">'polarity'</span>]     = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="fn">TextBlob</span>(<span class="va">x</span>).sentiment.polarity)
+<span class="va">df</span>[<span class="st">'subjectivity'</span>] = df[<span class="st">'text'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> <span class="va">x</span>: <span class="fn">TextBlob</span>(<span class="va">x</span>).sentiment.subjectivity)
+
+<span class="fn">print</span>(<span class="va">df</span>)</code></pre>
+</div>
+
+<!-- ─── 7. TOOLS ─── -->
+<div class="section" id="p2-tools">
+  <h3><span class="icon">🛠️</span> Classical NLP Tools — NLTK, spaCy, scikit-learn</h3>
+
+  <div class="cards">
+    <div class="card">
+      <div class="ci">📦</div>
+      <h4>NLTK</h4>
+      <p>The oldest Python NLP library. Great for learning — tokenization, stemming, POS tagging, corpora access. Slower, more academic.</p>
+      <span class="tag">pip install nltk</span>
+    </div>
+    <div class="card">
+      <div class="ci">🐆</div>
+      <h4>spaCy</h4>
+      <p>Industrial-strength NLP. Fast, production-ready. Best for tokenization, NER, POS, dependency parsing. Used by companies worldwide.</p>
+      <span class="tag">pip install spacy</span>
+    </div>
+    <div class="card">
+      <div class="ci">⚙️</div>
+      <h4>scikit-learn</h4>
+      <p>The ML workhorse. TF-IDF, Naive Bayes, SVM, pipelines, cross-validation — all in one consistent API.</p>
+      <span class="tag">pip install scikit-learn</span>
+    </div>
+    <div class="card">
+      <div class="ci">📊</div>
+      <h4>TextBlob</h4>
+      <p>Simple API for basic NLP: sentiment, translation, spelling correction. Great for beginners and quick prototypes.</p>
+      <span class="tag">pip install textblob</span>
+    </div>
+  </div>
+
+  <h4>spaCy in Action — The Production NLP Library</h4>
+<pre><code><span class="cm"># pip install spacy</span>
+<span class="cm"># python -m spacy download en_core_web_sm</span>
+<span class="kw">import</span> spacy
+
+<span class="va">nlp</span> = spacy.<span class="fn">load</span>(<span class="st">"en_core_web_sm"</span>)
+<span class="va">doc</span> = <span class="va">nlp</span>(<span class="st">"Satya Nadella, CEO of Microsoft, announced Azure AI services on Monday."</span>)
+
+<span class="cm"># Tokenization + POS tagging</span>
+<span class="kw">for</span> <span class="va">token</span> <span class="kw">in</span> <span class="va">doc</span>:
+    <span class="fn">print</span>(<span class="va">f</span><span class="st">"{token.text:15} {token.pos_:8} {token.dep_}"</span>)
+
+<span class="cm"># Named Entity Recognition</span>
+<span class="kw">for</span> <span class="va">ent</span> <span class="kw">in</span> <span class="va">doc</span>.ents:
+    <span class="fn">print</span>(<span class="va">f</span><span class="st">"{ent.text:25} → {ent.label_}"</span>)
+<span class="cm"># Satya Nadella             → PERSON
+# Microsoft                 → ORG
+# Monday                    → DATE</span>
+
+<span class="cm"># Dependency parsing — understand sentence structure</span>
+<span class="kw">for</span> <span class="va">token</span> <span class="kw">in</span> <span class="va">doc</span>:
+    <span class="kw">if</span> <span class="va">token</span>.dep_ == <span class="st">"nsubj"</span>:
+        <span class="fn">print</span>(<span class="va">f</span><span class="st">"Subject: {token.text}, Verb: {token.head.text}"</span>)
+<span class="cm"># Subject: Nadella, Verb: announced</span></code></pre>
+</div>
+
+<!-- ─── 8. AZURE AI LANGUAGE OVERVIEW ─── -->
+<div class="section" id="p2-azure">
+  <h3><span class="icon">🔵</span> Azure AI Language — Replace Classical NLP in Production</h3>
+  <p>
+    Everything we did with NLTK, spaCy, sklearn above — Azure AI Language does it via
+    REST API calls with enterprise-grade accuracy, no training, no model management.
+    Use this when shipping production applications.
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="ci">😊</div>
+      <h4>Sentiment + Opinion Mining</h4>
+      <p>Detect positive/negative/neutral. Mine specific opinions ("great camera", "poor battery").</p>
+      <span class="tag blue">API: analyze_sentiment</span>
+    </div>
+    <div class="card">
+      <div class="ci">🏷️</div>
+      <h4>Named Entity Recognition</h4>
+      <p>Pre-built: people, places, orgs, dates, money. Custom NER for domain entities.</p>
+      <span class="tag blue">API: recognize_entities</span>
+    </div>
+    <div class="card">
+      <div class="ci">🔑</div>
+      <h4>Key Phrase Extraction</h4>
+      <p>Automatically pull out the most important phrases from any text.</p>
+      <span class="tag blue">API: extract_key_phrases</span>
+    </div>
+    <div class="card">
+      <div class="ci">🌐</div>
+      <h4>Language Detection</h4>
+      <p>Detect language from 100+ languages with confidence score.</p>
+      <span class="tag blue">API: detect_language</span>
+    </div>
+    <div class="card">
+      <div class="ci">🔗</div>
+      <h4>Entity Linking</h4>
+      <p>Link entities to Wikipedia/knowledge base. "Apple" → Apple Inc. vs apple fruit.</p>
+      <span class="tag blue">API: recognize_linked_entities</span>
+    </div>
+    <div class="card">
+      <div class="ci">📋</div>
+      <h4>PII Detection</h4>
+      <p>Detect and redact Personally Identifiable Info: SSN, credit cards, addresses.</p>
+      <span class="tag blue">API: recognize_pii_entities</span>
+    </div>
+  </div>
+<pre><code><span class="cm"># One-stop Azure AI Language example</span>
+<span class="kw">from</span> azure.ai.textanalytics <span class="kw">import</span> TextAnalyticsClient
+<span class="kw">from</span> azure.core.credentials <span class="kw">import</span> AzureKeyCredential
+
+<span class="va">client</span> = <span class="fn">TextAnalyticsClient</span>(
+    endpoint=<span class="st">"https://YOUR-RESOURCE.cognitiveservices.azure.com/"</span>,
+    credential=<span class="fn">AzureKeyCredential</span>(<span class="st">"YOUR_KEY"</span>)
+)
+
+<span class="va">text</span> = [<span class="st">"John Smith at Microsoft loved the product but hated the support."</span>]
+
+<span class="cm"># Sentiment with opinion mining</span>
+<span class="va">s</span> = client.<span class="fn">analyze_sentiment</span>(<span class="va">text</span>, show_opinion_mining=<span class="kw">True</span>)[<span class="nu">0</span>]
+<span class="fn">print</span>(<span class="st">"Sentiment:"</span>, <span class="va">s</span>.sentiment)
+<span class="kw">for</span> <span class="va">sentence</span> <span class="kw">in</span> <span class="va">s</span>.sentences:
+    <span class="kw">for</span> <span class="va">opinion</span> <span class="kw">in</span> <span class="va">sentence</span>.mined_opinions:
+        <span class="fn">print</span>(<span class="va">f</span><span class="st">"  {opinion.target.text}: {opinion.assessments[0].text} ({opinion.assessments[0].sentiment})"</span>)
+<span class="cm"># product: loved (positive)
+# support: hated (negative)</span>
+
+<span class="cm"># NER</span>
+<span class="va">entities</span> = client.<span class="fn">recognize_entities</span>(<span class="va">text</span>)[<span class="nu">0</span>].entities
+<span class="kw">for</span> <span class="va">e</span> <span class="kw">in</span> <span class="va">entities</span>:
+    <span class="fn">print</span>(<span class="va">f</span><span class="st">"{e.text} → {e.category} ({e.confidence_score:.2f})"</span>)
+<span class="cm"># John Smith → Person (0.99)
+# Microsoft  → Organization (0.98)</span>
+
+<span class="cm"># PII Detection + Redaction</span>
+<span class="va">pii</span> = client.<span class="fn">recognize_pii_entities</span>([<span class="st">"Call John at 555-1234, SSN: 123-45-6789"</span>])[<span class="nu">0</span>]
+<span class="fn">print</span>(<span class="st">"Redacted:"</span>, <span class="va">pii</span>.redacted_text)
+<span class="cm"># Redacted: Call *** at ***, SSN: ***</span></code></pre>
+</div>
+
+</div><!-- end phase-2 -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PHASE 3 — DEEP LEARNING FOR NLP
+══════════════════════════════════════════════════════════ -->
+<div class="phase-3">
+
+<div class="phase-header" id="phase3">
+  <div class="phase-badge">🧠 Phase 3 · Weeks 9–14</div>
+  <h2>Deep Learning for NLP</h2>
+  <p class="desc">When classical ML hits its limits, deep learning steps in. Neural networks learn complex patterns automatically — no manual feature engineering needed.</p>
+  <div class="week-tag">📅 Weeks 9 – 14</div>
+  <div class="progress" style="margin-top:14px;"><div class="progress-fill p-pink" style="width:50%"></div></div>
+</div>
+
+<!-- ─── 9. NEURAL NETWORK BASICS ─── -->
+<div class="section" id="p3-nn">
+  <h3><span class="icon">🧬</span> Neural Network Basics — How Machines Learn Patterns</h3>
+  <p>
+    A <strong>neural network</strong> is a system of interconnected layers of "neurons" —
+    mathematical functions that transform input numbers into output numbers.
+    Through training on examples, it automatically learns the right transformations.
+  </p>
+  <div class="box info">
+    <div class="bhead">🧠 Think of it like this</div>
+    <p>A neuron takes multiple inputs, multiplies each by a "weight" (importance),
+    sums them up, and passes through an activation function. <br/>
+    Millions of these neurons, stacked in layers, can approximate any function —
+    including "does this review have positive sentiment?"</p>
+  </div>
+
+  <h4>Feed-Forward Network for Text Classification</h4>
+<pre><code><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> TfidfVectorizer
+
+<span class="cm"># Convert text to TF-IDF vectors, then pass through a neural network</span>
+<span class="kw">class</span> <span class="fn">TextClassifierNN</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="va">self</span>, <span class="va">input_dim</span>, <span class="va">hidden_dim</span>, <span class="va">num_classes</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>()
+        <span class="va">self</span>.network = nn.<span class="fn">Sequential</span>(
+            nn.<span class="fn">Linear</span>(<span class="va">input_dim</span>, <span class="va">hidden_dim</span>),  <span class="cm"># Input layer</span>
+            nn.<span class="fn">ReLU</span>(),                           <span class="cm"># Activation — adds non-linearity</span>
+            nn.<span class="fn">Dropout</span>(<span class="nu">0.3</span>),                    <span class="cm"># Prevent overfitting</span>
+            nn.<span class="fn">Linear</span>(<span class="va">hidden_dim</span>, <span class="va">hidden_dim</span>),  <span class="cm"># Hidden layer</span>
+            nn.<span class="fn">ReLU</span>(),
+            nn.<span class="fn">Linear</span>(<span class="va">hidden_dim</span>, <span class="va">num_classes</span>) <span class="cm"># Output layer</span>
+        )
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="va">self</span>, <span class="va">x</span>):
+        <span class="kw">return</span> <span class="va">self</span>.<span class="fn">network</span>(<span class="va">x</span>)
+
+<span class="cm"># Training loop (simplified)</span>
+<span class="va">model</span> = <span class="fn">TextClassifierNN</span>(input_dim=<span class="nu">5000</span>, hidden_dim=<span class="nu">256</span>, num_classes=<span class="nu">2</span>)
+<span class="va">optimizer</span> = torch.optim.<span class="fn">Adam</span>(<span class="va">model</span>.parameters(), lr=<span class="nu">1e-3</span>)
+<span class="va">criterion</span> = nn.<span class="fn">CrossEntropyLoss</span>()
+
+<span class="kw">for</span> <span class="va">epoch</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">10</span>):
+    <span class="va">optimizer</span>.<span class="fn">zero_grad</span>()
+    <span class="va">outputs</span> = <span class="fn">model</span>(<span class="va">X_train_tensor</span>)   <span class="cm"># Forward pass</span>
+    <span class="va">loss</span> = <span class="fn">criterion</span>(<span class="va">outputs</span>, <span class="va">y_train_tensor</span>)
+    <span class="va">loss</span>.<span class="fn">backward</span>()                    <span class="cm"># Backpropagation</span>
+    <span class="va">optimizer</span>.<span class="fn">step</span>()                   <span class="cm"># Update weights</span>
+    <span class="fn">print</span>(<span class="va">f</span><span class="st">"Epoch {epoch+1}, Loss: {loss.item():.4f}"</span>)</code></pre>
+</div>
+
+<!-- ─── 10. RNN, LSTM, GRU ─── -->
+<div class="section" id="p3-rnn">
+  <h3><span class="icon">🔄</span> RNNs, LSTMs &amp; GRUs — Sequential Memory</h3>
+  <p>
+    Text is a <em>sequence</em> — word order matters. "Dog bites man" ≠ "Man bites dog".
+    Feed-forward networks ignore order. <strong>Recurrent Neural Networks (RNNs)</strong>
+    process text word-by-word, maintaining a "hidden state" (memory) from previous words.
+  </p>
+
+  <div class="box info">
+    <div class="bhead">🧠 RNN Analogy</div>
+    <p>Imagine reading a sentence word by word. As you read each word, you update your understanding.
+    "The movie was NOT..." — after reading "NOT", your understanding shifts completely.
+    An RNN does the same: each word updates the hidden state (understanding so far).</p>
+  </div>
+
+  <div class="box danger">
+    <div class="bhead">⚠️ RNN Problem: Vanishing Gradients</div>
+    <p>In long sentences, RNNs "forget" information from early words by the time they reach the end.
+    "The cat, which lived in a big house with many rooms and a garden, was hungry."
+    By "hungry", RNN has forgotten "cat". <strong>LSTM and GRU solve this!</strong></p>
+  </div>
+
+  <h4>LSTM — Long Short-Term Memory</h4>
+  <p>LSTM has three "gates" — like information checkpoints:</p>
+  <div class="cards">
+    <div class="card">
+      <div class="ci">🚪</div>
+      <h4>Forget Gate</h4>
+      <p>Decides what to FORGET from memory. "We just changed topic, forget old context."</p>
+    </div>
+    <div class="card">
+      <div class="ci">📥</div>
+      <h4>Input Gate</h4>
+      <p>Decides what NEW info to STORE. "This word is important, remember it!"</p>
+    </div>
+    <div class="card">
+      <div class="ci">📤</div>
+      <h4>Output Gate</h4>
+      <p>Decides what to OUTPUT based on current state. "Given memory + input, output this."</p>
+    </div>
+  </div>
+
+<pre><code><span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch
+
+<span class="kw">class</span> <span class="fn">LSTMClassifier</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="va">self</span>, <span class="va">vocab_size</span>, <span class="va">embed_dim</span>, <span class="va">hidden_dim</span>, <span class="va">num_classes</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>()
+        <span class="va">self</span>.embedding = nn.<span class="fn">Embedding</span>(<span class="va">vocab_size</span>, <span class="va">embed_dim</span>)   <span class="cm"># word → vector</span>
+        <span class="va">self</span>.lstm      = nn.<span class="fn">LSTM</span>(<span class="va">embed_dim</span>, <span class="va">hidden_dim</span>,
+                               batch_first=<span class="kw">True</span>, bidirectional=<span class="kw">True</span>)
+        <span class="va">self</span>.fc        = nn.<span class="fn">Linear</span>(<span class="va">hidden_dim</span>*<span class="nu">2</span>, <span class="va">num_classes</span>)  <span class="cm"># *2 for bidirectional</span>
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="va">self</span>, <span class="va">x</span>):
+        <span class="va">embedded</span> = <span class="va">self</span>.<span class="fn">embedding</span>(<span class="va">x</span>)           <span class="cm"># (batch, seq_len, embed_dim)</span>
+        <span class="va">output</span>, (<span class="va">hidden</span>, <span class="va">_</span>) = <span class="va">self</span>.<span class="fn">lstm</span>(<span class="va">embedded</span>)
+        <span class="cm"># Take final hidden state (concat forward + backward)</span>
+        <span class="va">hidden_cat</span> = torch.<span class="fn">cat</span>((<span class="va">hidden</span>[-<span class="nu">2</span>], <span class="va">hidden</span>[-<span class="nu">1</span>]), dim=<span class="nu">1</span>)
+        <span class="kw">return</span> <span class="va">self</span>.<span class="fn">fc</span>(<span class="va">hidden_cat</span>)</code></pre>
+
+  <h4>GRU — Gated Recurrent Unit (Simpler LSTM)</h4>
+<pre><code><span class="cm"># GRU has only 2 gates (vs 3 in LSTM) → faster, uses less memory</span>
+<span class="cm"># Often performs similarly to LSTM — use GRU as default unless you need LSTM's expressiveness</span>
+<span class="va">self</span>.gru = nn.<span class="fn">GRU</span>(input_size=<span class="nu">128</span>, hidden_size=<span class="nu">256</span>, 
+                  num_layers=<span class="nu">2</span>, batch_first=<span class="kw">True</span>, dropout=<span class="nu">0.3</span>)</code></pre>
+
+  <div class="tw">
+  <table>
+    <tr><th>Model</th><th>Memory</th><th>Speed</th><th>Long Sequences</th><th>Today's Status</th></tr>
+    <tr><td>RNN (vanilla)</td><td>Low</td><td>Fast</td><td>❌ Forgets</td><td>Mostly replaced</td></tr>
+    <tr><td>LSTM</td><td>Higher</td><td>Medium</td><td>✅ Good</td><td>Still used in some systems</td></tr>
+    <tr><td>GRU</td><td>Medium</td><td>Medium</td><td>✅ Good</td><td>Used when compute is limited</td></tr>
+    <tr><td><strong>Transformer</strong></td><td>High</td><td>Parallel</td><td>✅✅ Excellent</td><td>Dominates NLP today</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- ─── 11. SEQ2SEQ ─── -->
+<div class="section" id="p3-seq2seq">
+  <h3><span class="icon">🔁</span> Sequence-to-Sequence (Seq2Seq) Models</h3>
+  <p>
+    Some NLP tasks need to turn one sequence of words into <em>another</em> sequence —
+    translation, summarization, question answering. <strong>Seq2Seq</strong> models do exactly that.
+  </p>
+  <div class="box info">
+    <div class="bhead">🧠 Seq2Seq Structure</div>
+    <p><strong>Encoder:</strong> Reads the input sentence and compresses it into a "context vector" (the meaning).<br/>
+    <strong>Decoder:</strong> Takes that context vector and generates the output sentence word-by-word.<br/>
+    Problem: A single context vector is a bottleneck for long sentences → <strong>Attention mechanism solves this</strong> (covered in Phase 4).</p>
+  </div>
+
+  <div class="pipe">
+    <div class="pstep"><div class="pe">🇫🇷</div><span>"Bonjour le monde"</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">🔐</div><span>Encoder<br/>(LSTM/GRU)</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">📦</div><span>Context<br/>Vector</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">🔓</div><span>Decoder<br/>(LSTM/GRU)</span></div><div class="parr">→</div>
+    <div class="pstep"><div class="pe">🇬🇧</div><span>"Hello world"</span></div>
+  </div>
+</div>
+
+<!-- ─── 12. WORD EMBEDDINGS ─── -->
+<div class="section" id="p3-embeddings">
+  <h3><span class="icon">🗺️</span> Word Embeddings — Meaning as Vectors</h3>
+  <p>
+    Instead of one-hot encoding (which treats every word as completely unrelated),
+    <strong>word embeddings</strong> represent words as dense vectors in a high-dimensional space
+    where similar words end up close together.
+  </p>
+  <div class="box info">
+    <div class="bhead">🧠 The Famous Equation</div>
+    <p><strong>King − Man + Woman ≈ Queen</strong><br/>
+    This means the direction from "man" to "woman" (gender direction) is the same
+    as from "king" to "queen". Embeddings capture this mathematical structure of language!</p>
+  </div>
+
+  <h4>Word2Vec — Predicting Context</h4>
+  <p>Two training approaches:</p>
+  <div class="compare">
+    <div class="cbox">
+      <h5>CBOW (Continuous Bag of Words)</h5>
+      <ul>
+        <li>Input: surrounding words</li>
+        <li>Output: predict the middle word</li>
+        <li>"I __ Azure" → predict "love"</li>
+        <li>Faster, works better for frequent words</li>
+      </ul>
+    </div>
+    <div class="cbox">
+      <h5>Skip-gram</h5>
+      <ul>
+        <li>Input: middle word</li>
+        <li>Output: predict surrounding words</li>
+        <li>"love" → predict ["I", "Azure"]</li>
+        <li>Slower, better for rare words</li>
+      </ul>
+    </div>
+  </div>
+
+<pre><code><span class="cm"># Train Word2Vec with gensim</span>
+<span class="cm"># pip install gensim</span>
+<span class="kw">from</span> gensim.models <span class="kw">import</span> Word2Vec
+
+<span class="va">sentences</span> = [
+    [<span class="st">"i"</span>, <span class="st">"love"</span>, <span class="st">"azure"</span>, <span class="st">"ai"</span>],
+    [<span class="st">"azure"</span>, <span class="st">"openai"</span>, <span class="st">"is"</span>, <span class="st">"powerful"</span>],
+    [<span class="st">"nlp"</span>, <span class="st">"with"</span>, <span class="st">"transformers"</span>, <span class="st">"is"</span>, <span class="st">"amazing"</span>],
+    <span class="cm"># ... thousands of sentences in practice</span>
+]
+
+<span class="va">model</span> = <span class="fn">Word2Vec</span>(
+    sentences=<span class="va">sentences</span>,
+    vector_size=<span class="nu">100</span>,    <span class="cm"># embedding dimensions</span>
+    window=<span class="nu">5</span>,           <span class="cm"># context window size</span>
+    min_count=<span class="nu">1</span>,        <span class="cm"># ignore words with fewer occurrences</span>
+    sg=<span class="nu">1</span>                 <span class="cm"># 1=Skip-gram, 0=CBOW</span>
+)
+model.<span class="fn">save</span>(<span class="st">"word2vec.model"</span>)
+
+<span class="cm"># Find similar words</span>
+<span class="fn">print</span>(model.wv.<span class="fn">most_similar</span>(<span class="st">"azure"</span>, topn=<span class="nu">3</span>))
+<span class="cm"># [('openai', 0.92), ('ai', 0.87), ('cloud', 0.85)]</span>
+
+<span class="cm"># Word arithmetic</span>
+<span class="va">result</span> = model.wv.<span class="fn">most_similar</span>(positive=[<span class="st">'king'</span>, <span class="st">'woman'</span>], negative=[<span class="st">'man'</span>], topn=<span class="nu">1</span>)
+<span class="cm"># [('queen', 0.89)]</span></code></pre>
+
+  <h4>GloVe — Global Vectors</h4>
+<pre><code><span class="cm"># GloVe: trained on global word co-occurrence statistics
+# Download pre-trained: https://nlp.stanford.edu/projects/glove/</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">load_glove</span>(<span class="va">filepath</span>):
+    <span class="va">embeddings</span> = {}
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="va">filepath</span>, encoding=<span class="st">'utf-8'</span>) <span class="kw">as</span> <span class="va">f</span>:
+        <span class="kw">for</span> <span class="va">line</span> <span class="kw">in</span> <span class="va">f</span>:
+            <span class="va">parts</span> = <span class="va">line</span>.<span class="fn">split</span>()
+            <span class="va">word</span> = <span class="va">parts</span>[<span class="nu">0</span>]
+            <span class="va">vector</span> = np.<span class="fn">array</span>(<span class="va">parts</span>[<span class="nu">1</span>:], dtype=<span class="st">'float32'</span>)
+            <span class="va">embeddings</span>[<span class="va">word</span>] = <span class="va">vector</span>
+    <span class="kw">return</span> <span class="va">embeddings</span>
+
+<span class="va">glove</span> = <span class="fn">load_glove</span>(<span class="st">'glove.6B.100d.txt'</span>)
+<span class="fn">print</span>(<span class="va">glove</span>[<span class="st">'azure'</span>].shape)   <span class="cm"># (100,) — 100-dimensional vector</span></code></pre>
+
+  <h4>FastText — Handles Misspellings and Unknown Words</h4>
+<pre><code><span class="cm"># FastText uses character n-grams inside words
+# "playing" = "pla" + "lay" + "ayi" + "yin" + "ing"
+# So even UNSEEN words like "playyyying" get a reasonable embedding!</span>
+<span class="kw">from</span> gensim.models <span class="kw">import</span> FastText
+<span class="va">model</span> = <span class="fn">FastText</span>(sentences=<span class="va">sentences</span>, vector_size=<span class="nu">100</span>, window=<span class="nu">5</span>, min_count=<span class="nu">1</span>)
+<span class="fn">print</span>(model.wv[<span class="st">'azureeeee'</span>])  <span class="cm"># Works even for misspelled word!</span></code></pre>
+
+  <div class="azure-foundry">
+    <div class="af-header">🔵 Azure AI Foundry — Contextual Embeddings (Better than Word2Vec/GloVe)</div>
+    <p>Word2Vec gives the same vector for "bank" whether it means river bank or money bank.
+    Azure OpenAI embeddings are <strong>contextual</strong> — the vector depends on the full sentence context.
+    They're trained on billions of words and vastly outperform Word2Vec/GloVe for all modern tasks.</p>
+    <pre><code><span class="va">response</span> = client.embeddings.<span class="fn">create</span>(
+    input=[<span class="st">"I went to the river bank"</span>,     <span class="cm"># "bank" = financial institution context</span>
+           <span class="st">"I deposited money at the bank"</span>],  <span class="cm"># "bank" = river context</span>
+    model=<span class="st">"text-embedding-3-small"</span>
+)
+<span class="cm"># The two "bank" vectors will be DIFFERENT because context is encoded!
+# Word2Vec would give IDENTICAL vectors for "bank" in both sentences.</span></code></pre>
+  </div>
+</div>
+
+<!-- ─── 13. DEEP NLP TASKS ─── -->
+<div class="section" id="p3-tasks">
+  <h3><span class="icon">🎯</span> Core NLP Tasks with Deep Learning</h3>
+
+  <h4>Text Classification with LSTM</h4>
+<pre><code><span class="cm"># Full pipeline: text → tokens → embeddings → LSTM → classify</span>
+<span class="kw">import</span> torch
+<span class="kw">from</span> torchtext.data.utils <span class="kw">import</span> get_tokenizer
+<span class="kw">from</span> torchtext.vocab <span class="kw">import</span> build_vocab_from_iterator
+
+<span class="va">tokenizer</span> = <span class="fn">get_tokenizer</span>(<span class="st">'basic_english'</span>)
+
+<span class="cm"># Build vocab from training data</span>
+<span class="kw">def</span> <span class="fn">yield_tokens</span>(<span class="va">texts</span>):
+    <span class="kw">for</span> <span class="va">text</span> <span class="kw">in</span> <span class="va">texts</span>:
+        <span class="kw">yield</span> <span class="fn">tokenizer</span>(<span class="va">text</span>)
+
+<span class="va">vocab</span> = <span class="fn">build_vocab_from_iterator</span>(<span class="fn">yield_tokens</span>(<span class="va">train_texts</span>), specials=[<span class="st">'&lt;unk&gt;'</span>, <span class="st">'&lt;pad&gt;'</span>])
+<span class="va">vocab</span>.<span class="fn">set_default_index</span>(<span class="va">vocab</span>[<span class="st">'&lt;unk&gt;'</span>])
+
+<span class="cm"># Text → token IDs → pad to same length → LSTM → predict</span></code></pre>
+
+  <h4>Sentiment Analysis Deep Dive</h4>
+<pre><code><span class="cm"># Using Keras (TensorFlow backend) — simpler API for learning</span>
+<span class="kw">from</span> tensorflow.keras.models <span class="kw">import</span> Sequential
+<span class="kw">from</span> tensorflow.keras.layers <span class="kw">import</span> Embedding, LSTM, Dense, Dropout, GlobalMaxPool1D
+<span class="kw">from</span> tensorflow.keras.preprocessing.text <span class="kw">import</span> Tokenizer
+<span class="kw">from</span> tensorflow.keras.preprocessing.sequence <span class="kw">import</span> pad_sequences
+
+<span class="cm"># Tokenize text</span>
+<span class="va">tokenizer</span> = <span class="fn">Tokenizer</span>(num_words=<span class="nu">10000</span>)
+<span class="va">tokenizer</span>.<span class="fn">fit_on_texts</span>(<span class="va">train_texts</span>)
+<span class="va">X_train</span> = <span class="fn">pad_sequences</span>(<span class="va">tokenizer</span>.<span class="fn">texts_to_sequences</span>(<span class="va">train_texts</span>), maxlen=<span class="nu">200</span>)
+
+<span class="cm"># Model: Embedding → LSTM → Dense</span>
+<span class="va">model</span> = <span class="fn">Sequential</span>([
+    <span class="fn">Embedding</span>(input_dim=<span class="nu">10000</span>, output_dim=<span class="nu">128</span>, input_length=<span class="nu">200</span>),
+    <span class="fn">LSTM</span>(<span class="nu">128</span>, return_sequences=<span class="kw">True</span>),
+    <span class="fn">GlobalMaxPool1D</span>(),
+    <span class="fn">Dropout</span>(<span class="nu">0.3</span>),
+    <span class="fn">Dense</span>(<span class="nu">64</span>, activation=<span class="st">'relu'</span>),
+    <span class="fn">Dense</span>(<span class="nu">1</span>, activation=<span class="st">'sigmoid'</span>)    <span class="cm"># Binary: positive or negative</span>
+])
+
+<span class="va">model</span>.<span class="fn">compile</span>(optimizer=<span class="st">'adam'</span>, loss=<span class="st">'binary_crossentropy'</span>, metrics=[<span class="st">'accuracy'</span>])
+<span class="va">model</span>.<span class="fn">fit</span>(<span class="va">X_train</span>, <span class="va">y_train</span>, epochs=<span class="nu">5</span>, batch_size=<span class="nu">64</span>, validation_split=<span class="nu">0.1</span>)</code></pre>
+</div>
+
+<!-- ─── 14. TOOLS ─── -->
+<div class="section" id="p3-tools">
+  <h3><span class="icon">🛠️</span> Deep Learning Tools — TensorFlow, PyTorch, Keras</h3>
+
+  <div class="cards">
+    <div class="card">
+      <div class="ci">🔥</div>
+      <h4>PyTorch</h4>
+      <p>Flexible, Pythonic, researcher-favourite. Dynamic computation graph — easier to debug. Industry standard for NLP research.</p>
+      <span class="tag">pip install torch</span>
+    </div>
+    <div class="card">
+      <div class="ci">🟢</div>
+      <h4>TensorFlow</h4>
+      <p>Google's framework. Great for production deployment (TFLite, TF Serving). Static graph by default.</p>
+      <span class="tag">pip install tensorflow</span>
+    </div>
+    <div class="card">
+      <div class="ci">🧁</div>
+      <h4>Keras</h4>
+      <p>High-level API on top of TensorFlow. Much simpler code. Perfect for learning and rapid prototyping.</p>
+      <span class="tag">Built into TF</span>
+    </div>
+    <div class="card">
+      <div class="ci">⚡</div>
+      <h4>PyTorch Lightning</h4>
+      <p>Structured PyTorch — removes boilerplate. Handles distributed training, logging, checkpointing.</p>
+      <span class="tag">pip install lightning</span>
+    </div>
+  </div>
+
+  <h4>PyTorch vs Keras — Which to Learn?</h4>
+  <div class="compare">
+    <div class="cbox">
+      <h5>🔥 PyTorch — Recommended for NLP</h5>
+      <ul>
+        <li>Used by HuggingFace Transformers (the NLP standard library)</li>
+        <li>All cutting-edge research uses PyTorch</li>
+        <li>More control, easier debugging with pdb</li>
+        <li>Dynamic graphs = natural Python loops</li>
+        <li>Azure ML natively supports PyTorch training jobs</li>
+      </ul>
+    </div>
+    <div class="cbox">
+      <h5>🧁 Keras — Good for Beginners</h5>
+      <ul>
+        <li>Much simpler syntax — learn concepts faster</li>
+        <li>Great for standard architectures (LSTM, CNN)</li>
+        <li>Less boilerplate code</li>
+        <li>TFLite conversion for mobile deployment</li>
+        <li>Azure ML also supports TF/Keras</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 15. AZURE ML FOR DL ─── -->
+<div class="section" id="p3-azure">
+  <h3><span class="icon">🔵</span> Azure ML for Deep Learning NLP</h3>
+
+  <div class="azure-foundry">
+    <div class="af-header">🔵 Azure AI Foundry — Azure Machine Learning for DL Training</div>
+    <p>Training LSTM/GRU on a local CPU is painfully slow. Azure ML lets you run training jobs
+    on GPU clusters (V100, A100) with just a few lines of code — and then deploy as REST endpoints.</p>
+    <pre><code><span class="kw">from</span> azure.ai.ml <span class="kw">import</span> MLClient, command
+<span class="kw">from</span> azure.ai.ml.entities <span class="kw">import</span> Environment
+<span class="kw">from</span> azure.identity <span class="kw">import</span> DefaultAzureCredential
+
+<span class="va">ml_client</span> = <span class="fn">MLClient</span>(
+    credential=<span class="fn">DefaultAzureCredential</span>(),
+    subscription_id=<span class="st">"YOUR_SUBSCRIPTION"</span>,
+    resource_group_name=<span class="st">"YOUR_RG"</span>,
+    workspace_name=<span class="st">"YOUR_WORKSPACE"</span>
+)
+
+<span class="cm"># Submit training job on GPU cluster</span>
+<span class="va">job</span> = <span class="fn">command</span>(
+    code=<span class="st">"./src"</span>,                        <span class="cm"># Your training code folder</span>
+    command=<span class="st">"python train_lstm.py --epochs 20"</span>,
+    environment=<span class="st">"AzureML-pytorch-1.13-gpu@latest"</span>,
+    compute=<span class="st">"gpu-cluster"</span>,              <span class="cm"># A100 GPU cluster</span>
+    display_name=<span class="st">"lstm-sentiment-train"</span>,
+)
+<span class="va">returned_job</span> = ml_client.jobs.<span class="fn">create_or_update</span>(<span class="va">job</span>)
+<span class="fn">print</span>(<span class="va">f</span><span class="st">"Job submitted: {returned_job.studio_url}"</span>)</code></pre>
+    <p style="font-size:.8rem;color:var(--text-dim);">💡 In Azure AI Foundry portal → Machine Learning → Create → Command Job → Select GPU compute. Much easier through UI for beginners.</p>
+  </div>
+</div>
+
+</div><!-- end phase-3 -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PHASE 4 — TRANSFORMERS & MODERN NLP
+══════════════════════════════════════════════════════════ -->
+<div class="phase-4">
+
+<div class="phase-header" id="phase4">
+  <div class="phase-badge">🚀 Phase 4 · Weeks 15–22</div>
+  <h2>Transformers &amp; Modern NLP</h2>
+  <p class="desc">The revolution that changed everything. Transformers power GPT-4, BERT, and every modern AI system. Master this and you master modern NLP.</p>
+  <div class="week-tag">📅 Weeks 15 – 22</div>
+  <div class="progress" style="margin-top:14px;"><div class="progress-fill p-purple" style="width:75%"></div></div>
+</div>
+
+<!-- ─── 16. ATTENTION ─── -->
+<div class="section" id="p4-attention">
+  <h3><span class="icon">👁️</span> Attention Mechanism — The Breakthrough Idea</h3>
+  <p>
+    The problem with RNNs: a single context vector can't capture all information from long sequences.
+    The <strong>Attention Mechanism</strong> (2015) says: "Instead of a single vector, let the decoder
+    look back at ALL encoder states and decide which parts are most relevant."
+  </p>
+
+  <div class="box info">
+    <div class="bhead">🧠 Attention — Simple Analogy</div>
+    <p>When translating "The animal didn't cross the street because <u>it</u> was too tired",
+    the word "it" should attend (pay attention) to "animal" not "street".<br/>
+    Attention computes a <strong>weight</strong> for each previous word: how relevant is this word
+    for generating my current output word? High weight = more relevant.</p>
+  </div>
+
+  <h4>Self-Attention — The Transformer Core</h4>
+  <p>
+    <strong>Self-attention</strong> is attention applied <em>within</em> a sequence (each word attends to every other word).
+    This captures relationships regardless of distance — "was" attends to "animal" even if they're 10 words apart.
+  </p>
+
+  <p>For each word, self-attention creates 3 vectors: <strong>Q</strong>uery, <strong>K</strong>ey, <strong>V</strong>alue</p>
+<pre><code><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+<span class="kw">import</span> math
+
+<span class="kw">def</span> <span class="fn">scaled_dot_product_attention</span>(<span class="va">Q</span>, <span class="va">K</span>, <span class="va">V</span>, <span class="va">mask</span>=<span class="kw">None</span>):
+    <span class="st">"""
+    Q: Query  — "What am I looking for?"
+    K: Key    — "What do I contain?"
+    V: Value  — "What do I actually provide?"
+    
+    1. Multiply Q by K^T → attention scores (how relevant is each word?)
+    2. Scale by sqrt(d_k) → prevent exploding gradients
+    3. Softmax → convert to probabilities summing to 1
+    4. Multiply by V → weighted sum of values
+    """</span>
+    <span class="va">d_k</span> = <span class="va">Q</span>.size(-<span class="nu">1</span>)
+    <span class="va">scores</span> = torch.<span class="fn">matmul</span>(<span class="va">Q</span>, <span class="va">K</span>.<span class="fn">transpose</span>(-<span class="nu">2</span>, -<span class="nu">1</span>)) / math.<span class="fn">sqrt</span>(<span class="va">d_k</span>)
+    <span class="kw">if</span> <span class="va">mask</span> <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+        <span class="va">scores</span> = <span class="va">scores</span>.<span class="fn">masked_fill</span>(<span class="va">mask</span> == <span class="nu">0</span>, -<span class="nu">1e9</span>)
+    <span class="va">attn_weights</span> = F.<span class="fn">softmax</span>(<span class="va">scores</span>, dim=-<span class="nu">1</span>)
+    <span class="kw">return</span> torch.<span class="fn">matmul</span>(<span class="va">attn_weights</span>, <span class="va">V</span>), <span class="va">attn_weights</span></code></pre>
+
+  <h4>Multi-Head Attention</h4>
+  <p>
+    Instead of one attention computation, run it <strong>h times in parallel</strong> with different
+    learned projections. Each "head" learns to attend to different types of relationships
+    (syntax, semantics, coreference, etc.).
+  </p>
+<pre><code><span class="kw">class</span> <span class="fn">MultiHeadAttention</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="va">self</span>, <span class="va">d_model</span>=<span class="nu">512</span>, <span class="va">n_heads</span>=<span class="nu">8</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>()
+        <span class="va">self</span>.n_heads = <span class="va">n_heads</span>
+        <span class="va">self</span>.d_k = <span class="va">d_model</span> // <span class="va">n_heads</span>   <span class="cm"># 512/8 = 64 per head</span>
+
+        <span class="va">self</span>.W_Q = nn.<span class="fn">Linear</span>(<span class="va">d_model</span>, <span class="va">d_model</span>)  <span class="cm"># Query projection</span>
+        <span class="va">self</span>.W_K = nn.<span class="fn">Linear</span>(<span class="va">d_model</span>, <span class="va">d_model</span>)  <span class="cm"># Key projection</span>
+        <span class="va">self</span>.W_V = nn.<span class="fn">Linear</span>(<span class="va">d_model</span>, <span class="va">d_model</span>)  <span class="cm"># Value projection</span>
+        <span class="va">self</span>.W_O = nn.<span class="fn">Linear</span>(<span class="va">d_model</span>, <span class="va">d_model</span>)  <span class="cm"># Output projection</span>
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="va">self</span>, <span class="va">Q</span>, <span class="va">K</span>, <span class="va">V</span>):
+        <span class="va">batch</span> = <span class="va">Q</span>.size(<span class="nu">0</span>)
+        <span class="cm"># Project and split into heads</span>
+        <span class="va">Q</span> = <span class="va">self</span>.W_Q(<span class="va">Q</span>).<span class="fn">view</span>(<span class="va">batch</span>, -<span class="nu">1</span>, <span class="va">self</span>.n_heads, <span class="va">self</span>.d_k).<span class="fn">transpose</span>(<span class="nu">1</span>,<span class="nu">2</span>)
+        <span class="va">K</span> = <span class="va">self</span>.W_K(<span class="va">K</span>).<span class="fn">view</span>(<span class="va">batch</span>, -<span class="nu">1</span>, <span class="va">self</span>.n_heads, <span class="va">self</span>.d_k).<span class="fn">transpose</span>(<span class="nu">1</span>,<span class="nu">2</span>)
+        <span class="va">V</span> = <span class="va">self</span>.W_V(<span class="va">V</span>).<span class="fn">view</span>(<span class="va">batch</span>, -<span class="nu">1</span>, <span class="va">self</span>.n_heads, <span class="va">self</span>.d_k).<span class="fn">transpose</span>(<span class="nu">1</span>,<span class="nu">2</span>)
+        <span class="cm"># Attention for each head simultaneously (parallelized!)</span>
+        <span class="va">attn_output</span>, _ = <span class="fn">scaled_dot_product_attention</span>(<span class="va">Q</span>, <span class="va">K</span>, <span class="va">V</span>)
+        <span class="cm"># Concatenate heads and project</span>
+        <span class="va">attn_output</span> = <span class="va">attn_output</span>.<span class="fn">transpose</span>(<span class="nu">1</span>,<span class="nu">2</span>).<span class="fn">contiguous</span>().<span class="fn">view</span>(<span class="va">batch</span>, -<span class="nu">1</span>, <span class="va">self</span>.n_heads*<span class="va">self</span>.d_k)
+        <span class="kw">return</span> <span class="va">self</span>.W_O(<span class="va">attn_output</span>)</code></pre>
+
+  <h4>Positional Encoding — Injecting Word Order</h4>
+  <p>
+    Unlike RNNs, transformers process all words simultaneously — they lose word order!
+    <strong>Positional encoding</strong> adds a position-specific signal to each word embedding
+    so the model knows "this word is position 3, this one is position 7."
+  </p>
+<pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">positional_encoding</span>(<span class="va">max_len</span>, <span class="va">d_model</span>):
+    <span class="va">PE</span> = np.<span class="fn">zeros</span>((<span class="va">max_len</span>, <span class="va">d_model</span>))
+    <span class="kw">for</span> <span class="va">pos</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="va">max_len</span>):
+        <span class="kw">for</span> <span class="va">i</span> <span class="

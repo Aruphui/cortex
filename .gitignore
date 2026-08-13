@@ -1,0 +1,25 @@
+# Secrets — NEVER commit these
+.env
+*.env
+*.env.*
+
+# SQLite DB (ephemeral, re-seeded on Vercel)
+cortex.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

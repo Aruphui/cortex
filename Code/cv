@@ -1,0 +1,80 @@
+# ARUP JYOTI HUI
+**Cloud/DevOps Engineer | Aspiring Gen AI Engineer**
++91-6372809100 | arupjyoti1699@gmail.com | India
+
+---
+
+## SUMMARY
+Cloud and DevOps Engineer with hands-on, self-driven expertise in building production-style Generative AI systems, RAG pipelines, and agentic workflows. Strong foundation in Azure infrastructure, containerization, and CI/CD, combined with practical experience in LLM orchestration using LangChain and LangGraph, vector search, and tool-calling agents — built through independent projects and internal exploration. Seeking to transition into a Gen AI Engineer role to apply this dual strength in cloud infrastructure and applied AI engineering.
+
+---
+
+## PROFESSIONAL EXPERIENCE
+
+### Gen AI / Cloud & DevOps Engineer
+**Metlife Ltd.** | 05-09-2024 – Present
+- Manage and optimize Azure cloud infrastructure (VMs, storage, networking, AKS) supporting engineering and operations workloads.
+- Containerized and orchestrated internal services using Docker and Kubernetes (AKS), enabling high availability, auto-scaling, and zero-downtime deployments.
+- Built CI/CD pipelines and automated infrastructure provisioning using Terraform and Azure DevOps.
+- Actively upskilled in Generative AI technologies (Azure OpenAI, LangChain, LangGraph, RAG architecture) through self-directed learning and internal proof-of-concept exploration, applying this knowledge to personal and side projects (see Projects section).
+- Leveraged GitHub Copilot and Microsoft Copilot to accelerate infrastructure scripting, log analysis, and documentation.
+
+### DevOps Engineer
+**Coforge Ltd.** | 22-05-2023 – 04-09-2024
+- Prototyped a Retrieval-Augmented Generation (RAG) pipeline to automate internal knowledge retrieval — including document ingestion, chunking, vector embedding, and LLM-based response generation — to support internal engineering teams.
+- Implemented semantic and vector search using Azure AI Search, enabling context-aware document retrieval for early-stage GenAI tooling initiatives within the org.
+- Integrated Azure OpenAI embeddings with internal document stores to ground LLM responses in company-specific knowledge, reducing manual lookup effort for engineering queries.
+- Designed and implemented CI/CD pipelines using Jenkins and Azure DevOps to enhance automation, streamline software development, and optimize deployment workflows.
+- Leveraged Terraform and Infrastructure as Code (IaC) methodologies to ensure efficient, consistent, and reproducible infrastructure provisioning.
+- Managed Azure cloud services including Virtual Machines, Azure Container Instances, Kubernetes Service, Docker, Azure App Service, and Logic Apps.
+
+### Cloud and DevOps Engineer
+**Wipro Ltd.** | 08-11-2021 – 19-05-2023
+- Proficient in Azure DevOps practices with expertise in Infrastructure as a Service (IaaS) and Platform as a Service (PaaS) solutions.
+- Leveraged Docker, Azure Kubernetes Service (AKS), Git, and comprehensive monitoring tools to manage scalable cloud environments.
+- Deployed serverless solutions utilizing Logic Apps and Service Bus for streamlined integrations.
+
+---
+
+## PERSONAL PROJECTS
+
+### Agentic AI System for Azure Resource Deployment & Technical Q&A (Self-Initiated)
+- Designed and built a multi-agent AI system to assist with Azure infrastructure operations, combining RAG-based question answering with autonomous tool-calling for resource provisioning.
+- **RAG for Technical Q&A:** Implemented a Retrieval-Augmented Generation pipeline over internal technical architecture documents and infrastructure documentation, using Azure AI Search (vector + semantic hybrid search) and Azure OpenAI embeddings to ground LLM answers and reduce hallucinations.
+- **Tool-Calling Agent for Resource Creation:** Built a tool-calling agent capable of interpreting natural language requests and autonomously provisioning Azure resources (VMs, storage, networking) via API/CLI tool integration, eliminating manual IaC steps for routine deployments.
+- **Orchestration with LangChain/LangGraph:** Used LangChain for agent and chain orchestration and LangGraph to design multi-step, stateful agentic workflows — coordinating retrieval, reasoning, and tool-execution steps into a single end-to-end pipeline.
+- **Evaluation & Reliability:** Incorporated LangSmith for tracing, debugging, and evaluating LLM/agent responses — enabling prompt iteration, regression testing, and monitoring of output quality.
+- Deployed the system using Docker and Kubernetes concepts to simulate production-style, scalable rollout.
+
+---
+
+## TECHNICAL SKILLS
+
+**GenAI & AI:** LLM, Azure OpenAI Service (GPT-4o), RAG Pipelines, Agentic AI, Azure AI Foundry, Azure AI Search (Vector + Semantic)
+
+**LLM Frameworks:** LangChain, LangGraph, LangSmith, Prompt Engineering, Multi-Agent Systems, Tool Calling, Memory Management
+
+**DevOps & Cloud:** Docker, Kubernetes (AKS), Terraform, Azure DevOps, Jenkins, Git, Azure IaaS & PaaS, Azure Networking, AWS, Linux
+
+**AI Tooling:** GitHub Copilot, Microsoft Copilot
+
+---
+
+## CERTIFICATIONS
+- Microsoft Certified: DevOps Engineer Expert (AZ-400)
+- Azure Administrator Associate (AZ-104)
+- Network Engineer Associate (AZ-700)
+- Terraform Associate (002)
+- Azure Solution Architect (AZ-305)
+- Azure AI Engineer Associate (AI-102)
+
+---
+
+## EDUCATION
+**Master of Computer Applications** — Chandigarh University | 07-2023 – 07-2025
+**Bachelor of Computer Application** — Fakir Mohan University | 07-2018 – 07-2021
+
+---
+
+## LANGUAGES
+English | Hindi | Odia

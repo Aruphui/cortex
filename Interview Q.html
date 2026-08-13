@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LangChain & LangGraph – Gen AI Engineer Interview Q&A</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --accent: #6c63ff;
+      --accent2: #00c8a0;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2d3148;
+      --tag-lc: #1e3a5f;
+      --tag-lg: #1a3a2a;
+      --tag-lc-text: #60a5fa;
+      --tag-lg-text: #34d399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.7;
+    }
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+    }
+    header h1 { font-size: 2rem; color: var(--accent); margin-bottom: .4rem; }
+    header p { color: var(--muted); font-size: .95rem; }
+    .badge {
+      display: inline-block;
+      padding: .2rem .7rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 600;
+      margin-left: .5rem;
+      vertical-align: middle;
+    }
+    .badge-lc { background: var(--tag-lc); color: var(--tag-lc-text); }
+    .badge-lg { background: var(--tag-lg); color: var(--tag-lg-text); }
+    .badge-both { background: #2d1f3d; color: #c084fc; }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 2rem;
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .82rem;
+      padding: .25rem .6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      transition: all .2s;
+    }
+    nav a:hover { color: var(--text); border-color: var(--accent); }
+
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent2);
+      border-left: 4px solid var(--accent2);
+      padding-left: .75rem;
+      margin: 2.5rem 0 1rem;
+    }
+
+    details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: .85rem;
+      transition: border-color .2s;
+    }
+    details[open] { border-color: var(--accent); }
+    summary {
+      cursor: pointer;
+      padding: 1rem 1.2rem;
+      font-weight: 600;
+      font-size: .97rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      list-style: none;
+      user-select: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before {
+      content: '▶';
+      font-size: .7rem;
+      color: var(--accent);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    details[open] summary::before { transform: rotate(90deg); }
+    .q-num {
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .answer {
+      padding: 0 1.2rem 1.2rem 2.6rem;
+      color: var(--text);
+      font-size: .93rem;
+    }
+    .answer p { margin-bottom: .7rem; }
+    .answer ul, .answer ol { padding-left: 1.4rem; margin-bottom: .7rem; }
+    .answer li { margin-bottom: .3rem; }
+    .answer code {
+      background: var(--surface2);
+      color: #f8c97d;
+      padding: .1rem .35rem;
+      border-radius: 4px;
+      font-size: .88rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+    }
+    .answer pre {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: .6rem 0;
+    }
+    .answer pre code {
+      background: none;
+      padding: 0;
+      color: #a9d1f7;
+      font-size: .87rem;
+    }
+    .answer strong { color: #f1f5f9; }
+    .answer em { color: var(--accent2); font-style: normal; font-weight: 600; }
+    .tip {
+      background: #1a2a1a;
+      border-left: 3px solid var(--accent2);
+      padding: .6rem .9rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: .5rem;
+      font-size: .88rem;
+      color: #86efac;
+    }
+    .warn {
+      background: #2a1a1a;
+      border-left: 3px solid #f87171;
+      padding: .6rem .9rem;
+      border-radius: 0 6px 6px 0;
+      margin-top: .5rem;
+      font-size: .88rem;
+      color: #fca5a5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .82rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🦜 LangChain &amp; LangGraph</h1>
+  <p>Comprehensive Gen AI Engineer Interview Q&amp;A — 2025/2026 Edition</p>
+</header>
+
+<nav>
+  <a href="#fundamentals">LC Fundamentals</a>
+  <a href="#chains">Chains &amp; LCEL</a>
+  <a href="#memory">Memory</a>
+  <a href="#agents">Agents &amp; Tools</a>
+  <a href="#rag">RAG</a>
+  <a href="#callbacks">Callbacks &amp; Streaming</a>
+  <a href="#lg-core">LG Core</a>
+  <a href="#lg-state">LG State</a>
+  <a href="#lg-advanced">LG Advanced</a>
+  <a href="#production">Production</a>
+  <a href="#comparison">Design &amp; Comparison</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="fundamentals">🔷 LangChain — Fundamentals</div>
+
+<details>
+  <summary><span class="q-num">Q1</span> What is LangChain and what problems does it solve? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p><strong>LangChain</strong> is an open-source framework (Python &amp; JS) for building LLM-powered applications. It provides abstractions for:</p>
+    <ul>
+      <li><strong>Model I/O</strong> — unified interface to any LLM/Chat model</li>
+      <li><strong>Chains</strong> — composable sequences of calls</li>
+      <li><strong>Memory</strong> — conversation state management</li>
+      <li><strong>Agents</strong> — LLM-directed tool use</li>
+      <li><strong>Retrieval</strong> — RAG pipelines over external data</li>
+    </ul>
+    <p>It solves boilerplate around prompt templating, output parsing, context window management, and multi-step reasoning without writing glue code from scratch.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q2</span> Explain the LangChain component hierarchy. <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Schema</strong> — base types: <code>BaseMessage</code>, <code>Document</code>, <code>ChatGeneration</code></li>
+      <li><strong>Models</strong> — <code>LLM</code>, <code>ChatModel</code>, <code>Embeddings</code></li>
+      <li><strong>Prompts</strong> — <code>PromptTemplate</code>, <code>ChatPromptTemplate</code>, <code>FewShotPromptTemplate</code></li>
+      <li><strong>Output Parsers</strong> — <code>StrOutputParser</code>, <code>PydanticOutputParser</code>, <code>JsonOutputParser</code></li>
+      <li><strong>Chains / LCEL</strong> — composable runnables</li>
+      <li><strong>Memory</strong> — <code>ConversationBufferMemory</code>, etc.</li>
+      <li><strong>Agents &amp; Tools</strong> — ReAct, function-calling agents</li>
+      <li><strong>Retrievers &amp; Vector Stores</strong> — FAISS, Chroma, Pinecone…</li>
+      <li><strong>Callbacks</strong> — tracing, logging, streaming</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q3</span> What is the Runnable interface and why is it central to LangChain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Every component in LCEL implements <code>Runnable</code>, which exposes:</p>
+    <ul>
+      <li><code>invoke(input)</code> — single synchronous call</li>
+      <li><code>stream(input)</code> — token-by-token generator</li>
+      <li><code>batch(inputs)</code> — parallel execution</li>
+      <li><code>ainvoke / astream / abatch</code> — async variants</li>
+    </ul>
+    <p>Because every piece shares the same interface, you can pipe them with <code>|</code> regardless of whether the piece is a prompt, model, retriever, or custom function. This enables <em>uniform composition</em> without wrapper boilerplate.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q4</span> Difference between <code>LLM</code> and <code>ChatModel</code> in LangChain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>LLM</strong> — takes a plain string, returns a plain string. Models: <code>OpenAI</code> (text-davinci-003), Cohere, etc.</li>
+      <li><strong>ChatModel</strong> — takes a list of <code>BaseMessage</code> (<code>SystemMessage</code>, <code>HumanMessage</code>, <code>AIMessage</code>), returns a <code>BaseMessage</code>. Models: <code>ChatOpenAI</code>, <code>ChatAnthropic</code>.</li>
+    </ul>
+    <p>Modern GPT-4, Claude, Gemini are all chat models. Prefer <code>ChatModel</code> for dialogue applications.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q5</span> What are the main prompt template types and when to use each? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>PromptTemplate</strong> — plain string with <code>{variable}</code> placeholders. Use for LLMs.</li>
+      <li><strong>ChatPromptTemplate</strong> — list of message templates (system, human, ai). Use for chat models.</li>
+      <li><strong>FewShotPromptTemplate</strong> — includes example selector + prefix/suffix. Good for few-shot in-context learning.</li>
+      <li><strong>FewShotChatMessagePromptTemplate</strong> — few-shot for chat models.</li>
+      <li><strong>MessagesPlaceholder</strong> — slot for injecting a list of messages (e.g., conversation history) into a <code>ChatPromptTemplate</code>.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q6</span> How does LangChain handle output parsing and what parsers exist? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Output parsers transform raw model output into structured data:</p>
+    <ul>
+      <li><code>StrOutputParser</code> — extracts <code>.content</code> as plain string</li>
+      <li><code>JsonOutputParser</code> — parses JSON from model output</li>
+      <li><code>PydanticOutputParser</code> — validates against a Pydantic model; injects format instructions into the prompt via <code>get_format_instructions()</code></li>
+      <li><code>CommaSeparatedListOutputParser</code></li>
+      <li><code>StructuredOutputParser</code> — schema-driven without Pydantic</li>
+      <li><code>XMLOutputParser</code>, <code>MarkdownListOutputParser</code></li>
+    </ul>
+    <div class="tip">💡 With <code>model.with_structured_output(MyPydanticModel)</code> you can skip the parser — the model itself returns validated objects via function-calling.</div>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="chains">⛓️ Chains &amp; LCEL</div>
+
+<details>
+  <summary><span class="q-num">Q7</span> What is LCEL (LangChain Expression Language)? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>LCEL is a declarative syntax introduced in LangChain v0.1 for composing <code>Runnable</code> components using the <code>|</code> pipe operator:</p>
+    <pre><code>chain = prompt | llm | StrOutputParser()
+result = chain.invoke({"topic": "black holes"})</code></pre>
+    <p>Benefits:</p>
+    <ul>
+      <li>Automatic async, streaming, and batch support</li>
+      <li>Built-in <code>RunnablePassthrough</code>, <code>RunnableParallel</code>, <code>RunnableLambda</code></li>
+      <li>First-class LangSmith tracing</li>
+      <li>No hidden state — chains are pure data-flow graphs</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q8</span> Explain <code>RunnableParallel</code>, <code>RunnablePassthrough</code>, and <code>RunnableLambda</code>. <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>RunnableParallel</strong> — runs multiple runnables on the same input simultaneously and returns a dict of results. Great for fan-out (e.g., retrieve context AND reformat query in parallel).</li>
+      <li><strong>RunnablePassthrough</strong> — passes input through unchanged. Used to thread the original question alongside retrieved docs into a prompt.</li>
+      <li><strong>RunnableLambda</strong> — wraps any Python function as a Runnable so it participates in streaming and tracing.</li>
+    </ul>
+    <pre><code>from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+
+chain = RunnableParallel(
+    context=retriever,
+    question=RunnablePassthrough()
+) | prompt | llm | StrOutputParser()</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q9</span> How does streaming work in LCEL and why does it matter? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Every <code>Runnable</code> exposes <code>.stream()</code> / <code>.astream()</code> returning a generator of partial outputs. LCEL propagates streaming end-to-end:</p>
+    <pre><code>for chunk in chain.stream({"question": "Explain LCEL"}):
+    print(chunk, end="", flush=True)</code></pre>
+    <p>Matters because:</p>
+    <ul>
+      <li>Reduces perceived latency in chat UIs (first token arrives quickly)</li>
+      <li>Lets you abort expensive calls early</li>
+      <li>Required for production-grade APIs and WebSocket delivery</li>
+    </ul>
+    <p><code>astream_events</code> gives fine-grained event hooks (on_llm_start, on_chain_end, etc.) useful for debugging.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q10</span> What are legacy chains vs LCEL chains? When would you still use legacy? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p><strong>Legacy chains</strong> (<code>LLMChain</code>, <code>ConversationalRetrievalChain</code>, <code>RetrievalQA</code>) predate LCEL and use class-based composition. They are now deprecated but still widely found in existing codebases.</p>
+    <p><strong>LCEL chains</strong> are composable runnables — more transparent, better streaming, easier to test.</p>
+    <p>You might keep legacy chains when maintaining old code or using community integrations not yet rewritten.</p>
+    <div class="warn">⚠️ New projects should always use LCEL. Legacy chains will be removed in LangChain v1.x.</div>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q11</span> How do you add retry and fallback logic to a chain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <pre><code># Retry on RateLimitError up to 3 times
+robust_llm = llm.with_retry(stop_after_attempt=3)
+
+# Fallback to a cheaper model
+fallback_chain = primary_chain.with_fallbacks([backup_chain])</code></pre>
+    <p><code>with_fallbacks</code> catches exceptions from the primary and runs the fallback list in order. You can specify <code>exceptions_to_handle</code> to be selective.</p>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="memory">🧠 Memory</div>
+
+<details>
+  <summary><span class="q-num">Q12</span> How does conversational memory work in LangChain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Memory objects store and retrieve conversation history. Types:</p>
+    <ul>
+      <li><strong>ConversationBufferMemory</strong> — stores all messages verbatim. Simple but grows unbounded.</li>
+      <li><strong>ConversationBufferWindowMemory</strong> — keeps last <em>k</em> exchanges.</li>
+      <li><strong>ConversationSummaryMemory</strong> — uses an LLM to summarise old messages, keeping the window small.</li>
+      <li><strong>ConversationSummaryBufferMemory</strong> — hybrid: recent messages verbatim, older ones summarised.</li>
+      <li><strong>ConversationTokenBufferMemory</strong> — caps by token count, not message count.</li>
+      <li><strong>VectorStoreRetrieverMemory</strong> — stores messages in a vector store; retrieves semantically relevant history.</li>
+    </ul>
+    <div class="tip">💡 In LCEL-first apps, manage history explicitly with <code>RunnableWithMessageHistory</code> + a <code>BaseChatMessageHistory</code> backend (Redis, DynamoDB, etc.).</div>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q13</span> What is <code>RunnableWithMessageHistory</code> and how does it work? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>It wraps any LCEL chain to automatically inject and persist conversation history per <code>session_id</code>:</p>
+    <pre><code>from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.chat_message_histories import RedisChatMessageHistory
+
+chain_with_history = RunnableWithMessageHistory(
+    chain,
+    get_session_history=lambda sid: RedisChatMessageHistory(sid, url=REDIS_URL),
+    input_messages_key="question",
+    history_messages_key="history",
+)
+chain_with_history.invoke(
+    {"question": "Who won the World Cup in 2022?"},
+    config={"configurable": {"session_id": "user-42"}}
+)</code></pre>
+    <p>It reads history before the call and writes back after, transparently.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q14</span> How do you avoid context-window overflow in long conversations? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Windowing</strong> — keep only last N messages (<code>ConversationBufferWindowMemory</code>)</li>
+      <li><strong>Summarisation</strong> — periodically summarise old turns</li>
+      <li><strong>Token trimming</strong> — <code>trim_messages()</code> utility trims to a max token budget</li>
+      <li><strong>Semantic compression</strong> — store turns in a vector DB; retrieve only relevant ones</li>
+      <li><strong>Structured memory</strong> — extract key facts into a structured store (entity memory)</li>
+    </ul>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="agents">🤖 Agents &amp; Tools</div>
+
+<details>
+  <summary><span class="q-num">Q15</span> What is a LangChain agent and how does it work? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>An agent uses an LLM as a <em>reasoning engine</em> to decide which tool(s) to call and in what order, based on the user goal. The flow:</p>
+    <ol>
+      <li>LLM receives the prompt + available tool descriptions</li>
+      <li>LLM outputs an action (tool name + input) or a final answer</li>
+      <li>The agent executor invokes the tool and feeds the result back</li>
+      <li>Loop until the LLM decides to stop</li>
+    </ol>
+    <p>Core agent types: <strong>ReAct</strong> (Reason + Act), <strong>OpenAI Functions/Tools</strong>, <strong>Structured Chat</strong>, <strong>XML</strong>.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q16</span> How do you create a custom tool in LangChain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <pre><code>from langchain_core.tools import tool
+
+@tool
+def get_stock_price(ticker: str) -> str:
+    """Return the latest stock price for the given ticker symbol."""
+    # ... call your API
+    return f"{ticker}: $123.45"</code></pre>
+    <p>The docstring becomes the tool description the LLM uses. For complex input schemas, annotate with Pydantic:</p>
+    <pre><code>from pydantic import BaseModel, Field
+
+class StockInput(BaseModel):
+    ticker: str = Field(description="Ticker symbol, e.g. AAPL")
+
+@tool(args_schema=StockInput)
+def get_stock_price(ticker: str) -> str:
+    """Return the latest stock price."""
+    ...</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q17</span> Explain the ReAct agent pattern. <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>ReAct (<em>Reasoning + Acting</em>) prompts the LLM to interleave thought and action steps:</p>
+    <pre><code>Thought: I need to find the population of France.
+Action: wikipedia_search
+Action Input: {"query": "France population 2024"}
+Observation: France has ~68 million people.
+Thought: I have the answer.
+Final Answer: France's population is approximately 68 million.</code></pre>
+    <p>Advantages: transparent reasoning, works with any LLM. Disadvantages: verbose, slower, susceptible to hallucinated tool calls.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q18</span> What is the difference between <code>AgentExecutor</code> and a LangGraph agent? <span class="badge badge-lc">LangChain</span><span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>AgentExecutor</strong> — a simple while-loop runner for legacy agents. Good for linear tool-use flows. Hard to customise mid-loop.</li>
+      <li><strong>LangGraph agent</strong> — the agent loop is an explicit state machine graph. You control every node, edge, and conditional branch. Supports cycles, human-in-the-loop, parallel tool calls, multi-agent topologies.</li>
+    </ul>
+    <p>New production agents should use LangGraph. <code>AgentExecutor</code> is maintained for backward compatibility.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q19</span> How does tool calling (function calling) differ from ReAct? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>ReAct</strong> — text-based; LLM writes "Action: tool_name" in free text. Prompt-heavy, no structured guarantee.</li>
+      <li><strong>Tool/Function calling</strong> — model natively outputs structured JSON tool calls (e.g., OpenAI's <code>tool_calls</code> field). More reliable, supports parallel tool calls, no prompt engineering for output format.</li>
+    </ul>
+    <p>In LangChain: <code>llm.bind_tools(tools)</code> enables function-calling; <code>create_tool_calling_agent</code> builds the full agent.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q20</span> How do you handle tool errors gracefully in an agent? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li>Use <code>handle_tool_error=True</code> on <code>AgentExecutor</code> — feeds the exception message back to the LLM as an observation so it can retry or recover.</li>
+      <li>Set <code>handle_tool_error</code> to a callable for custom error messages.</li>
+      <li>Mark tools as <code>return_direct=True</code> to skip LLM post-processing for terminal tools.</li>
+      <li>In LangGraph, add an explicit error-handling node or use <code>try/except</code> inside a node function.</li>
+    </ul>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="rag">📚 RAG (Retrieval-Augmented Generation)</div>
+
+<details>
+  <summary><span class="q-num">Q21</span> Explain the RAG pipeline step by step. <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ol>
+      <li><strong>Load</strong> — ingest documents with loaders (<code>PyPDFLoader</code>, <code>WebBaseLoader</code>, <code>UnstructuredLoader</code>, etc.)</li>
+      <li><strong>Split</strong> — chunk documents with <code>RecursiveCharacterTextSplitter</code> or semantic splitters</li>
+      <li><strong>Embed</strong> — convert chunks to vectors using an embedding model</li>
+      <li><strong>Store</strong> — persist vectors in a vector store (Chroma, FAISS, Pinecone, Weaviate)</li>
+      <li><strong>Retrieve</strong> — at query time, embed the question and do similarity search</li>
+      <li><strong>Generate</strong> — pass retrieved chunks + question to LLM to produce grounded answer</li>
+    </ol>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q22</span> What retrieval strategies exist beyond naive similarity search? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>MMR (Maximal Marginal Relevance)</strong> — balances relevance and diversity in results</li>
+      <li><strong>Self-query retriever</strong> — LLM converts natural language query into vector store filter expressions</li>
+      <li><strong>Multi-query retriever</strong> — generates multiple phrasings of the query, merges results</li>
+      <li><strong>Contextual compression</strong> — extracts only relevant sentences from retrieved chunks</li>
+      <li><strong>Parent-document retriever</strong> — stores small chunks for retrieval but returns the larger parent document for context</li>
+      <li><strong>Ensemble retriever</strong> — fuses dense (vector) + sparse (BM25) results via RRF</li>
+      <li><strong>HyDE (Hypothetical Document Embeddings)</strong> — generate a hypothetical answer, embed it, then retrieve</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q23</span> What is the difference between sparse and dense retrieval? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Sparse (BM25/TF-IDF)</strong> — keyword-based, exact term matching. Fast, no embedding needed. Good for factual queries with unique terms.</li>
+      <li><strong>Dense (vector search)</strong> — semantic similarity via embeddings. Handles paraphrasing and synonyms. Slower index build but excellent recall.</li>
+      <li><strong>Hybrid</strong> — combines both scores (often with Reciprocal Rank Fusion). Best of both worlds. Supported by Pinecone, Weaviate, Azure AI Search.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q24</span> How do you evaluate RAG quality? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Key metrics:</p>
+    <ul>
+      <li><strong>Faithfulness</strong> — is the answer grounded in retrieved context? (no hallucination)</li>
+      <li><strong>Answer relevancy</strong> — does the answer address the question?</li>
+      <li><strong>Context precision / recall</strong> — are the right chunks retrieved?</li>
+    </ul>
+    <p>Tooling: <strong>RAGAS</strong>, <strong>LangSmith evaluators</strong>, <strong>TruLens</strong>. Can use LLM-as-judge with a rubric.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q25</span> Explain chunk size strategy and its impact on RAG performance. <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Too small chunks</strong> — high precision in retrieval, but each chunk may lack sufficient context for the LLM to answer well.</li>
+      <li><strong>Too large chunks</strong> — more context per chunk, but vector representation diluted; recall suffers; chunks may exceed context window.</li>
+      <li><strong>Typical sweet spot</strong>: 256–1024 tokens with 10–20% overlap.</li>
+      <li><strong>Semantic chunking</strong> — splits at natural topic boundaries rather than fixed size.</li>
+      <li><strong>Parent-child strategy</strong> — small chunks for retrieval, large parents for generation context.</li>
+    </ul>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="callbacks">📡 Callbacks, Tracing &amp; Streaming</div>
+
+<details>
+  <summary><span class="q-num">Q26</span> What is the LangChain callback system? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Callbacks are event hooks fired at lifecycle points. Implement <code>BaseCallbackHandler</code>:</p>
+    <ul>
+      <li><code>on_llm_start</code>, <code>on_llm_new_token</code>, <code>on_llm_end</code>, <code>on_llm_error</code></li>
+      <li><code>on_chain_start</code>, <code>on_chain_end</code>, <code>on_chain_error</code></li>
+      <li><code>on_tool_start</code>, <code>on_tool_end</code>, <code>on_tool_error</code></li>
+      <li><code>on_retriever_start</code>, <code>on_retriever_end</code></li>
+    </ul>
+    <p>Pass via <code>config={"callbacks": [MyHandler()]}</code> or globally via environment. Used for logging, streaming to UI, cost tracking, and observability.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q27</span> What is LangSmith and how does it integrate with LangChain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>LangSmith is LangChain's observability &amp; evaluation platform. With two env vars it auto-traces every chain/agent run:</p>
+    <pre><code>LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=ls__...</code></pre>
+    <p>Features:</p>
+    <ul>
+      <li>Full run trees with inputs/outputs at every node</li>
+      <li>Latency and token cost per step</li>
+      <li>Dataset creation from production traces</li>
+      <li>Automated evaluations (LLM-as-judge)</li>
+      <li>Prompt playground</li>
+    </ul>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="lg-core">🔶 LangGraph — Core Concepts</div>
+
+<details>
+  <summary><span class="q-num">Q28</span> What is LangGraph and how does it differ from LCEL chains? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p><strong>LangGraph</strong> is a library for building <em>stateful, cyclic</em> LLM workflows modelled as directed graphs (nodes + edges). Key differences from LCEL:</p>
+    <ul>
+      <li><strong>Cycles</strong> — LangGraph supports loops; LCEL is a DAG.</li>
+      <li><strong>Explicit state</strong> — a typed <code>TypedDict</code> state is passed and mutated across nodes.</li>
+      <li><strong>Conditional branching</strong> — edges can be functions deciding the next node.</li>
+      <li><strong>Persistence</strong> — built-in checkpointing between steps.</li>
+      <li><strong>Human-in-the-loop</strong> — interrupt at any node, resume after human approval.</li>
+    </ul>
+    <p>LCEL = pipeline. LangGraph = state machine / workflow engine.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q29</span> Explain the three core building blocks of a LangGraph application. <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <ol>
+      <li><strong>State</strong> — a <code>TypedDict</code> (or Pydantic model) defining all data flowing through the graph. Each node receives the full state and returns a partial update.</li>
+      <li><strong>Nodes</strong> — Python functions (or runnables) that accept the state dict and return a dict of updates. Represent discrete computation steps.</li>
+      <li><strong>Edges</strong> — connections between nodes. Can be:
+        <ul>
+          <li><em>Normal edges</em>: always go from A to B</li>
+          <li><em>Conditional edges</em>: call a routing function to decide the next node dynamically</li>
+          <li><em>Entry/exit points</em>: <code>START</code> and <code>END</code> special nodes</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q30</span> What is the <code>StateGraph</code> and how do you compile it? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <pre><code>from langgraph.graph import StateGraph, END
+from typing import TypedDict
+
+class AgentState(TypedDict):
+    messages: list
+    tool_results: list
+
+graph = StateGraph(AgentState)
+graph.add_node("agent", agent_node)
+graph.add_node("tools", tool_node)
+graph.set_entry_point("agent")
+graph.add_conditional_edges("agent", should_continue, {
+    "continue": "tools",
+    "end": END
+})
+graph.add_edge("tools", "agent")
+
+app = graph.compile()
+result = app.invoke({"messages": [HumanMessage(content="Hello")]})</code></pre>
+    <p><code>compile()</code> validates the graph structure and returns a <code>CompiledGraph</code> which is itself a <code>Runnable</code> (supports invoke, stream, batch).</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q31</span> How does state update work — what are reducers? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>By default, node return values <em>overwrite</em> the corresponding state keys. To <em>append</em> instead, annotate the field with a reducer using <code>Annotated</code>:</p>
+    <pre><code>from typing import Annotated
+from langgraph.graph.message import add_messages
+
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]  # appends, not overwrites</code></pre>
+    <p><code>add_messages</code> is a built-in reducer that appends new messages and deduplicates by ID. You can write custom reducers for any merge logic.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q32</span> Explain <code>START</code> and <code>END</code> nodes in LangGraph. <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p><code>START</code> is a virtual entry node — you connect it to the first real node via <code>set_entry_point</code> or <code>add_edge(START, "node_name")</code>. It injects the initial input into the graph state.</p>
+    <p><code>END</code> is a virtual terminal node. When any edge routes to <code>END</code>, the graph halts and returns the current state. You can have multiple paths to <code>END</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q33</span> What are conditional edges and how do you implement routing? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <pre><code>def route_agent(state: AgentState) -> str:
+    last_message = state["messages"][-1]
+    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+        return "tools"
+    return "end"
+
+graph.add_conditional_edges(
+    "agent",
+    route_agent,
+    {"tools": "tools", "end": END}
+)</code></pre>
+    <p>The routing function receives the current state and returns a string key, which is looked up in the mapping dict to find the next node. You can also return a <code>Send</code> object for dynamic fan-out.</p>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="lg-state">💾 LangGraph — State &amp; Persistence</div>
+
+<details>
+  <summary><span class="q-num">Q34</span> What is checkpointing in LangGraph and why does it matter? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>A <strong>checkpointer</strong> persists the graph state after every node execution. This enables:</p>
+    <ul>
+      <li><strong>Human-in-the-loop</strong> — pause execution, wait for approval, resume</li>
+      <li><strong>Fault tolerance</strong> — resume after crash/timeout</li>
+      <li><strong>Time travel</strong> — replay from any historical checkpoint</li>
+      <li><strong>Multi-turn conversations</strong> — maintain per-session state across HTTP requests</li>
+    </ul>
+    <pre><code>from langgraph.checkpoint.sqlite import SqliteSaver
+
+with SqliteSaver.from_conn_string(":memory:") as memory:
+    app = graph.compile(checkpointer=memory)
+    config = {"configurable": {"thread_id": "session-1"}}
+    app.invoke({"messages": [...]}, config=config)</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q35</span> What checkpointer backends does LangGraph support? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <ul>
+      <li><code>MemorySaver</code> — in-process dict. Development/testing only.</li>
+      <li><code>SqliteSaver</code> — SQLite file. Single-process prod use.</li>
+      <li><code>AsyncSqliteSaver</code> — async SQLite.</li>
+      <li><code>PostgresSaver</code> / <code>AsyncPostgresSaver</code> — production-grade, multi-process safe.</li>
+      <li><code>RedisSaver</code> — community integration.</li>
+      <li>Custom: implement <code>BaseCheckpointSaver</code>.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q36</span> How does thread-based state work in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>Every invocation is associated with a <code>thread_id</code> in the config. All checkpoints for the same thread form a conversation history. Different thread IDs maintain completely isolated state — essential for multi-user applications.</p>
+    <pre><code># User A
+app.invoke(input, config={"configurable": {"thread_id": "user-a"}})
+
+# User B — isolated state
+app.invoke(input, config={"configurable": {"thread_id": "user-b"}})</code></pre>
+    <p>You can also use <code>checkpoint_id</code> to target a specific historical snapshot (time travel).</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q37</span> Explain human-in-the-loop interrupts in LangGraph. <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>Compile with <code>interrupt_before</code> or <code>interrupt_after</code> to pause execution at specific nodes:</p>
+    <pre><code>app = graph.compile(
+    checkpointer=memory,
+    interrupt_before=["tools"]  # pause before calling tools
+)
+
+# First call — runs until interrupt
+app.invoke(input, config=config)
+
+# Human reviews, then resumes
+app.invoke(None, config=config)  # None = use checkpointed state</code></pre>
+    <p>The <code>interrupt()</code> function (LangGraph 0.2+) can also be called inside a node for dynamic interrupts with a value passed to the caller.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q38</span> What is time travel in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>Because every node execution is checkpointed, you can:</p>
+    <ul>
+      <li><strong>Replay</strong> — re-execute from any past checkpoint with <code>get_state_history(config)</code> to list snapshots</li>
+      <li><strong>Branch</strong> — fork from a historical state to explore alternate paths</li>
+      <li><strong>Update</strong> — use <code>update_state(config, values, as_node=...)</code> to inject corrected data and then resume</li>
+    </ul>
+    <p>Useful for debugging agents that went wrong mid-run.</p>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="lg-advanced">🚀 LangGraph — Advanced Patterns</div>
+
+<details>
+  <summary><span class="q-num">Q39</span> What is the <code>Send</code> API and when do you use it? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p><code>Send</code> enables <em>dynamic fan-out</em> — spawning multiple parallel graph executions with different states from a single node. Use it for map-reduce patterns:</p>
+    <pre><code>from langgraph.types import Send
+
+def generate_tasks(state):
+    return [Send("process_item", {"item": item}) for item in state["items"]]
+
+graph.add_conditional_edges("planner", generate_tasks)</code></pre>
+    <p>Each <code>Send</code> creates an independent sub-invocation of the target node. Results are aggregated via reducers on the parent state.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q40</span> Explain subgraphs in LangGraph. <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>A compiled graph is itself a <code>Runnable</code> and can be embedded as a node inside a parent graph. This enables:</p>
+    <ul>
+      <li><strong>Modularity</strong> — encapsulate complex logic (e.g., a RAG subgraph, a reflection loop)</li>
+      <li><strong>Reuse</strong> — share the same subgraph across multiple parent graphs</li>
+      <li><strong>Independent state</strong> — subgraph has its own <code>StateSchema</code>; the parent maps keys via <code>input_map</code> / <code>output_map</code></li>
+    </ul>
+    <pre><code>rag_graph = build_rag_graph().compile()
+parent_graph.add_node("rag", rag_graph)</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q41</span> How do you build a multi-agent system in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>Common topologies:</p>
+    <ul>
+      <li><strong>Supervisor</strong> — a "manager" node calls worker agents (subgraphs) based on a task routing decision. Worker results feed back to the supervisor.</li>
+      <li><strong>Network / Swarm</strong> — agents can hand off to any other agent dynamically; state carries the conversation and a routing history.</li>
+      <li><strong>Hierarchical</strong> — supervisor of supervisors; subgraphs within subgraphs.</li>
+    </ul>
+    <pre><code># Supervisor pattern
+def supervisor_node(state):
+    decision = llm.invoke(supervisor_prompt.format_messages(**state))
+    return {"next": decision.tool_calls[0].args["worker"]}</code></pre>
+    <p>LangGraph's <code>langgraph-supervisor</code> package provides a pre-built supervisor factory.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q42</span> What is the prebuilt <code>create_react_agent</code> in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <pre><code>from langgraph.prebuilt import create_react_agent
+
+agent = create_react_agent(
+    model=ChatOpenAI(model="gpt-4o"),
+    tools=[search, calculator],
+    state_modifier="You are a helpful assistant."
+)
+result = agent.invoke({"messages": [HumanMessage(content="What is 42 * 1337?")]})</code></pre>
+    <p>It's a pre-built LangGraph that implements the standard tool-calling agent loop (agent → tools → agent → … → end). Fully customisable — you can add nodes/edges on top of it.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q43</span> How does streaming work differently in LangGraph vs LCEL? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>LangGraph's <code>stream()</code> emits <em>graph-level events</em> in addition to token-level chunks:</p>
+    <pre><code>for event in app.stream(input, config=config, stream_mode="values"):
+    print(event)  # full state after each node
+
+for event in app.stream(input, config=config, stream_mode="updates"):
+    print(event)  # only the delta from each node
+
+# LLM token streaming inside nodes:
+async for event in app.astream_events(input, config=config, version="v2"):
+    if event["event"] == "on_chat_model_stream":
+        print(event["data"]["chunk"].content, end="")</code></pre>
+    <p>Stream modes: <code>"values"</code>, <code>"updates"</code>, <code>"debug"</code>, <code>"messages"</code> (token-level).</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q44</span> What are Command objects in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>Nodes can return a <code>Command</code> instead of a plain dict. <code>Command</code> combines state update + routing decision in one return value:</p>
+    <pre><code>from langgraph.types import Command
+
+def my_node(state):
+    return Command(
+        update={"result": "done"},
+        goto="next_node"         # or END
+    )</code></pre>
+    <p>This is especially useful when the routing logic is inside the node rather than in a separate router function — keeps all branching logic co-located with the computation.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q45</span> Explain LangGraph's persistence store vs checkpointer. <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Checkpointer</strong> — stores <em>graph run state</em> keyed by <code>(thread_id, checkpoint_id)</code>. Scoped to a single run/conversation. Auto-managed.</li>
+      <li><strong>Store (<code>BaseStore</code>)</strong> — a key-value store for <em>long-term memory</em> shared across threads. Manually read/write from nodes. Use for user profile, learned facts, cross-session memory.</li>
+    </ul>
+    <pre><code>from langgraph.store.memory import InMemoryStore
+
+store = InMemoryStore()
+app = graph.compile(checkpointer=memory, store=store)
+
+# Inside a node:
+def agent_node(state, store):
+    profile = store.get(("users",), user_id)
+    store.put(("users",), user_id, {"preference": "concise"})</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q46</span> How do you implement a reflection / self-critique loop in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>Add a "critique" node after the "generate" node. A conditional edge checks the critique score:</p>
+    <pre><code>graph.add_node("generate", generate_node)
+graph.add_node("critique", critique_node)
+graph.add_edge("generate", "critique")
+graph.add_conditional_edges("critique", check_quality, {
+    "pass": END,
+    "revise": "generate"  # loop back
+})</code></pre>
+    <p>Add a <code>revision_count</code> field to state and cap it to prevent infinite loops.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q47</span> What is Plan-and-Execute in LangGraph? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>A two-phase agent pattern:</p>
+    <ol>
+      <li><strong>Planner node</strong> — LLM decomposes the goal into a list of sub-tasks</li>
+      <li><strong>Executor loop</strong> — iterates through sub-tasks, calling tools for each</li>
+      <li><strong>Replanner node</strong> — (optional) after each task, re-evaluate the plan based on results</li>
+    </ol>
+    <p>Benefits over pure ReAct: better for long-horizon tasks; plan is inspectable; can parallelise independent tasks with <code>Send</code>.</p>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="production">⚙️ Production &amp; Deployment</div>
+
+<details>
+  <summary><span class="q-num">Q48</span> What is LangGraph Platform / LangGraph Cloud? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <p>LangGraph Platform is a managed infrastructure layer for deploying LangGraph applications:</p>
+    <ul>
+      <li><strong>LangGraph Server</strong> — REST API + WebSocket server auto-generated from your graph</li>
+      <li><strong>Persistence</strong> — managed Postgres checkpointing</li>
+      <li><strong>Task queue</strong> — async long-running executions</li>
+      <li><strong>LangGraph Studio</strong> — visual debugger for graphs</li>
+      <li>Deploy to <strong>LangGraph Cloud</strong> (managed) or <strong>self-hosted</strong> via Docker</li>
+    </ul>
+    <pre><code># langgraph.json
+{
+  "dependencies": ["."],
+  "graphs": {"agent": "./agent.py:graph"}
+}</code></pre>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q49</span> How do you serve a LangChain/LangGraph app in production? <span class="badge badge-lc">LangChain</span><span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>LangServe</strong> — FastAPI wrapper that exposes LCEL chains as <code>/invoke</code>, <code>/stream</code>, <code>/batch</code> endpoints with auto-generated OpenAPI docs and a playground UI at <code>/playground</code>.</li>
+      <li><strong>LangGraph Server</strong> — purpose-built for LangGraph; adds assistants API, thread management, streaming SSE.</li>
+      <li><strong>Custom FastAPI/Flask</strong> — call <code>app.invoke()</code> / <code>app.astream()</code> directly inside your endpoints.</li>
+    </ul>
+    <div class="tip">💡 For new projects, prefer LangGraph Server over LangServe.</div>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q50</span> How do you manage costs and rate limits when calling LLMs in production? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Caching</strong> — <code>set_llm_cache(SQLiteCache())</code> or Redis/Semantic cache; identical prompts return cached responses.</li>
+      <li><strong>Semantic cache</strong> (<code>RedisSemanticCache</code>) — cache based on embedding similarity, not exact match.</li>
+      <li><strong>Retry with backoff</strong> — <code>llm.with_retry()</code> handles transient 429s.</li>
+      <li><strong>Callbacks for cost tracking</strong> — <code>OpenAICallbackHandler</code> tracks tokens + cost per run.</li>
+      <li><strong>Model selection</strong> — route simple tasks to cheaper models, complex to expensive ones.</li>
+      <li><strong>Prompt compression</strong> — trim context, use retrieval to avoid stuffing full documents.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q51</span> How do you test LangChain / LangGraph applications? <span class="badge badge-both">Both</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Unit test nodes</strong> — each LangGraph node is just a Python function; test with mock state dicts.</li>
+      <li><strong>Mock LLMs</strong> — use <code>FakeListChatModel</code> or <code>FakeChatModel</code> from <code>langchain_core.language_models.fake</code> for deterministic tests.</li>
+      <li><strong>Trace-based evaluation</strong> — collect LangSmith traces from staging, create a dataset, run evals.</li>
+      <li><strong>Integration tests</strong> — run full graph with a test checkpointer (<code>MemorySaver</code>).</li>
+      <li><strong>RAGAS / TruLens</strong> — automated RAG quality metrics.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q52</span> How do you handle secrets and configuration in LangChain? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li>Pass API keys via environment variables, never hardcode.</li>
+      <li>Use <code>SecretStr</code> from Pydantic — prevents accidental logging of sensitive values.</li>
+      <li>Use <code>RunnableConfig</code> to pass runtime configuration (model params, tenant IDs) without baking into the chain definition.</li>
+      <li>Store secrets in a vault (Azure Key Vault, AWS Secrets Manager) and inject at startup.</li>
+    </ul>
+  </div>
+</details>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section-title" id="comparison">🧩 Design Decisions &amp; Comparison</div>
+
+<details>
+  <summary><span class="q-num">Q53</span> When should you use LangChain vs LangGraph? <span class="badge badge-both">Both</span></summary>
+  <div class="answer">
+    <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
+      <thead>
+        <tr style="border-bottom:1px solid #2d3148;">
+          <th style="text-align:left;padding:.4rem .6rem;color:var(--accent2)">Use LangChain (LCEL)</th>
+          <th style="text-align:left;padding:.4rem .6rem;color:var(--accent)">Use LangGraph</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:.3rem .6rem">Simple prompt → response</td><td style="padding:.3rem .6rem">Agent with tool loops</td></tr>
+        <tr><td style="padding:.3rem .6rem">Linear RAG pipeline</td><td style="padding:.3rem .6rem">Multi-step workflow with conditionals</td></tr>
+        <tr><td style="padding:.3rem .6rem">One-shot transformations</td><td style="padding:.3rem .6rem">Human-in-the-loop required</td></tr>
+        <tr><td style="padding:.3rem .6rem">Quick prototypes</td><td style="padding:.3rem .6rem">Multi-agent systems</td></tr>
+        <tr><td style="padding:.3rem .6rem">Stateless API calls</td><td style="padding:.3rem .6rem">Stateful, long-running tasks</td></tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q54</span> How does LangChain compare to alternatives like LlamaIndex, Haystack, or raw OpenAI SDK? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>LlamaIndex</strong> — data-centric; excels at complex retrieval pipelines, query engines over structured/unstructured data. Less focus on agents/workflows.</li>
+      <li><strong>Haystack</strong> — pipeline-based, strong in NLP/search pipelines, good enterprise tooling, stronger typing in newer v2.</li>
+      <li><strong>Raw OpenAI SDK</strong> — zero abstraction overhead; best when you only use one model and want full control. No portability.</li>
+      <li><strong>LangChain</strong> — broadest ecosystem; best for multi-model, multi-tool applications; LCEL gives flexibility; LangGraph for complex agent workflows.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q55</span> What are common pitfalls with LangChain in production? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>Context window creep</strong> — unbounded memory causing 4k→8k→16k token explosions</li>
+      <li><strong>Verbose dependency tree</strong> — <code>langchain</code> is a heavy package; use <code>langchain-core</code> + specific integrations</li>
+      <li><strong>Using deprecated chains</strong> — <code>LLMChain</code>, <code>ConversationalRetrievalChain</code> should be replaced with LCEL</li>
+      <li><strong>No observability</strong> — running blind without LangSmith or another tracer</li>
+      <li><strong>Prompt injection</strong> — user input incorporated into system prompts without sanitisation</li>
+      <li><strong>Tight coupling to one LLM provider</strong> — breaking when the API changes</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q56</span> What are common LangGraph anti-patterns? <span class="badge badge-lg">LangGraph</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>No max-iteration guard</strong> — agent loops forever; always add a <code>step_count</code> field and a conditional edge that routes to END after N steps</li>
+      <li><strong>Mutating state in-place</strong> — nodes must return dicts, not modify the state object directly</li>
+      <li><strong>Using MemorySaver in prod</strong> — process restarts lose all state</li>
+      <li><strong>Ignoring thread_id</strong> — all users share the same state</li>
+      <li><strong>Over-complex single graphs</strong> — decompose into subgraphs for maintainability</li>
+      <li><strong>No interrupt/approval for dangerous tools</strong> — calling irreversible APIs (send email, delete DB) without human confirmation</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q57</span> How do you implement structured output with LangChain and why is it important? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <p>Structured output ensures LLM responses conform to a schema — critical for downstream code that parses results:</p>
+    <pre><code>from pydantic import BaseModel, Field
+from langchain_openai import ChatOpenAI
+
+class MovieReview(BaseModel):
+    title: str = Field(description="Movie title")
+    rating: int = Field(description="Rating out of 10")
+    summary: str = Field(description="Brief summary")
+
+llm = ChatOpenAI(model="gpt-4o")
+structured_llm = llm.with_structured_output(MovieReview)
+review = structured_llm.invoke("Review Inception")</code></pre>
+    <p>Uses function-calling under the hood — far more reliable than parsing free-text JSON.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q58</span> Explain the LangChain package split (langchain-core, langchain, langchain-community). <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <ul>
+      <li><strong>langchain-core</strong> — base abstractions (<code>Runnable</code>, <code>BaseMessage</code>, <code>BaseChatModel</code>, etc.). Minimal dependencies. Every other package depends on this.</li>
+      <li><strong>langchain</strong> — higher-level chains, agents, memory classes. Depends on core.</li>
+      <li><strong>langchain-community</strong> — third-party integrations (vector stores, loaders, tools). Loosely coupled, maintained by community.</li>
+      <li><strong>langchain-openai, langchain-anthropic, etc.</strong> — official first-party provider packages. Prefer over community equivalents.</li>
+      <li><strong>langgraph</strong> — separate package for the graph runtime.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q59</span> How do you implement semantic caching for LLM calls? <span class="badge badge-lc">LangChain</span></summary>
+  <div class="answer">
+    <pre><code>from langchain_community.cache import RedisSemanticCache
+from langchain_openai import OpenAIEmbeddings
+import langchain
+
+langchain.llm_cache = RedisSemanticCache(
+    redis_url="redis://localhost:6379",
+    embedding=OpenAIEmbeddings(),
+    score_threshold=0.2   # cosine distance threshold
+)</code></pre>
+    <p>When a new prompt's embedding is within <code>score_threshold</code> of a cached prompt, the cached response is returned without calling the LLM. Dramatically reduces costs for similar repeated queries.</p>
+  </div>
+</details>
+
+<details>
+  <summary><span class="q-num">Q60</span> Walk through building a production-ready RAG agent with LangGraph end to end. <span class="badge badge-both">Both</span></summary>
+  <div class="answer">
+    <ol>
+      <li><strong>Index pipeline</strong> (offline): Load → Split → Embed → Store in Chroma/Pinecone</li>
+      <li><strong>Define state</strong>: <code>{"messages": Annotated[list, add_messages], "context": list}</code></li>
+      <li><strong>Router node</strong>: LLM decides — RAG or direct answer</li>
+      <li><strong>Retrieve node</strong>: call retriever, store docs in state["context"]</li>
+      <li><strong>Generate node</strong>: build prompt with context + messages → call LLM → append AIMessage</li>
+      <li><strong>Grade node</strong>: (optional) LLM checks faithfulness → loop if hallucination detected</li>
+      <li><strong>Compile</strong> with <code>PostgresSaver</code> for persistence</li>
+      <li><strong>Serve</strong> via LangGraph Server or FastAPI with <code>astream_events</code> for SSE streaming</li>
+      <li><strong>Observe</strong> with LangSmith; evaluate with RAGAS on sampled traces</li>
+    </ol>
+    <div class="tip">💡 This is the CRAG (Corrective RAG) pattern — adding a hallucination check loop significantly improves production reliability.</div>
+  </div>
+</details>
+
+</main>
+
+<footer>
+  <p>60 Questions · LangChain &amp; LangGraph · Gen AI Engineer Interview Prep · 2025/2026</p>
+  <p style="margin-top:.3rem">Click any question to expand. All answers reflect LangChain ≥ 0.2 and LangGraph ≥ 0.2 APIs.</p>
+</footer>
+
+</body>
+</html>

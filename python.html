@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Python for LLM – Interview Prep Notes</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --accent3: #ff6b6b;
+      --accent4: #ffd166;
+      --text: #e2e8f0;
+      --text-muted: #8892b0;
+      --code-bg: #0d1117;
+      --tag-bg: #2d2f4a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #2d2f4a 100%);
+      border-bottom: 2px solid var(--accent);
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(108,99,255,.25);
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: .4rem;
+      font-size: .95rem;
+    }
+
+    /* ── NAV PILLS ── */
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .5rem;
+      padding: 1rem 2rem .5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 110px;
+      z-index: 99;
+    }
+
+    nav a {
+      text-decoration: none;
+      background: var(--tag-bg);
+      color: var(--text);
+      padding: .35rem .9rem;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      transition: all .2s;
+    }
+
+    nav a:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 170px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: .75rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .section-icon {
+      font-size: 1.6rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+
+    /* ── TOPIC CARDS ── */
+    .topic {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .topic:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 4px 20px rgba(108,99,255,.15);
+    }
+
+    .topic-title {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .9rem 1.2rem;
+      background: var(--surface2);
+      font-weight: 700;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent4);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .topic-title .badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+      font-size: .7rem;
+      padding: .2rem .6rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .topic-body {
+      padding: 1.2rem;
+    }
+
+    /* ── CONCEPT BLOCK ── */
+    .concept {
+      margin-bottom: 1.4rem;
+    }
+
+    .concept h4 {
+      color: var(--accent2);
+      font-size: .95rem;
+      margin-bottom: .5rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .concept p, .concept li {
+      color: var(--text);
+      font-size: .92rem;
+      margin-bottom: .4rem;
+    }
+
+    .concept ul, .concept ol {
+      padding-left: 1.4rem;
+    }
+
+    /* ── CODE BLOCKS ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      margin: .8rem 0;
+      font-size: .85rem;
+      line-height: 1.65;
+      position: relative;
+    }
+
+    pre code {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      color: #cdd6f4;
+    }
+
+    .kw   { color: #cba6f7; }   /* keyword */
+    .fn   { color: #89b4fa; }   /* function name */
+    .str  { color: #a6e3a1; }   /* string */
+    .num  { color: #fab387; }   /* number */
+    .cm   { color: #6c7086; font-style: italic; }  /* comment */
+    .cls  { color: #f9e2af; }   /* class name */
+    .dec  { color: #f38ba8; }   /* decorator */
+    .var  { color: #cdd6f4; }   /* variable */
+    .op   { color: #89dceb; }   /* operator / punctuation highlight */
+
+    /* ── INFO BOXES ── */
+    .box {
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      margin: .8rem 0;
+      font-size: .88rem;
+      border-left: 4px solid;
+    }
+
+    .box-tip   { background: #0d2b23; border-color: var(--accent2); color: #a6e3a1; }
+    .box-warn  { background: #2b1d0d; border-color: var(--accent4); color: var(--accent4); }
+    .box-info  { background: #12142b; border-color: var(--accent);  color: #b4befe; }
+    .box-danger{ background: #2b0d0d; border-color: var(--accent3); color: #f38ba8; }
+
+    .box strong { display: block; margin-bottom: .3rem; font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ── INTERVIEW Q BOXES ── */
+    .interview-q {
+      background: #1a1033;
+      border: 1px dashed var(--accent);
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      margin: .8rem 0;
+    }
+
+    .interview-q .q-label {
+      color: var(--accent);
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .3rem;
+    }
+
+    .interview-q p { font-size: .9rem; color: var(--text); }
+
+    /* ── COMPARISON TABLES ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .87rem;
+      margin: .8rem 0;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--accent2);
+      padding: .6rem .9rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    td {
+      padding: .55rem .9rem;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td { background: #15182a; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: .82rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      z-index: 999;
+    }
+
+    #progress-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width .1s;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.4rem; }
+      nav { top: 88px; }
+      main { padding: 1rem .8rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-wrap"><div id="progress-bar"></div></div>
+
+<!-- Header -->
+<header>
+  <h1>🐍 Python for LLM — Complete Interview Prep</h1>
+  <p>Zero-to-Interview notes · Core Python · OOP · Async · APIs · Packaging</p>
+</header>
+
+<!-- Nav -->
+<nav>
+  <a href="#core-python">1️⃣ Core Python</a>
+  <a href="#oop">2️⃣ OOP</a>
+  <a href="#async">3️⃣ Async</a>
+  <a href="#apis">4️⃣ APIs</a>
+  <a href="#packaging">5️⃣ Packaging</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 1 – CORE PYTHON
+═══════════════════════════════════════════ -->
+<section id="core-python">
+  <div class="section-header">
+    <span class="section-icon">1️⃣</span>
+    <h2>Core Python</h2>
+  </div>
+
+  <!-- ── DATA TYPES ── -->
+  <div class="topic">
+    <div class="topic-title">
+      📦 Data Types — list &amp; dict
+      <span class="badge">Fundamental</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 What is a List?</h4>
+        <p>A <strong>list</strong> is an <em>ordered, mutable</em> collection. You can store anything — strings, numbers, even other lists.</p>
+        <pre><code><span class="cm"># Creating lists</span>
+<span class="var">fruits</span> = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>]
+
+<span class="cm"># Indexing (0-based)</span>
+<span class="fn">print</span>(fruits[<span class="num">0</span>])      <span class="cm"># "apple"</span>
+<span class="fn">print</span>(fruits[-<span class="num">1</span>])     <span class="cm"># "cherry"  ← negative index = from end</span>
+
+<span class="cm"># Slicing  [start : stop : step]</span>
+<span class="fn">print</span>(fruits[<span class="num">0</span>:<span class="num">2</span>])    <span class="cm"># ["apple", "banana"]</span>
+
+<span class="cm"># Common methods</span>
+fruits.<span class="fn">append</span>(<span class="str">"mango"</span>)     <span class="cm"># add to end</span>
+fruits.<span class="fn">insert</span>(<span class="num">1</span>, <span class="str">"kiwi"</span>)  <span class="cm"># insert at index 1</span>
+fruits.<span class="fn">remove</span>(<span class="str">"banana"</span>)   <span class="cm"># remove by value</span>
+fruits.<span class="fn">pop</span>()               <span class="cm"># remove last item</span>
+<span class="fn">len</span>(fruits)                 <span class="cm"># count items</span>
+<span class="fn">sorted</span>(fruits)              <span class="cm"># returns new sorted list</span>
+fruits.<span class="fn">sort</span>()               <span class="cm"># sorts in-place</span>
+
+<span class="cm"># Check membership</span>
+<span class="kw">if</span> <span class="str">"apple"</span> <span class="kw">in</span> fruits:
+    <span class="fn">print</span>(<span class="str">"found!"</span>)
+
+<span class="cm"># Nested list</span>
+<span class="var">matrix</span> = [[<span class="num">1</span>,<span class="num">2</span>],[<span class="num">3</span>,<span class="num">4</span>]]
+<span class="fn">print</span>(matrix[<span class="num">0</span>][<span class="num">1</span>])   <span class="cm"># 2</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 What is a Dict? (Most Important for LLM work!)</h4>
+        <p>A <strong>dictionary</strong> is an <em>ordered (Python 3.7+), mutable</em> key-value store. LLM APIs return JSON — which becomes a dict in Python.</p>
+        <pre><code><span class="cm"># Creating a dict</span>
+<span class="var">person</span> = {
+    <span class="str">"name"</span>: <span class="str">"Arup"</span>,
+    <span class="str">"age"</span>: <span class="num">28</span>,
+    <span class="str">"skills"</span>: [<span class="str">"Python"</span>, <span class="str">"LLM"</span>]
+}
+
+<span class="cm"># Access values</span>
+<span class="fn">print</span>(person[<span class="str">"name"</span>])          <span class="cm"># "Arup"  (KeyError if missing)</span>
+<span class="fn">print</span>(person.<span class="fn">get</span>(<span class="str">"city"</span>, <span class="str">"N/A"</span>)) <span class="cm"># "N/A"  (safe – no KeyError)</span>
+
+<span class="cm"># Add / Update</span>
+person[<span class="str">"city"</span>] = <span class="str">"Kolkata"</span>   <span class="cm"># add new key</span>
+person[<span class="str">"age"</span>]  = <span class="num">29</span>           <span class="cm"># update existing key</span>
+
+<span class="cm"># Delete</span>
+<span class="kw">del</span> person[<span class="str">"city"</span>]
+person.<span class="fn">pop</span>(<span class="str">"age"</span>)
+
+<span class="cm"># Iterate</span>
+<span class="kw">for</span> <span class="var">key</span>, <span class="var">value</span> <span class="kw">in</span> person.<span class="fn">items</span>():
+    <span class="fn">print</span>(key, <span class="str">"→"</span>, value)
+
+<span class="kw">for</span> <span class="var">k</span> <span class="kw">in</span> person.<span class="fn">keys</span>():   <span class="fn">print</span>(k)
+<span class="kw">for</span> <span class="var">v</span> <span class="kw">in</span> person.<span class="fn">values</span>(): <span class="fn">print</span>(v)
+
+<span class="cm"># Merge two dicts (Python 3.9+)</span>
+<span class="var">extra</span> = {<span class="str">"role"</span>: <span class="str">"engineer"</span>}
+<span class="var">merged</span> = person | extra
+
+<span class="cm"># Check key existence</span>
+<span class="kw">if</span> <span class="str">"name"</span> <span class="kw">in</span> person:
+    <span class="fn">print</span>(<span class="str">"has name"</span>)
+
+<span class="cm"># Nested dict (very common in LLM API responses)</span>
+<span class="var">llm_response</span> = {
+    <span class="str">"id"</span>: <span class="str">"chatcmpl-abc"</span>,
+    <span class="str">"choices"</span>: [
+        {
+            <span class="str">"message"</span>: {
+                <span class="str">"role"</span>: <span class="str">"assistant"</span>,
+                <span class="str">"content"</span>: <span class="str">"Hello! How can I help?"</span>
+            }
+        }
+    ]
+}
+<span class="cm"># Drill into nested structure</span>
+<span class="var">text</span> = llm_response[<span class="str">"choices"</span>][<span class="num">0</span>][<span class="str">"message"</span>][<span class="str">"content"</span>]
+<span class="fn">print</span>(text)  <span class="cm"># "Hello! How can I help?"</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Other Important Types</h4>
+        <table>
+          <tr><th>Type</th><th>Example</th><th>Mutable?</th><th>Use case</th></tr>
+          <tr><td><code>str</code></td><td><code>"hello"</code></td><td>No</td><td>Text, prompts</td></tr>
+          <tr><td><code>int/float</code></td><td><code>42, 3.14</code></td><td>No</td><td>Numbers, temperature params</td></tr>
+          <tr><td><code>bool</code></td><td><code>True/False</code></td><td>No</td><td>Flags, conditions</td></tr>
+          <tr><td><code>list</code></td><td><code>[1,2,3]</code></td><td>✅ Yes</td><td>Ordered collections, messages list</td></tr>
+          <tr><td><code>tuple</code></td><td><code>(1,2,3)</code></td><td>No</td><td>Fixed data, return multiple values</td></tr>
+          <tr><td><code>dict</code></td><td><code>{"k":"v"}</code></td><td>✅ Yes</td><td>JSON data, API payloads</td></tr>
+          <tr><td><code>set</code></td><td><code>{1,2,3}</code></td><td>✅ Yes</td><td>Unique values, deduplication</td></tr>
+          <tr><td><code>None</code></td><td><code>None</code></td><td>—</td><td>Null / missing values</td></tr>
+        </table>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What's the difference between a list and a tuple?</strong><br/>
+        A: Both are ordered sequences. A <strong>list is mutable</strong> (can change after creation) while a <strong>tuple is immutable</strong>. Use tuples when data should not change (e.g., coordinates, config constants).</p>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: How do you safely access a nested key in a dict?</strong><br/>
+        A: Use <code>.get()</code> chaining or handle KeyError with try/except. Example: <code>data.get("choices", [{}])[0].get("message", {}).get("content")</code></p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── LOOPS ── -->
+  <div class="topic">
+    <div class="topic-title">
+      🔄 Loops
+      <span class="badge">Core</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 for Loop</h4>
+        <pre><code><span class="cm"># Loop over a list</span>
+<span class="var">tokens</span> = [<span class="str">"Hello"</span>, <span class="str">"world"</span>, <span class="str">"!"</span>]
+<span class="kw">for</span> <span class="var">token</span> <span class="kw">in</span> tokens:
+    <span class="fn">print</span>(token)
+
+<span class="cm"># Loop with index using enumerate()</span>
+<span class="kw">for</span> <span class="var">i</span>, <span class="var">token</span> <span class="kw">in</span> <span class="fn">enumerate</span>(tokens):
+    <span class="fn">print</span>(<span class="var">i</span>, token)      <span class="cm"># 0 Hello  1 world  2 !</span>
+
+<span class="cm"># Loop over a range</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):      <span class="cm"># 0,1,2,3,4</span>
+    <span class="fn">print</span>(i)
+
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">2</span>, <span class="num">10</span>, <span class="num">2</span>):  <span class="cm"># 2,4,6,8  (start, stop, step)</span>
+    <span class="fn">print</span>(i)
+
+<span class="cm"># Loop over dict items</span>
+<span class="var">config</span> = {<span class="str">"model"</span>: <span class="str">"gpt-4"</span>, <span class="str">"temp"</span>: <span class="num">0.7</span>}
+<span class="kw">for</span> <span class="var">key</span>, <span class="var">val</span> <span class="kw">in</span> config.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="str">f"</span>{key}<span class="str">:</span> {val}<span class="str">"</span>)
+
+<span class="cm"># Loop with zip (two lists together)</span>
+<span class="var">roles</span>  = [<span class="str">"user"</span>, <span class="str">"assistant"</span>]
+<span class="var">msgs</span>   = [<span class="str">"Hi"</span>, <span class="str">"Hello!"</span>]
+<span class="kw">for</span> <span class="var">role</span>, <span class="var">msg</span> <span class="kw">in</span> <span class="fn">zip</span>(roles, msgs):
+    <span class="fn">print</span>(role, <span class="str">"→"</span>, msg)</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 while Loop</h4>
+        <pre><code><span class="var">count</span> = <span class="num">0</span>
+<span class="kw">while</span> count &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="str">"Retrying..."</span>)
+    count += <span class="num">1</span>
+
+<span class="cm"># break / continue</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>):
+    <span class="kw">if</span> i == <span class="num">3</span>: <span class="kw">continue</span>   <span class="cm"># skip 3</span>
+    <span class="kw">if</span> i == <span class="num">6</span>: <span class="kw">break</span>      <span class="cm"># stop at 6</span>
+    <span class="fn">print</span>(i)</code></pre>
+      </div>
+
+      <div class="box box-tip">
+        <strong>💡 LLM Use Case</strong>
+        Loops are used constantly in LLM work — iterating over message history, processing batch API responses, retrying failed calls, and streaming tokens.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── FUNCTIONS ── -->
+  <div class="topic">
+    <div class="topic-title">
+      🔧 Functions
+      <span class="badge">Core</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Defining and Calling Functions</h4>
+        <pre><code><span class="cm"># Basic function</span>
+<span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>):
+    <span class="kw">return</span> <span class="str">f"Hello, </span>{name}<span class="str">!"</span>
+
+<span class="fn">print</span>(<span class="fn">greet</span>(<span class="str">"Arup"</span>))  <span class="cm"># "Hello, Arup!"</span>
+
+<span class="cm"># Default parameters</span>
+<span class="kw">def</span> <span class="fn">ask_llm</span>(<span class="var">prompt</span>, <span class="var">model</span>=<span class="str">"gpt-4o"</span>, <span class="var">temperature</span>=<span class="num">0.7</span>):
+    <span class="fn">print</span>(<span class="str">f"Sending to </span>{model}<span class="str">: </span>{prompt}<span class="str">"</span>)
+
+<span class="fn">ask_llm</span>(<span class="str">"What is AI?"</span>)                        <span class="cm"># uses defaults</span>
+<span class="fn">ask_llm</span>(<span class="str">"Explain async"</span>, model=<span class="str">"gpt-3.5"</span>)    <span class="cm"># keyword arg</span>
+
+<span class="cm"># Multiple return values (returns a tuple)</span>
+<span class="kw">def</span> <span class="fn">parse_response</span>(<span class="var">data</span>):
+    <span class="var">content</span> = data[<span class="str">"choices"</span>][<span class="num">0</span>][<span class="str">"message"</span>][<span class="str">"content"</span>]
+    <span class="var">tokens</span>  = data[<span class="str">"usage"</span>][<span class="str">"total_tokens"</span>]
+    <span class="kw">return</span> content, tokens
+
+<span class="var">text</span>, <span class="var">cost</span> = <span class="fn">parse_response</span>(llm_resp)</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 *args and **kwargs</h4>
+        <pre><code><span class="cm"># *args  → captures extra POSITIONAL args as a tuple</span>
+<span class="kw">def</span> <span class="fn">log</span>(*<span class="var">messages</span>):
+    <span class="kw">for</span> <span class="var">msg</span> <span class="kw">in</span> messages:
+        <span class="fn">print</span>(<span class="str">"[LOG]"</span>, msg)
+
+<span class="fn">log</span>(<span class="str">"start"</span>, <span class="str">"processing"</span>, <span class="str">"done"</span>)
+
+<span class="cm"># **kwargs → captures extra KEYWORD args as a dict</span>
+<span class="kw">def</span> <span class="fn">build_payload</span>(**<span class="var">kwargs</span>):
+    <span class="kw">return</span> {<span class="str">"model"</span>: <span class="str">"gpt-4o"</span>, **kwargs}
+
+<span class="var">payload</span> = <span class="fn">build_payload</span>(temperature=<span class="num">0.5</span>, max_tokens=<span class="num">200</span>)
+<span class="cm"># {'model': 'gpt-4o', 'temperature': 0.5, 'max_tokens': 200}</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Type Hints (Essential in modern Python)</h4>
+        <pre><code><span class="kw">def</span> <span class="fn">count_tokens</span>(<span class="var">text</span>: str) -> <span class="cls">int</span>:
+    <span class="kw">return</span> <span class="fn">len</span>(text.<span class="fn">split</span>())
+
+<span class="kw">def</span> <span class="fn">get_messages</span>(<span class="var">history</span>: list[dict]) -> list[dict]:
+    <span class="kw">return</span> [m <span class="kw">for</span> m <span class="kw">in</span> history <span class="kw">if</span> m[<span class="str">"role"</span>] == <span class="str">"user"</span>]
+
+<span class="cm"># Optional type  (can be None)</span>
+<span class="kw">from</span> typing <span class="kw">import</span> Optional
+
+<span class="kw">def</span> <span class="fn">get_name</span>(<span class="var">data</span>: dict) -> Optional[str]:
+    <span class="kw">return</span> data.<span class="fn">get</span>(<span class="str">"name"</span>)   <span class="cm"># might return None</span></code></pre>
+        <div class="box box-info">
+          <strong>ℹ️ Note</strong>
+          Type hints don't enforce types at runtime — they're for readability and IDE tooling. But FastAPI and Pydantic USE them for actual validation.
+        </div>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Lambda Functions (one-liners)</h4>
+        <pre><code><span class="cm"># lambda arguments: expression</span>
+<span class="var">double</span> = <span class="kw">lambda</span> x: x * <span class="num">2</span>
+<span class="fn">print</span>(<span class="fn">double</span>(<span class="num">5</span>))   <span class="cm"># 10</span>
+
+<span class="cm"># Common use: sorting</span>
+<span class="var">messages</span> = [
+    {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"tokens"</span>: <span class="num">50</span>},
+    {<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"tokens"</span>: <span class="num">200</span>},
+]
+<span class="fn">sorted</span>(messages, key=<span class="kw">lambda</span> m: m[<span class="str">"tokens"</span>])</code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What is the difference between *args and **kwargs?</strong><br/>
+        A: <code>*args</code> collects extra positional arguments into a <strong>tuple</strong>. <code>**kwargs</code> collects extra keyword arguments into a <strong>dict</strong>. Both are commonly used to build flexible, reusable functions.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── LIST COMPREHENSIONS ── -->
+  <div class="topic">
+    <div class="topic-title">
+      ⚡ List Comprehensions
+      <span class="badge">Pythonic</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Syntax: <code>[expression for item in iterable if condition]</code></h4>
+        <pre><code><span class="cm"># Traditional loop way</span>
+<span class="var">squares</span> = []
+<span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    squares.<span class="fn">append</span>(x ** <span class="num">2</span>)
+
+<span class="cm"># List comprehension way (Pythonic ✅)</span>
+<span class="var">squares</span> = [x ** <span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)]
+<span class="cm"># [0, 1, 4, 9, 16]</span>
+
+<span class="cm"># With condition</span>
+<span class="var">evens</span> = [x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>) <span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>]
+<span class="cm"># [0, 2, 4, 6, 8]</span>
+
+<span class="cm"># Extract data from list of dicts (LLM use case!)</span>
+<span class="var">messages</span> = [
+    {<span class="str">"role"</span>: <span class="str">"user"</span>,      <span class="str">"content"</span>: <span class="str">"Hi"</span>},
+    {<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: <span class="str">"Hello!"</span>},
+    {<span class="str">"role"</span>: <span class="str">"user"</span>,      <span class="str">"content"</span>: <span class="str">"How are you?"</span>},
+]
+<span class="cm"># Get only user messages</span>
+<span class="var">user_msgs</span> = [m[<span class="str">"content"</span>] <span class="kw">for</span> m <span class="kw">in</span> messages <span class="kw">if</span> m[<span class="str">"role"</span>] == <span class="str">"user"</span>]
+<span class="cm"># ["Hi", "How are you?"]</span>
+
+<span class="cm"># Dict comprehension</span>
+<span class="var">token_counts</span> = {m[<span class="str">"role"</span>]: <span class="fn">len</span>(m[<span class="str">"content"</span>].<span class="fn">split</span>()) <span class="kw">for</span> m <span class="kw">in</span> messages}
+<span class="cm"># {'user': 3, 'assistant': 1}  ← last value wins for duplicate keys</span>
+
+<span class="cm"># Flatten nested list</span>
+<span class="var">nested</span> = [[<span class="num">1</span>,<span class="num">2</span>],[<span class="num">3</span>,<span class="num">4</span>],[<span class="num">5</span>]]
+<span class="var">flat</span> = [x <span class="kw">for</span> sub <span class="kw">in</span> nested <span class="kw">for</span> x <span class="kw">in</span> sub]
+<span class="cm"># [1, 2, 3, 4, 5]</span></code></pre>
+      </div>
+
+      <div class="box box-warn">
+        <strong>⚠️ Watch Out</strong>
+        Don't overuse comprehensions. If the logic is complex (multiple conditions, side-effects), a regular loop is more readable.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── JSON HANDLING ── -->
+  <div class="topic">
+    <div class="topic-title">
+      🗂️ JSON Handling
+      <span class="badge">Critical for LLMs</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 The <code>json</code> Module</h4>
+        <p>JSON (JavaScript Object Notation) is the language of APIs. Every LLM response is JSON.</p>
+        <pre><code><span class="kw">import</span> json
+
+<span class="cm"># ── JSON string → Python dict  (parsing / deserializing)</span>
+<span class="var">json_str</span> = <span class="str">'{"model": "gpt-4o", "temperature": 0.7}'</span>
+<span class="var">data</span> = json.<span class="fn">loads</span>(json_str)    <span class="cm"># "loads" = load from String</span>
+<span class="fn">print</span>(<span class="fn">type</span>(data))             <span class="cm"># &lt;class 'dict'&gt;</span>
+<span class="fn">print</span>(data[<span class="str">"model"</span>])         <span class="cm"># "gpt-4o"</span>
+
+<span class="cm"># ── Python dict → JSON string  (serializing)</span>
+<span class="var">payload</span> = {
+    <span class="str">"messages"</span>: [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Hi"</span>}],
+    <span class="str">"model"</span>: <span class="str">"gpt-4o"</span>
+}
+<span class="var">json_str</span> = json.<span class="fn">dumps</span>(payload, indent=<span class="num">2</span>)  <span class="cm"># pretty print</span>
+<span class="fn">print</span>(json_str)
+
+<span class="cm"># ── Read JSON from a file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"config.json"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    <span class="var">config</span> = json.<span class="fn">load</span>(f)     <span class="cm"># "load" = load from File</span>
+
+<span class="cm"># ── Write JSON to a file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"output.json"</span>, <span class="str">"w"</span>) <span class="kw">as</span> f:
+    json.<span class="fn">dump</span>(payload, f, indent=<span class="num">2</span>)</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Real LLM API Response Parsing</h4>
+        <pre><code><span class="kw">import</span> json
+
+<span class="cm"># Simulated OpenAI response</span>
+<span class="var">raw</span> = <span class="str">"""
+{
+  "id": "chatcmpl-123",
+  "object": "chat.completion",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The capital of France is Paris."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 9,
+    "total_tokens": 21
+  }
+}
+"""</span>
+
+<span class="var">response</span> = json.<span class="fn">loads</span>(raw)
+
+<span class="cm"># Extract what you need</span>
+<span class="var">answer</span>       = response[<span class="str">"choices"</span>][<span class="num">0</span>][<span class="str">"message"</span>][<span class="str">"content"</span>]
+<span class="var">total_tokens</span> = response[<span class="str">"usage"</span>][<span class="str">"total_tokens"</span>]
+
+<span class="fn">print</span>(<span class="str">f"Answer: </span>{answer}<span class="str">"</span>)
+<span class="fn">print</span>(<span class="str">f"Tokens used: </span>{total_tokens}<span class="str">"</span>)</code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What is the difference between json.loads() and json.load()?</strong><br/>
+        A: <code>json.loads()</code> parses a <strong>JSON string</strong> into a Python object. <code>json.load()</code> reads from a <strong>file object</strong>. Same for <code>json.dumps()</code> (to string) vs <code>json.dump()</code> (to file).</p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 2 – OOP
+═══════════════════════════════════════════ -->
+<section id="oop">
+  <div class="section-header">
+    <span class="section-icon">2️⃣</span>
+    <h2>OOP — Object Oriented Programming</h2>
+  </div>
+
+  <!-- CLASSES -->
+  <div class="topic">
+    <div class="topic-title">
+      🏛️ Classes
+      <span class="badge">Important</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 What is a Class?</h4>
+        <p>A <strong>class</strong> is a blueprint. An <strong>instance/object</strong> is a concrete thing built from that blueprint. Think: <em>Class = Cookie cutter, Object = Cookie</em>.</p>
+        <pre><code><span class="kw">class</span> <span class="cls">LLMClient</span>:
+    <span class="cm"># Class variable (shared by ALL instances)</span>
+    provider = <span class="str">"OpenAI"</span>
+
+    <span class="cm"># __init__ = constructor (called when you create an object)</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">api_key</span>: str, <span class="var">model</span>: str = <span class="str">"gpt-4o"</span>):
+        <span class="cm"># Instance variables (unique to each object)</span>
+        <span class="var">self</span>.api_key = api_key
+        <span class="var">self</span>.model   = model
+        <span class="var">self</span>.history = []        <span class="cm"># each client has its own history</span>
+
+    <span class="cm"># Instance method</span>
+    <span class="kw">def</span> <span class="fn">chat</span>(<span class="var">self</span>, <span class="var">message</span>: str) -> str:
+        <span class="var">self</span>.history.<span class="fn">append</span>({<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: message})
+        <span class="cm"># (In real code: call the actual API here)</span>
+        <span class="var">reply</span> = <span class="str">f"Echo: </span>{message}<span class="str">"</span>
+        <span class="var">self</span>.history.<span class="fn">append</span>({<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: reply})
+        <span class="kw">return</span> reply
+
+    <span class="cm"># Dunder method: how the object prints</span>
+    <span class="kw">def</span> <span class="fn">__repr__</span>(<span class="var">self</span>) -> str:
+        <span class="kw">return</span> <span class="str">f"LLMClient(model=</span>{<span class="var">self</span>.model}<span class="str">)"</span>
+
+
+<span class="cm"># ── Creating instances</span>
+<span class="var">client1</span> = <span class="cls">LLMClient</span>(<span class="str">"sk-abc123"</span>)
+<span class="var">client2</span> = <span class="cls">LLMClient</span>(<span class="str">"sk-xyz"</span>, model=<span class="str">"gpt-3.5"</span>)
+
+<span class="fn">print</span>(client1)           <span class="cm"># LLMClient(model=gpt-4o)</span>
+<span class="fn">print</span>(client2.model)    <span class="cm"># gpt-3.5</span>
+<span class="fn">print</span>(<span class="cls">LLMClient</span>.provider) <span class="cm"># OpenAI</span>
+
+reply = client1.<span class="fn">chat</span>(<span class="str">"What is LLM?"</span>)
+<span class="fn">print</span>(client1.history)</code></pre>
+      </div>
+
+      <div class="box box-info">
+        <strong>ℹ️ self</strong>
+        <code>self</code> is a reference to the current instance. It's always the first parameter of instance methods. Python passes it automatically — you never pass it manually.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DATACLASSES -->
+  <div class="topic">
+    <div class="topic-title">
+      🗃️ Dataclasses
+      <span class="badge">Modern Python</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 What is a Dataclass?</h4>
+        <p>A <strong>dataclass</strong> auto-generates boilerplate (<code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>) for classes that mainly hold data. Perfect for API request/response models.</p>
+        <pre><code><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="cls">Message</span>:
+    role: str
+    content: str
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="cls">ChatRequest</span>:
+    model: str = <span class="str">"gpt-4o"</span>
+    temperature: float = <span class="num">0.7</span>
+    max_tokens: int = <span class="num">512</span>
+    <span class="cm"># field(default_factory=...) for mutable defaults (list, dict)</span>
+    messages: list[<span class="cls">Message</span>] = field(default_factory=list)
+
+<span class="cm"># Usage</span>
+<span class="var">req</span> = <span class="cls">ChatRequest</span>()
+req.messages.<span class="fn">append</span>(<span class="cls">Message</span>(role=<span class="str">"user"</span>, content=<span class="str">"Hello"</span>))
+<span class="fn">print</span>(req)
+<span class="cm"># ChatRequest(model='gpt-4o', temperature=0.7, ...)</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Frozen Dataclasses (Immutable)</h4>
+        <pre><code><span class="dec">@dataclass</span>(frozen=<span class="kw">True</span>)   <span class="cm"># makes it immutable (like a tuple)</span>
+<span class="kw">class</span> <span class="cls">ModelConfig</span>:
+    name: str
+    max_context: int
+
+<span class="var">cfg</span> = <span class="cls">ModelConfig</span>(<span class="str">"gpt-4o"</span>, <span class="num">128000</span>)
+<span class="cm"># cfg.name = "other"  ← raises FrozenInstanceError</span></code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: Why use dataclass instead of a regular class?</strong><br/>
+        A: Dataclasses eliminate boilerplate. You don't need to write <code>__init__</code>, <code>__repr__</code>, or <code>__eq__</code> manually. They're ideal for data-carrying classes. Pydantic models (used in FastAPI) are the next level up — they add runtime validation.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INHERITANCE -->
+  <div class="topic">
+    <div class="topic-title">
+      🧬 Inheritance
+      <span class="badge">Important</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Single Inheritance — "is-a" relationship</h4>
+        <pre><code><span class="kw">class</span> <span class="cls">BaseLLMClient</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">api_key</span>: str):
+        <span class="var">self</span>.api_key = api_key
+
+    <span class="kw">def</span> <span class="fn">chat</span>(<span class="var">self</span>, <span class="var">prompt</span>: str) -> str:
+        <span class="kw">raise</span> <span class="cls">NotImplementedError</span>(<span class="str">"Subclass must implement chat()"</span>)
+
+    <span class="kw">def</span> <span class="fn">validate_key</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>.api_key.<span class="fn">startswith</span>(<span class="str">"sk-"</span>)
+
+
+<span class="kw">class</span> <span class="cls">OpenAIClient</span>(<span class="cls">BaseLLMClient</span>):    <span class="cm"># ← inherits BaseLLMClient</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">api_key</span>: str, <span class="var">model</span>: str = <span class="str">"gpt-4o"</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(api_key)     <span class="cm"># call parent's __init__</span>
+        <span class="var">self</span>.model = model
+
+    <span class="kw">def</span> <span class="fn">chat</span>(<span class="var">self</span>, <span class="var">prompt</span>: str) -> str:   <span class="cm"># ← overrides parent</span>
+        <span class="kw">return</span> <span class="str">f"[OpenAI </span>{<span class="var">self</span>.model}<span class="str">] </span>{prompt}<span class="str">"</span>
+
+
+<span class="kw">class</span> <span class="cls">AnthropicClient</span>(<span class="cls">BaseLLMClient</span>):
+    <span class="kw">def</span> <span class="fn">chat</span>(<span class="var">self</span>, <span class="var">prompt</span>: str) -> str:
+        <span class="kw">return</span> <span class="str">f"[Claude] </span>{prompt}<span class="str">"</span>
+
+
+<span class="cm"># Usage</span>
+<span class="var">oai</span> = <span class="cls">OpenAIClient</span>(<span class="str">"sk-abc"</span>)
+<span class="var">ant</span> = <span class="cls">AnthropicClient</span>(<span class="str">"sk-xyz"</span>)
+
+<span class="fn">print</span>(oai.<span class="fn">chat</span>(<span class="str">"Hi"</span>))          <span class="cm"># [OpenAI gpt-4o] Hi</span>
+<span class="fn">print</span>(oai.<span class="fn">validate_key</span>())   <span class="cm"># True  (inherited from Base)</span>
+
+<span class="cm"># Polymorphism — treat them all the same way</span>
+<span class="kw">for</span> <span class="var">client</span> <span class="kw">in</span> [oai, ant]:
+    <span class="fn">print</span>(client.<span class="fn">chat</span>(<span class="str">"Hello"</span>))</code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What does super() do?</strong><br/>
+        A: <code>super()</code> gives you access to the <strong>parent class's methods</strong>. It's used in <code>__init__</code> to initialize the parent before adding child-specific stuff. Without <code>super().__init__()</code>, parent attributes won't be set up.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPOSITION -->
+  <div class="topic">
+    <div class="topic-title">
+      🔗 Composition
+      <span class="badge">Prefer over Inheritance</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 What is Composition? — "has-a" relationship</h4>
+        <p>Instead of inheriting, you <strong>include</strong> another class as a field. <em>"Prefer composition over inheritance"</em> is a key OOP principle.</p>
+        <pre><code><span class="kw">class</span> <span class="cls">TokenCounter</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>):
+        <span class="var">self</span>.total = <span class="num">0</span>
+
+    <span class="kw">def</span> <span class="fn">count</span>(<span class="var">self</span>, <span class="var">text</span>: str) -> int:
+        <span class="var">tokens</span> = <span class="fn">len</span>(text.<span class="fn">split</span>())
+        <span class="var">self</span>.total += tokens
+        <span class="kw">return</span> tokens
+
+
+<span class="kw">class</span> <span class="cls">MessageHistory</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>):
+        <span class="var">self</span>.messages: list[dict] = []
+
+    <span class="kw">def</span> <span class="fn">add</span>(<span class="var">self</span>, <span class="var">role</span>: str, <span class="var">content</span>: str):
+        <span class="var">self</span>.messages.<span class="fn">append</span>({<span class="str">"role"</span>: role, <span class="str">"content"</span>: content})
+
+    <span class="kw">def</span> <span class="fn">to_list</span>(<span class="var">self</span>) -> list[dict]:
+        <span class="kw">return</span> <span class="var">self</span>.messages
+
+
+<span class="cm"># ── Composition: ChatBot HAS-A TokenCounter and HAS-A MessageHistory</span>
+<span class="kw">class</span> <span class="cls">ChatBot</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>):
+        <span class="var">self</span>.counter = <span class="cls">TokenCounter</span>()      <span class="cm"># composed in</span>
+        <span class="var">self</span>.history = <span class="cls">MessageHistory</span>()   <span class="cm"># composed in</span>
+
+    <span class="kw">def</span> <span class="fn">send</span>(<span class="var">self</span>, <span class="var">text</span>: str):
+        <span class="var">self</span>.counter.<span class="fn">count</span>(text)
+        <span class="var">self</span>.history.<span class="fn">add</span>(<span class="str">"user"</span>, text)
+        <span class="fn">print</span>(<span class="str">f"Tokens so far: </span>{<span class="var">self</span>.counter.total}<span class="str">"</span>)
+
+<span class="var">bot</span> = <span class="cls">ChatBot</span>()
+bot.<span class="fn">send</span>(<span class="str">"What is the capital of France?"</span>)
+bot.<span class="fn">send</span>(<span class="str">"Tell me more about it"</span>)
+<span class="fn">print</span>(bot.history.<span class="fn">to_list</span>())</code></pre>
+      </div>
+
+      <table>
+        <tr><th>Approach</th><th>When to use</th><th>Key word</th></tr>
+        <tr><td>Inheritance</td><td>Strict "is-a" — <code>OpenAIClient</code> <em>is a</em> <code>BaseLLMClient</code></td><td><code>class Child(Parent)</code></td></tr>
+        <tr><td>Composition</td><td>"has-a" — <code>ChatBot</code> <em>has a</em> <code>MessageHistory</code></td><td>assign in <code>__init__</code></td></tr>
+      </table>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: Composition vs Inheritance — when to choose which?</strong><br/>
+        A: Use <strong>inheritance</strong> when there's a true "is-a" relationship and you want to share and override behavior. Use <strong>composition</strong> when you want flexibility — it avoids the tight coupling of inheritance and makes code easier to test and swap out.</p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3 – ASYNC PROGRAMMING
+═══════════════════════════════════════════ -->
+<section id="async">
+  <div class="section-header">
+    <span class="section-icon">3️⃣</span>
+    <h2>Async Programming</h2>
+  </div>
+
+  <div class="topic">
+    <div class="topic-title">
+      ⚡ async / await &amp; asyncio
+      <span class="badge">LLM Essential</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Why Async?</h4>
+        <p>LLM API calls are <strong>I/O-bound</strong> (waiting for network). Async lets Python do other work while waiting, instead of sitting idle. This is how you handle 100 simultaneous requests instead of 1 at a time.</p>
+        <table>
+          <tr><th>Sync (blocking)</th><th>Async (non-blocking)</th></tr>
+          <tr><td>Task 1 → wait 2s → Task 2 → wait 2s → Done in <strong>4s</strong></td><td>Task 1 starts, Task 2 starts, both finish → Done in <strong>2s</strong></td></tr>
+        </table>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 async def and await</h4>
+        <pre><code><span class="kw">import</span> asyncio
+
+<span class="cm"># async def defines a "coroutine" – a pausable function</span>
+<span class="kw">async def</span> <span class="fn">fetch_response</span>(<span class="var">query</span>: str) -> str:
+    <span class="fn">print</span>(<span class="str">f"Sending: </span>{query}<span class="str">"</span>)
+    <span class="cm"># await = "pause here, let other code run while waiting"</span>
+    <span class="kw">await</span> asyncio.<span class="fn">sleep</span>(<span class="num">1</span>)   <span class="cm"># simulates a 1-second API call</span>
+    <span class="kw">return</span> <span class="str">f"Answer to: </span>{query}<span class="str">"</span>
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cm"># Run one at a time (still async, but sequential)</span>
+    <span class="var">r1</span> = <span class="kw">await</span> <span class="fn">fetch_response</span>(<span class="str">"What is AI?"</span>)
+    <span class="var">r2</span> = <span class="kw">await</span> <span class="fn">fetch_response</span>(<span class="str">"What is LLM?"</span>)
+    <span class="fn">print</span>(r1, r2)
+
+<span class="cm"># Run the async event loop</span>
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 asyncio.gather — Run tasks CONCURRENTLY</h4>
+        <pre><code><span class="kw">async def</span> <span class="fn">main_concurrent</span>():
+    <span class="cm"># gather runs ALL tasks at the same time → much faster!</span>
+    <span class="var">results</span> = <span class="kw">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">fetch_response</span>(<span class="str">"What is AI?"</span>),
+        <span class="fn">fetch_response</span>(<span class="str">"What is Python?"</span>),
+        <span class="fn">fetch_response</span>(<span class="str">"Explain async"</span>),
+    )
+    <span class="cm"># results is a list in the same order as the calls</span>
+    <span class="kw">for</span> <span class="var">r</span> <span class="kw">in</span> results:
+        <span class="fn">print</span>(r)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main_concurrent</span>())
+<span class="cm"># All 3 run in parallel → finishes in ~1s instead of 3s</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 asyncio.create_task — Fire and forget / background tasks</h4>
+        <pre><code><span class="kw">async def</span> <span class="fn">main_task</span>():
+    <span class="cm"># Create tasks that start running immediately in background</span>
+    <span class="var">task1</span> = asyncio.<span class="fn">create_task</span>(<span class="fn">fetch_response</span>(<span class="str">"Q1"</span>))
+    <span class="var">task2</span> = asyncio.<span class="fn">create_task</span>(<span class="fn">fetch_response</span>(<span class="str">"Q2"</span>))
+
+    <span class="cm"># Do something else here...</span>
+    <span class="fn">print</span>(<span class="str">"Tasks are running in background!"</span>)
+
+    <span class="cm"># Collect results</span>
+    <span class="var">r1</span> = <span class="kw">await</span> task1
+    <span class="var">r2</span> = <span class="kw">await</span> task2
+    <span class="fn">print</span>(r1, r2)</code></pre>
+      </div>
+
+      <div class="box box-danger">
+        <strong>🚨 Common Mistake</strong>
+        You CANNOT use <code>await</code> inside a normal (<code>def</code>) function — only inside <code>async def</code>. If you forget <code>await</code>, you get a coroutine object back, not the result!
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HTTPX -->
+  <div class="topic">
+    <div class="topic-title">
+      🌐 httpx — Async HTTP Client
+      <span class="badge">LLM API Calls</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Why httpx instead of requests?</h4>
+        <p><code>requests</code> is synchronous (blocking). <code>httpx</code> supports both sync and <strong>async</strong>, making it the go-to for LLM applications. Install: <code>pip install httpx</code></p>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Async GET and POST requests</h4>
+        <pre><code><span class="kw">import</span> httpx
+<span class="kw">import</span> asyncio
+
+<span class="kw">async def</span> <span class="fn">call_llm_api</span>(<span class="var">prompt</span>: str) -> dict:
+    <span class="var">url</span> = <span class="str">"https://api.openai.com/v1/chat/completions"</span>
+    <span class="var">headers</span> = {
+        <span class="str">"Authorization"</span>: <span class="str">f"Bearer </span>{<span class="var">YOUR_API_KEY</span>}<span class="str">"</span>,
+        <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>
+    }
+    <span class="var">payload</span> = {
+        <span class="str">"model"</span>: <span class="str">"gpt-4o"</span>,
+        <span class="str">"messages"</span>: [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: prompt}]
+    }
+
+    <span class="cm"># async with = async context manager (auto-closes client)</span>
+    <span class="kw">async with</span> httpx.<span class="cls">AsyncClient</span>() <span class="kw">as</span> client:
+        <span class="var">response</span> = <span class="kw">await</span> client.<span class="fn">post</span>(url, json=payload, headers=headers)
+        response.<span class="fn">raise_for_status</span>()   <span class="cm"># raise exception on 4xx/5xx</span>
+        <span class="kw">return</span> response.<span class="fn">json</span>()        <span class="cm"># returns Python dict</span>
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="var">result</span> = <span class="kw">await</span> <span class="fn">call_llm_api</span>(<span class="str">"What is the meaning of life?"</span>)
+    <span class="fn">print</span>(result[<span class="str">"choices"</span>][<span class="num">0</span>][<span class="str">"message"</span>][<span class="str">"content"</span>])
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Batch API Calls (Concurrent)</h4>
+        <pre><code><span class="kw">async def</span> <span class="fn">batch_calls</span>(<span class="var">prompts</span>: list[str]) -> list[dict]:
+    <span class="kw">async with</span> httpx.<span class="cls">AsyncClient</span>(timeout=<span class="num">30.0</span>) <span class="kw">as</span> client:
+        <span class="cm"># Build all tasks first</span>
+        <span class="var">tasks</span> = [
+            client.<span class="fn">post</span>(
+                <span class="str">"https://api.openai.com/v1/chat/completions"</span>,
+                json={<span class="str">"model"</span>: <span class="str">"gpt-4o"</span>, <span class="str">"messages"</span>: [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: p}]},
+                headers={<span class="str">"Authorization"</span>: <span class="str">f"Bearer </span>{<span class="cls">KEY</span>}<span class="str">"</span>}
+            )
+            <span class="kw">for</span> p <span class="kw">in</span> prompts
+        ]
+        <span class="cm"># Fire all at once</span>
+        <span class="var">responses</span> = <span class="kw">await</span> asyncio.<span class="fn">gather</span>(*tasks)
+        <span class="kw">return</span> [r.<span class="fn">json</span>() <span class="kw">for</span> r <span class="kw">in</span> responses]</code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What's the difference between async and threading?</strong><br/>
+        A: Both allow concurrency but differently. <strong>Async</strong> is single-threaded — it switches between tasks when one is waiting for I/O. <strong>Threading</strong> uses multiple OS threads. For I/O-bound tasks (API calls), async is lighter and more efficient. For CPU-bound work, use multiprocessing.</p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 4 – APIs
+═══════════════════════════════════════════ -->
+<section id="apis">
+  <div class="section-header">
+    <span class="section-icon">4️⃣</span>
+    <h2>APIs — FastAPI &amp; Pydantic</h2>
+  </div>
+
+  <!-- PYDANTIC -->
+  <div class="topic">
+    <div class="topic-title">
+      🛡️ Pydantic Models — First!
+      <span class="badge">Validation</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 What is Pydantic?</h4>
+        <p>Pydantic validates data using Python type hints. It's the backbone of FastAPI. Install: <code>pip install pydantic</code></p>
+        <pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field, field_validator
+<span class="kw">from</span> typing <span class="kw">import</span> Optional
+
+<span class="cm"># Define a model by inheriting from BaseModel</span>
+<span class="kw">class</span> <span class="cls">Message</span>(<span class="cls">BaseModel</span>):
+    role: str
+    content: str
+
+<span class="kw">class</span> <span class="cls">ChatRequest</span>(<span class="cls">BaseModel</span>):
+    model: str = <span class="str">"gpt-4o"</span>
+    messages: list[<span class="cls">Message</span>]
+    temperature: float = Field(default=<span class="num">0.7</span>, ge=<span class="num">0.0</span>, le=<span class="num">2.0</span>)  <span class="cm"># 0≤temp≤2</span>
+    max_tokens: Optional[int] = <span class="kw">None</span>
+    stream: bool = <span class="kw">False</span>
+
+    <span class="cm"># Custom validator</span>
+    <span class="dec">@field_validator</span>(<span class="str">"model"</span>)
+    <span class="dec">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">model_must_be_valid</span>(<span class="kw">cls</span>, v):
+        <span class="var">allowed</span> = [<span class="str">"gpt-4o"</span>, <span class="str">"gpt-3.5-turbo"</span>]
+        <span class="kw">if</span> v <span class="kw">not in</span> allowed:
+            <span class="kw">raise</span> <span class="cls">ValueError</span>(<span class="str">f"Model must be one of </span>{allowed}<span class="str">"</span>)
+        <span class="kw">return</span> v
+
+<span class="cm"># ── Using it</span>
+<span class="var">req</span> = <span class="cls">ChatRequest</span>(
+    messages=[<span class="cls">Message</span>(role=<span class="str">"user"</span>, content=<span class="str">"Hello"</span>)]
+)
+<span class="fn">print</span>(req.model)       <span class="cm"># "gpt-4o"</span>
+<span class="fn">print</span>(req.temperature) <span class="cm"># 0.7</span>
+
+<span class="cm"># Convert to dict / JSON</span>
+<span class="fn">print</span>(req.<span class="fn">model_dump</span>())         <span class="cm"># Python dict</span>
+<span class="fn">print</span>(req.<span class="fn">model_dump_json</span>())    <span class="cm"># JSON string</span>
+
+<span class="cm"># Parse from dict (e.g., incoming JSON)</span>
+<span class="var">data</span> = {<span class="str">"messages"</span>: [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"hi"</span>}]}
+<span class="var">req2</span> = <span class="cls">ChatRequest</span>.<span class="fn">model_validate</span>(data)</code></pre>
+      </div>
+
+      <div class="box box-tip">
+        <strong>💡 Key Difference</strong>
+        Dataclass: no validation at runtime. Pydantic: validates types and constraints automatically, raises clear errors.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FASTAPI -->
+  <div class="topic">
+    <div class="topic-title">
+      🚀 FastAPI Basics &amp; POST Endpoints
+      <span class="badge">Production Ready</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 What is FastAPI?</h4>
+        <p>FastAPI is a modern, <strong>async</strong> Python web framework for building APIs. It auto-generates documentation and uses Pydantic for validation. Install: <code>pip install fastapi uvicorn</code></p>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Hello World API</h4>
+        <pre><code><span class="cm"># main.py</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+
+<span class="var">app</span> = <span class="cls">FastAPI</span>(title=<span class="str">"My LLM API"</span>, version=<span class="str">"1.0"</span>)
+
+<span class="dec">@app.get</span>(<span class="str">"/"</span>)
+<span class="kw">def</span> <span class="fn">root</span>():
+    <span class="kw">return</span> {<span class="str">"message"</span>: <span class="str">"API is running"</span>}
+
+<span class="dec">@app.get</span>(<span class="str">"/health"</span>)
+<span class="kw">def</span> <span class="fn">health</span>():
+    <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"ok"</span>}
+
+<span class="cm"># Run: uvicorn main:app --reload</span>
+<span class="cm"># Open: http://127.0.0.1:8000/docs  ← Auto-generated Swagger UI!</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 POST Endpoint with Pydantic (Real LLM Wrapper)</h4>
+        <pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, HTTPException
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">from</span> typing <span class="kw">import</span> Optional
+<span class="kw">import</span> httpx
+
+<span class="var">app</span> = <span class="cls">FastAPI</span>()
+
+<span class="cm"># ── Request model</span>
+<span class="kw">class</span> <span class="cls">ChatRequest</span>(<span class="cls">BaseModel</span>):
+    prompt: str
+    model: str = <span class="str">"gpt-4o"</span>
+    temperature: float = <span class="num">0.7</span>
+
+<span class="cm"># ── Response model</span>
+<span class="kw">class</span> <span class="cls">ChatResponse</span>(<span class="cls">BaseModel</span>):
+    answer: str
+    model_used: str
+    tokens: int
+
+<span class="cm"># ── POST endpoint</span>
+<span class="dec">@app.post</span>(<span class="str">"/chat"</span>, response_model=<span class="cls">ChatResponse</span>)
+<span class="kw">async def</span> <span class="fn">chat</span>(<span class="var">request</span>: <span class="cls">ChatRequest</span>):
+    <span class="kw">try</span>:
+        <span class="kw">async with</span> httpx.<span class="cls">AsyncClient</span>() <span class="kw">as</span> client:
+            <span class="var">resp</span> = <span class="kw">await</span> client.<span class="fn">post</span>(
+                <span class="str">"https://api.openai.com/v1/chat/completions"</span>,
+                json={
+                    <span class="str">"model"</span>: request.model,
+                    <span class="str">"temperature"</span>: request.temperature,
+                    <span class="str">"messages"</span>: [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: request.prompt}]
+                },
+                headers={<span class="str">"Authorization"</span>: <span class="str">"Bearer sk-..."</span>},
+                timeout=<span class="num">30.0</span>
+            )
+            resp.<span class="fn">raise_for_status</span>()
+            <span class="var">data</span> = resp.<span class="fn">json</span>()
+
+        <span class="kw">return</span> <span class="cls">ChatResponse</span>(
+            answer=data[<span class="str">"choices"</span>][<span class="num">0</span>][<span class="str">"message"</span>][<span class="str">"content"</span>],
+            model_used=data[<span class="str">"model"</span>],
+            tokens=data[<span class="str">"usage"</span>][<span class="str">"total_tokens"</span>]
+        )
+
+    <span class="kw">except</span> httpx.<span class="cls">HTTPStatusError</span> <span class="kw">as</span> e:
+        <span class="kw">raise</span> <span class="cls">HTTPException</span>(status_code=<span class="num">502</span>, detail=<span class="str">f"LLM API error: </span>{e}<span class="str">"</span>)
+    <span class="kw">except</span> <span class="cls">Exception</span> <span class="kw">as</span> e:
+        <span class="kw">raise</span> <span class="cls">HTTPException</span>(status_code=<span class="num">500</span>, detail=<span class="str">f"Internal error: </span>{e}<span class="str">"</span>)
+
+
+<span class="cm"># Path parameters</span>
+<span class="dec">@app.get</span>(<span class="str">"/models/{model_id}"</span>)
+<span class="kw">def</span> <span class="fn">get_model</span>(<span class="var">model_id</span>: str):
+    <span class="kw">return</span> {<span class="str">"model"</span>: model_id}
+
+<span class="cm"># Query parameters  → /search?q=hello&limit=5</span>
+<span class="dec">@app.get</span>(<span class="str">"/search"</span>)
+<span class="kw">def</span> <span class="fn">search</span>(<span class="var">q</span>: str, <span class="var">limit</span>: int = <span class="num">10</span>):
+    <span class="kw">return</span> {<span class="str">"query"</span>: q, <span class="str">"limit"</span>: limit}</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 FastAPI Request Flow</h4>
+        <pre><code><span class="cm">Client sends JSON  →  FastAPI receives it
+        ↓
+Pydantic validates &amp; parses into ChatRequest object
+        ↓
+Your async handler function runs
+        ↓
+You return a dict or Pydantic model
+        ↓
+FastAPI serializes it back to JSON  →  Client gets response</span></code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: How does FastAPI handle request validation?</strong><br/>
+        A: FastAPI uses <strong>Pydantic</strong> under the hood. When you declare a parameter with a Pydantic model type, FastAPI automatically parses the request body and validates it. If validation fails, it returns a <code>422 Unprocessable Entity</code> response with clear error details — no extra code needed.</p>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What's the difference between a path param and a query param in FastAPI?</strong><br/>
+        A: <strong>Path param</strong> is part of the URL: <code>/users/{user_id}</code>. <strong>Query param</strong> is after the <code>?</code>: <code>/users?role=admin</code>. In FastAPI, path params are declared in the route string, query params are just function parameters without a default or declared as <code>Query()</code>.</p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 5 – PACKAGING
+═══════════════════════════════════════════ -->
+<section id="packaging">
+  <div class="section-header">
+    <span class="section-icon">5️⃣</span>
+    <h2>Packaging — venv, pip &amp; requirements.txt</h2>
+  </div>
+
+  <div class="topic">
+    <div class="topic-title">
+      📦 Virtual Environments (venv)
+      <span class="badge">Must Know</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Why venv?</h4>
+        <p>Imagine two projects: one needs <code>fastapi==0.95</code> and another needs <code>fastapi==0.115</code>. Without venv, they'd conflict. A virtual environment isolates each project's dependencies.</p>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Complete venv Workflow</h4>
+        <pre><code><span class="cm"># ─── Step 1: Create a virtual environment</span>
+<span class="cm"># (creates a folder called 'venv' with its own Python)</span>
+python -m venv venv
+
+<span class="cm"># ─── Step 2: Activate it</span>
+<span class="cm"># On Windows:</span>
+venv\Scripts\activate
+
+<span class="cm"># On Mac/Linux:</span>
+source venv/bin/activate
+
+<span class="cm"># You'll see (venv) prefix in your terminal: (venv) $</span>
+
+<span class="cm"># ─── Step 3: Install packages (now isolated to this venv)</span>
+pip install fastapi uvicorn httpx pydantic
+
+<span class="cm"># ─── Step 4: Deactivate when done</span>
+deactivate
+
+<span class="cm"># ─── NEVER commit the venv folder to git!</span>
+<span class="cm"># Add to .gitignore:</span>
+echo "venv/" >> .gitignore</code></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic">
+    <div class="topic-title">
+      🔧 pip — Python Package Installer
+      <span class="badge">Daily Use</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Essential pip Commands</h4>
+        <pre><code><span class="cm"># Install a package</span>
+pip install fastapi
+
+<span class="cm"># Install a specific version</span>
+pip install fastapi==0.115.0
+
+<span class="cm"># Install minimum version</span>
+pip install "fastapi>=0.100.0"
+
+<span class="cm"># Upgrade a package</span>
+pip install --upgrade fastapi
+
+<span class="cm"># Uninstall</span>
+pip uninstall fastapi
+
+<span class="cm"># List all installed packages</span>
+pip list
+
+<span class="cm"># Show details of a package</span>
+pip show fastapi
+
+<span class="cm"># Install from requirements file</span>
+pip install -r requirements.txt
+
+<span class="cm"># Check for outdated packages</span>
+pip list --outdated</code></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic">
+    <div class="topic-title">
+      📋 requirements.txt
+      <span class="badge">Team Sharing</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="concept">
+        <h4>🔷 Creating &amp; Using requirements.txt</h4>
+        <pre><code><span class="cm"># ── Generate from current venv (freeze all installed packages)</span>
+pip freeze > requirements.txt
+
+<span class="cm"># ── Install everything from requirements.txt</span>
+pip install -r requirements.txt</code></pre>
+
+        <p>Example <code>requirements.txt</code> for an LLM project:</p>
+        <pre><code><span class="cm"># requirements.txt</span>
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+httpx==0.27.0
+pydantic==2.7.0
+openai==1.35.0
+python-dotenv==1.0.0
+langchain==0.2.0</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Full Project Setup Workflow</h4>
+        <pre><code><span class="cm"># ── Starting a new project</span>
+mkdir my_llm_app
+cd my_llm_app
+python -m venv venv
+source venv/bin/activate          <span class="cm"># (Windows: venv\Scripts\activate)</span>
+pip install fastapi uvicorn httpx openai pydantic python-dotenv
+pip freeze > requirements.txt
+
+<span class="cm"># ── Cloning/sharing with teammates</span>
+git clone https://github.com/your/repo
+cd repo
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt   <span class="cm"># everyone gets exact same packages</span>
+uvicorn main:app --reload         <span class="cm"># start the server</span></code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 Project File Structure (Best Practice)</h4>
+        <pre><code>my_llm_app/
+├── venv/                  ← NOT committed to git
+├── .env                   ← secrets (API keys) – NOT committed
+├── .gitignore             ← excludes venv/, .env
+├── requirements.txt       ← committed ✅
+├── main.py                ← FastAPI app
+├── models.py              ← Pydantic models
+├── services/
+│   └── llm_service.py    ← async LLM API logic
+└── README.md</code></pre>
+      </div>
+
+      <div class="concept">
+        <h4>🔷 .env file for secrets</h4>
+        <pre><code><span class="cm"># .env</span>
+OPENAI_API_KEY=sk-your-key-here
+MODEL_NAME=gpt-4o
+MAX_TOKENS=512</code></pre>
+        <pre><code><span class="cm"># In Python — load with python-dotenv</span>
+<span class="kw">import</span> os
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+
+<span class="fn">load_dotenv</span>()   <span class="cm"># reads .env file</span>
+<span class="var">api_key</span> = os.<span class="fn">getenv</span>(<span class="str">"OPENAI_API_KEY"</span>)
+<span class="fn">print</span>(api_key)  <span class="cm"># "sk-your-key-here"</span></code></pre>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: Why should we use a virtual environment?</strong><br/>
+        A: To <strong>isolate project dependencies</strong>. Without it, all projects share the same Python packages, causing version conflicts. venv gives each project its own package sandbox. It's standard practice for all Python projects.</p>
+      </div>
+
+      <div class="interview-q">
+        <div class="q-label">🎯 Interview Q</div>
+        <p><strong>Q: What's the difference between pip freeze and pip list?</strong><br/>
+        A: <code>pip list</code> shows packages in a human-readable table. <code>pip freeze</code> outputs them in <code>name==version</code> format — exactly what goes into <code>requirements.txt</code> for reproducible installations.</p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ── Quick Reference Cheatsheet ── -->
+<section>
+  <div class="section-header">
+    <span class="section-icon">📌</span>
+    <h2>Quick Cheatsheet — All Key Commands</h2>
+  </div>
+  <div class="topic">
+    <div class="topic-title">⚡ One-Page Reference</div>
+    <div class="topic-body">
+      <table>
+        <tr><th>Category</th><th>What</th><th>Code / Command</th></tr>
+        <tr><td>List</td><td>Comprehension</td><td><code>[x*2 for x in nums if x > 0]</code></td></tr>
+        <tr><td>Dict</td><td>Safe access</td><td><code>d.get("key", default)</code></td></tr>
+        <tr><td>Dict</td><td>All items</td><td><code>for k, v in d.items()</code></td></tr>
+        <tr><td>JSON</td><td>Parse string</td><td><code>json.loads(s)</code></td></tr>
+        <tr><td>JSON</td><td>To string</td><td><code>json.dumps(d, indent=2)</code></td></tr>
+        <tr><td>Function</td><td>Type hints</td><td><code>def fn(x: str) -> int:</code></td></tr>
+        <tr><td>OOP</td><td>Dataclass</td><td><code>@dataclass class Foo:</code></td></tr>
+        <tr><td>OOP</td><td>Inherit</td><td><code>class Child(Parent):</code></td></tr>
+        <tr><td>OOP</td><td>Call parent</td><td><code>super().__init__(...)</code></td></tr>
+        <tr><td>Async</td><td>Define</td><td><code>async def fn():</code></td></tr>
+        <tr><td>Async</td><td>Wait</td><td><code>result = await some_coro()</code></td></tr>
+        <tr><td>Async</td><td>Concurrent</td><td><code>await asyncio.gather(f1(), f2())</code></td></tr>
+        <tr><td>Async</td><td>Run</td><td><code>asyncio.run(main())</code></td></tr>
+        <tr><td>httpx</td><td>POST</td><td><code>async with httpx.AsyncClient() as c: await c.post(...)</code></td></tr>
+        <tr><td>FastAPI</td><td>Create app</td><td><code>app = FastAPI()</code></td></tr>
+        <tr><td>FastAPI</td><td>POST route</td><td><code>@app.post("/path")</code></td></tr>
+        <tr><td>FastAPI</td><td>Run server</td><td><code>uvicorn main:app --reload</code></td></tr>
+        <tr><td>Pydantic</td><td>Model</td><td><code>class Req(BaseModel): field: type</code></td></tr>
+        <tr><td>Pydantic</td><td>To dict</td><td><code>req.model_dump()</code></td></tr>
+        <tr><td>venv</td><td>Create</td><td><code>python -m venv venv</code></td></tr>
+        <tr><td>venv</td><td>Activate (Mac)</td><td><code>source venv/bin/activate</code></td></tr>
+        <tr><td>venv</td><td>Activate (Win)</td><td><code>venv\Scripts\activate</code></td></tr>
+        <tr><td>pip</td><td>Install</td><td><code>pip install package</code></td></tr>
+        <tr><td>pip</td><td>Save deps</td><td><code>pip freeze > requirements.txt</code></td></tr>
+        <tr><td>pip</td><td>Restore deps</td><td><code>pip install -r requirements.txt</code></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>🐍 Python for LLM — Interview Prep Notes &nbsp;|&nbsp; Built for Arup &nbsp;|&nbsp; Study hard, ship faster 🚀</p>
+</footer>
+
+<script>
+  // Reading progress bar
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop;
+    const total = doc.scrollHeight - doc.clientHeight;
+    document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+  });
+</script>
+</body>
+</html>

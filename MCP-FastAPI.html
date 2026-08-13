@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MCP + FastAPI – Agentic AI Notes</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --accent: #7c6af7;
+      --accent2: #4fc3f7;
+      --accent3: #43e97b;
+      --accent4: #f7971e;
+      --danger: #ff6b6b;
+      --text: #e8eaf0;
+      --muted: #8892a4;
+      --border: #2e3347;
+      --code-bg: #141720;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 15px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #12152a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 40px 36px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    header h1 {
+      font-size: 2.2rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .badge {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 14px; font-size: 0.78rem; color: var(--accent2);
+    }
+
+    /* ── LAYOUT ── */
+    .layout { display: flex; min-height: 100vh; }
+    nav {
+      width: 270px; min-width: 270px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    nav h3 {
+      font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); padding: 16px 20px 6px;
+    }
+    nav a {
+      display: block; padding: 8px 20px;
+      color: var(--text); text-decoration: none; font-size: 0.88rem;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    nav a:hover, nav a.active {
+      color: var(--accent); border-left-color: var(--accent);
+      background: rgba(124,106,247,.08);
+    }
+    nav .nav-sub { padding-left: 32px; font-size: 0.82rem; color: var(--muted); }
+
+    main { flex: 1; padding: 40px 48px; max-width: 1050px; }
+
+    /* ── SECTIONS ── */
+    section { margin-bottom: 72px; }
+    h2 {
+      font-size: 1.65rem; font-weight: 700; margin-bottom: 18px;
+      padding-bottom: 10px; border-bottom: 2px solid var(--border);
+      color: var(--accent);
+    }
+    h3 { font-size: 1.15rem; font-weight: 600; margin: 28px 0 10px; color: var(--accent2); }
+    h4 { font-size: 0.97rem; font-weight: 600; margin: 20px 0 8px; color: var(--accent3); }
+    p { margin-bottom: 12px; }
+
+    /* ── CALLOUT BOXES ── */
+    .box {
+      border-radius: var(--radius); padding: 18px 22px; margin: 18px 0;
+      border-left: 4px solid;
+    }
+    .box.info   { background: rgba(79,195,247,.06); border-color: var(--accent2); }
+    .box.tip    { background: rgba(67,233,123,.06); border-color: var(--accent3); }
+    .box.warn   { background: rgba(247,151,30,.07); border-color: var(--accent4); }
+    .box.danger { background: rgba(255,107,107,.07); border-color: var(--danger); }
+    .box strong { display: block; margin-bottom: 6px; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
+    .box.info   strong { color: var(--accent2); }
+    .box.tip    strong { color: var(--accent3); }
+    .box.warn   strong { color: var(--accent4); }
+    .box.danger strong { color: var(--danger); }
+
+    /* ── CODE ── */
+    pre {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; overflow-x: auto;
+      margin: 16px 0; position: relative;
+    }
+    pre .lang-label {
+      position: absolute; top: 8px; right: 12px;
+      font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+    }
+    code { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.88rem; }
+    p code, li code {
+      background: var(--code-bg); border: 1px solid var(--border);
+      padding: 1px 6px; border-radius: 4px; color: var(--accent2);
+    }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+    th { background: var(--surface2); padding: 10px 14px; text-align: left; color: var(--accent); }
+    td { padding: 9px 14px; border-top: 1px solid var(--border); vertical-align: top; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── LISTS ── */
+    ul, ol { padding-left: 22px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+
+    /* ── ARCHITECTURE DIAGRAM ── */
+    .diagram {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin: 20px 0;
+      font-family: monospace; font-size: 0.82rem; white-space: pre; overflow-x: auto;
+      line-height: 1.6; color: #a8b4c8;
+    }
+
+    /* ── STEPS ── */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex; gap: 16px; margin-bottom: 20px;
+      background: var(--surface); border-radius: var(--radius);
+      padding: 16px; border: 1px solid var(--border);
+    }
+    .step-num {
+      counter-increment: step;
+      content: counter(step);
+      min-width: 34px; height: 34px;
+      background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0;
+    }
+
+    /* ── GRID CARDS ── */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; margin: 20px 0; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+    }
+    .card h4 { margin-top: 0; }
+    .card .icon { font-size: 1.6rem; margin-bottom: 8px; }
+
+    /* ── PROGRESS TRACKER ── */
+    .roadmap { display: flex; flex-direction: column; gap: 0; }
+    .rm-item { display: flex; gap: 0; }
+    .rm-line { display: flex; flex-direction: column; align-items: center; min-width: 40px; }
+    .rm-dot { width: 16px; height: 16px; background: var(--accent); border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .rm-bar { flex: 1; width: 2px; background: var(--border); }
+    .rm-content { padding: 0 0 28px 16px; }
+    .rm-content h4 { margin-top: 0; }
+
+    footer { text-align: center; padding: 40px; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+
+    @media (max-width: 900px) {
+      nav { display: none; }
+      main { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 MCP + FastAPI — Agentic AI</h1>
+  <p>Complete Study Notes · Beginner → Advanced · Generated 2026-05-15</p>
+  <div class="badge-row">
+    <span class="badge">MCP Protocol</span>
+    <span class="badge">FastAPI</span>
+    <span class="badge">Agentic AI</span>
+    <span class="badge">Tool Calling</span>
+    <span class="badge">LLM Integration</span>
+    <span class="badge">Python</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ══ SIDEBAR NAV ══ -->
+<nav>
+  <h3>Part 1 — MCP</h3>
+  <a href="#mcp-intro">What is MCP?</a>
+  <a href="#mcp-why" class="nav-sub">Why MCP?</a>
+  <a href="#mcp-arch">Architecture</a>
+  <a href="#mcp-primitives">Primitives</a>
+  <a href="#mcp-transport">Transport Layers</a>
+  <a href="#mcp-server">Building MCP Servers</a>
+  <a href="#mcp-client">MCP Clients</a>
+  <a href="#mcp-security">Security</a>
+
+  <h3>Part 2 — FastAPI</h3>
+  <a href="#fastapi-intro">What is FastAPI?</a>
+  <a href="#fastapi-setup">Setup & First App</a>
+  <a href="#fastapi-routing">Routing & Methods</a>
+  <a href="#fastapi-pydantic">Pydantic Models</a>
+  <a href="#fastapi-async">Async & Concurrency</a>
+  <a href="#fastapi-deps">Dependency Injection</a>
+  <a href="#fastapi-middleware">Middleware & CORS</a>
+  <a href="#fastapi-auth">Auth & Security</a>
+  <a href="#fastapi-ws">WebSockets / SSE</a>
+  <a href="#fastapi-bg">Background Tasks</a>
+
+  <h3>Part 3 — Agentic AI</h3>
+  <a href="#agent-concepts">Agent Concepts</a>
+  <a href="#agent-tools">Tool Calling</a>
+  <a href="#agent-memory">Memory Patterns</a>
+  <a href="#agent-orchestration">Orchestration</a>
+
+  <h3>Part 4 — Integration</h3>
+  <a href="#integration">MCP + FastAPI Together</a>
+  <a href="#production">Production Patterns</a>
+  <a href="#roadmap">Learning Roadmap</a>
+</nav>
+
+<!-- ══ MAIN CONTENT ══ -->
+<main>
+
+<!-- ════════════════════════════════════════════
+     PART 1 — MCP
+═════════════════════════════════════════════ -->
+<section id="mcp-intro">
+  <h2>🔌 Part 1 — Model Context Protocol (MCP)</h2>
+
+  <h3 id="mcp-why">1.1 What Is MCP & Why Does It Exist?</h3>
+  <p>
+    <strong>Model Context Protocol (MCP)</strong> is an open standard introduced by Anthropic
+    (late 2024) that defines a universal, vendor-neutral interface between
+    <em>AI assistants / LLMs</em> and <em>external tools, data sources, and services</em>.
+  </p>
+
+  <div class="box info">
+    <strong>📌 Core Idea</strong>
+    Think of MCP as <strong>USB-C for AI</strong>. Just as USB-C lets you plug any device into any
+    port without worrying about adapters, MCP lets any AI model connect to any tool without
+    writing custom glue code for each pair.
+  </div>
+
+  <h4>The Problem Before MCP</h4>
+  <p>Before MCP every AI product had to build N×M integrations:</p>
+  <div class="diagram">
+  Claude ──┬──> custom Slack plugin
+           ├──> custom GitHub plugin
+           └──> custom DB plugin
+
+  GPT-4  ──┬──> different Slack plugin
+           ├──> different GitHub plugin
+           └──> different DB plugin
+  </div>
+
+  <h4>The Solution — MCP</h4>
+  <div class="diagram">
+  Any LLM / Agent
+        │
+        │  MCP Protocol (JSON-RPC 2.0)
+        │
+   ┌────┴────────────────────────────────┐
+   │           MCP Server Layer          │
+   ├──────────┬──────────┬───────────────┤
+   │  Slack   │  GitHub  │   Database    │
+   │  Server  │  Server  │    Server     │
+   └──────────┴──────────┴───────────────┘
+  </div>
+
+  <p>Now you write <strong>one MCP server per tool</strong> and every MCP-aware AI model can use it.</p>
+
+  <h3>1.2 Key Terminology</h3>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td><strong>MCP Host</strong></td><td>The AI application that wants to use capabilities (Claude Desktop, your custom agent app)</td></tr>
+    <tr><td><strong>MCP Client</strong></td><td>The component inside the host that speaks the MCP protocol</td></tr>
+    <tr><td><strong>MCP Server</strong></td><td>A lightweight process that exposes tools, resources, and prompts via MCP</td></tr>
+    <tr><td><strong>Transport</strong></td><td>How host ↔ server communicate (stdio, SSE, WebSocket, HTTP Streamable)</td></tr>
+  </table>
+</section>
+
+<!-- ── ARCHITECTURE ── -->
+<section id="mcp-arch">
+  <h3>1.3 MCP Architecture Deep-Dive</h3>
+
+  <div class="diagram">
+  ╔══════════════════════════════════════════════════════╗
+  ║                   MCP HOST (your app)                ║
+  ║                                                      ║
+  ║   ┌─────────────┐       ┌─────────────────────────┐ ║
+  ║   │    LLM      │◄─────►│      MCP Client         │ ║
+  ║   │  (Claude,   │       │  - Connection Manager   │ ║
+  ║   │   GPT, etc) │       │  - Capability Registry  │ ║
+  ║   └─────────────┘       │  - Request Router       │ ║
+  ║                         └──────────┬──────────────┘ ║
+  ╚════════════════════════════════════╪════════════════╝
+                                       │ Transport
+                    ┌──────────────────┼──────────────────┐
+                    │                  │                   │
+           ┌────────▼──────┐  ┌────────▼──────┐  ┌────────▼──────┐
+           │  MCP Server A │  │  MCP Server B │  │  MCP Server C │
+           │  (File System)│  │   (Database)  │  │  (Web Search) │
+           └───────────────┘  └───────────────┘  └───────────────┘
+  </div>
+
+  <h4>Message Flow (Request/Response)</h4>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div><strong>Initialization</strong> — Client sends <code>initialize</code> request with client info and supported protocol version</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div><strong>Capability Negotiation</strong> — Server responds with its capabilities (tools, resources, prompts it supports)</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div><strong>Tool Discovery</strong> — Client calls <code>tools/list</code> to enumerate available tools</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div><strong>LLM Decides</strong> — The AI model picks a tool based on user query</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div><strong>Tool Call</strong> — Client sends <code>tools/call</code> with arguments to the server</div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div><strong>Result Injection</strong> — Server returns result → injected back into LLM context</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRIMITIVES ── -->
+<section id="mcp-primitives">
+  <h3>1.4 The Three MCP Primitives</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🔧</div>
+      <h4>Tools</h4>
+      <p>Functions the LLM can <strong>call</strong> to perform actions or retrieve data. The AI decides when and how to call them.</p>
+      <p>Example: <code>search_web(query)</code>, <code>create_file(name, content)</code></p>
+    </div>
+    <div class="card">
+      <div class="icon">📁</div>
+      <h4>Resources</h4>
+      <p>Read-only data blobs the LLM can <strong>read</strong> — like files, DB rows, config. Identified by URI.</p>
+      <p>Example: <code>file:///docs/readme.md</code>, <code>db://users/42</code></p>
+    </div>
+    <div class="card">
+      <div class="icon">💬</div>
+      <h4>Prompts</h4>
+      <p>Reusable <strong>prompt templates</strong> that can be injected into the conversation with dynamic parameters.</p>
+      <p>Example: A "code-review" prompt template</p>
+    </div>
+  </div>
+
+  <h4>Tools vs Resources — When to Use Each</h4>
+  <table>
+    <tr><th>Scenario</th><th>Use</th></tr>
+    <tr><td>Execute an action (send email, create ticket)</td><td>Tool</td></tr>
+    <tr><td>Read a large document or file</td><td>Resource</td></tr>
+    <tr><td>Query a database for a record</td><td>Tool (or Resource if static)</td></tr>
+    <tr><td>Provide reusable system instructions</td><td>Prompt</td></tr>
+    <tr><td>Stream live data</td><td>Resource (with subscriptions)</td></tr>
+  </table>
+</section>
+
+<!-- ── TRANSPORT ── -->
+<section id="mcp-transport">
+  <h3>1.5 Transport Layers</h3>
+
+  <table>
+    <tr><th>Transport</th><th>Best For</th><th>Notes</th></tr>
+    <tr>
+      <td><strong>stdio</strong></td>
+      <td>Local tools, CLI integrations</td>
+      <td>Server launched as a subprocess; communication via stdin/stdout. Simplest to implement.</td>
+    </tr>
+    <tr>
+      <td><strong>HTTP + SSE</strong></td>
+      <td>Remote servers, cloud-hosted tools</td>
+      <td>Client → Server via HTTP POST; Server → Client via Server-Sent Events. Most common for web.</td>
+    </tr>
+    <tr>
+      <td><strong>HTTP Streamable</strong></td>
+      <td>Modern production (MCP 2025-03)</td>
+      <td>Single HTTP endpoint with streaming. Replaces old SSE transport. Best for FastAPI.</td>
+    </tr>
+    <tr>
+      <td><strong>WebSocket</strong></td>
+      <td>Bidirectional real-time</td>
+      <td>Full-duplex; useful for streaming tool results or progress updates.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ── BUILDING MCP SERVERS ── -->
+<section id="mcp-server">
+  <h3>1.6 Building MCP Servers in Python</h3>
+
+  <h4>Installation</h4>
+  <pre><code class="language-bash">pip install mcp            # Official Python SDK
+pip install "mcp[cli]"    # With CLI tools
+</code><span class="lang-label">bash</span></pre>
+
+  <h4>Minimal MCP Server (stdio)</h4>
+  <pre><code class="language-python">from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp import types
+
+# 1. Create the server instance
+app = Server("my-first-mcp-server")
+
+# 2. Register a tool — use the @app.list_tools decorator
+@app.list_tools()
+async def list_tools() -> list[types.Tool]:
+    return [
+        types.Tool(
+            name="add_numbers",
+            description="Add two numbers together",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "a": {"type": "number", "description": "First number"},
+                    "b": {"type": "number", "description": "Second number"},
+                },
+                "required": ["a", "b"],
+            },
+        )
+    ]
+
+# 3. Handle tool calls
+@app.call_tool()
+async def call_tool(
+    name: str, arguments: dict
+) -> list[types.TextContent]:
+    if name == "add_numbers":
+        result = arguments["a"] + arguments["b"]
+        return [types.TextContent(type="text", text=str(result))]
+    raise ValueError(f"Unknown tool: {name}")
+
+# 4. Run the server
+async def main():
+    async with stdio_server() as (read_stream, write_stream):
+        await app.run(read_stream, write_stream, app.create_initialization_options())
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+</code><span class="lang-label">python</span></pre>
+
+  <h4>MCP Server with Resources</h4>
+  <pre><code class="language-python">from mcp.server import Server
+from mcp import types
+
+app = Server("resource-demo")
+
+@app.list_resources()
+async def list_resources() -> list[types.Resource]:
+    return [
+        types.Resource(
+            uri="file:///docs/readme.md",
+            name="Project README",
+            description="Main project documentation",
+            mimeType="text/markdown",
+        )
+    ]
+
+@app.read_resource()
+async def read_resource(uri: str) -> str:
+    if uri == "file:///docs/readme.md":
+        with open("readme.md") as f:
+            return f.read()
+    raise ValueError(f"Unknown resource: {uri}")
+</code><span class="lang-label">python</span></pre>
+
+  <h4>MCP Server with HTTP Streamable Transport (Production)</h4>
+  <pre><code class="language-python">from mcp.server import Server
+from mcp.server.streamable_http import streamable_http_server
+from mcp import types
+import uvicorn
+
+app = Server("production-mcp")
+
+@app.list_tools()
+async def list_tools() -> list[types.Tool]:
+    return [
+        types.Tool(
+            name="get_weather",
+            description="Get current weather for a city",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "City name"}
+                },
+                "required": ["city"],
+            },
+        )
+    ]
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
+    if name == "get_weather":
+        # In real world: call a weather API
+        city = arguments["city"]
+        return [types.TextContent(type="text", text=f"Weather in {city}: 22°C, Sunny")]
+
+# Create ASGI app for deployment
+mcp_app = streamable_http_server(app)
+
+if __name__ == "__main__":
+    uvicorn.run(mcp_app, host="0.0.0.0", port=8000)
+</code><span class="lang-label">python</span></pre>
+
+  <div class="box tip">
+    <strong>💡 Pro Tip</strong>
+    The <code>streamable_http_server()</code> returns an ASGI app. You can mount it directly into a
+    FastAPI application using <code>app.mount("/mcp", mcp_app)</code>. This is the magic bridge!
+  </div>
+</section>
+
+<!-- ── MCP CLIENT ── -->
+<section id="mcp-client">
+  <h3>1.7 Building MCP Clients</h3>
+  <p>A client connects to one or more MCP servers, discovers their capabilities, and routes LLM requests to the right tool.</p>
+
+  <pre><code class="language-python">from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+async def run_client():
+    server_params = StdioServerParameters(
+        command="python",
+        args=["my_mcp_server.py"],
+    )
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+
+            # Initialize the connection
+            await session.initialize()
+
+            # List available tools
+            tools = await session.list_tools()
+            for tool in tools.tools:
+                print(f"Tool: {tool.name} — {tool.description}")
+
+            # Call a specific tool
+            result = await session.call_tool(
+                "add_numbers",
+                arguments={"a": 10, "b": 32}
+            )
+            print(f"Result: {result.content[0].text}")  # 42
+</code><span class="lang-label">python</span></pre>
+
+  <h4>Multi-Server Client Pattern</h4>
+  <pre><code class="language-python">import asyncio
+from mcp import ClientSession
+from mcp.client.http import http_client
+
+class AgentMCPClient:
+    """Manages connections to multiple MCP servers."""
+
+    def __init__(self):
+        self.sessions: dict[str, ClientSession] = {}
+        self.all_tools: dict[str, str] = {}  # tool_name → server_name
+
+    async def connect(self, server_name: str, url: str):
+        read, write = await http_client(url).__aenter__()
+        session = ClientSession(read, write)
+        await session.initialize()
+        self.sessions[server_name] = session
+
+        # Index tools from this server
+        tools = await session.list_tools()
+        for tool in tools.tools:
+            self.all_tools[tool.name] = server_name
+
+    async def call_tool(self, tool_name: str, arguments: dict):
+        server_name = self.all_tools[tool_name]
+        session = self.sessions[server_name]
+        return await session.call_tool(tool_name, arguments)
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── MCP SECURITY ── -->
+<section id="mcp-security">
+  <h3>1.8 MCP Security Best Practices</h3>
+
+  <div class="box danger">
+    <strong>⚠️ Critical</strong>
+    MCP servers execute real actions. A compromised or malicious MCP server can cause your AI to
+    delete files, leak secrets, or send unauthorized requests. <em>Always apply principle of least privilege.</em>
+  </div>
+
+  <table>
+    <tr><th>Risk</th><th>Mitigation</th></tr>
+    <tr><td>Tool injection via user input</td><td>Validate and sanitize all arguments; use strict JSON Schema</td></tr>
+    <tr><td>Unauthorized server connections</td><td>Whitelist allowed MCP server URLs; validate server certificates</td></tr>
+    <tr><td>Sensitive data in tool results</td><td>Redact secrets before returning; never return API keys in text</td></tr>
+    <tr><td>Prompt injection via resources</td><td>Treat all resource content as untrusted; use content sandboxing</td></tr>
+    <tr><td>Excessive permissions</td><td>Each MCP server should only expose exactly the tools it needs</td></tr>
+    <tr><td>No auth on HTTP servers</td><td>Use Bearer token / OAuth 2.0 on all remote MCP endpoints</td></tr>
+  </table>
+
+  <h4>Adding Auth to an MCP HTTP Server</h4>
+  <pre><code class="language-python">from mcp.server.streamable_http import streamable_http_server
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+class BearerAuthMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, token: str):
+        super().__init__(app)
+        self.token = token
+
+    async def dispatch(self, request: Request, call_next):
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer ") or auth[7:] != self.token:
+            return JSONResponse({"error": "Unauthorized"}, status_code=401)
+        return await call_next(request)
+
+mcp_asgi = streamable_http_server(app)
+
+# Wrap with auth middleware
+from starlette.applications import Starlette
+secure_app = Starlette()
+secure_app.add_middleware(BearerAuthMiddleware, token="super-secret-token")
+secure_app.mount("/", mcp_asgi)
+</code><span class="lang-label">python</span></pre>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PART 2 — FastAPI
+═════════════════════════════════════════════ -->
+<section id="fastapi-intro">
+  <h2>⚡ Part 2 — FastAPI</h2>
+
+  <h3>2.1 What Is FastAPI?</h3>
+  <p>
+    <strong>FastAPI</strong> is a modern, high-performance Python web framework for building APIs,
+    built on top of <strong>Starlette</strong> (ASGI) and <strong>Pydantic</strong> (data validation).
+    It is the <em>de-facto standard</em> for serving AI/ML models and agent backends.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🚀</div>
+      <h4>Speed</h4>
+      <p>On par with NodeJS and Go for async I/O. One of the fastest Python frameworks.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔍</div>
+      <h4>Auto Docs</h4>
+      <p>Swagger UI + ReDoc generated automatically from your code. Zero extra config.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🛡️</div>
+      <h4>Type Safety</h4>
+      <p>Pydantic validates all inputs/outputs. Catch bugs at request time, not runtime.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔄</div>
+      <h4>Async Native</h4>
+      <p>Built for <code>async/await</code>. Perfect for LLM API calls, streaming, concurrency.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SETUP ── -->
+<section id="fastapi-setup">
+  <h3>2.2 Setup & Your First App</h3>
+
+  <pre><code class="language-bash">pip install fastapi uvicorn[standard] pydantic
+</code><span class="lang-label">bash</span></pre>
+
+  <pre><code class="language-python"># main.py — The classic "Hello World"
+from fastapi import FastAPI
+
+app = FastAPI(
+    title="My Agentic AI API",
+    description="API for my AI agent",
+    version="1.0.0",
+)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello from FastAPI!"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+</code><span class="lang-label">python</span></pre>
+
+  <pre><code class="language-bash">uvicorn main:app --reload          # Development (auto-reload)
+uvicorn main:app --host 0.0.0.0 --port 8000  # Production
+</code><span class="lang-label">bash</span></pre>
+
+  <div class="box info">
+    <strong>📖 Auto-Generated Docs</strong>
+    After running, visit <code>http://localhost:8000/docs</code> for Swagger UI and
+    <code>http://localhost:8000/redoc</code> for ReDoc — both are auto-generated!
+  </div>
+</section>
+
+<!-- ── ROUTING ── -->
+<section id="fastapi-routing">
+  <h3>2.3 Routing, Path & Query Params</h3>
+
+  <pre><code class="language-python">from fastapi import FastAPI, Path, Query
+from typing import Optional
+
+app = FastAPI()
+
+# ── Path Parameters ──────────────────────────────
+@app.get("/users/{user_id}")
+async def get_user(
+    user_id: int = Path(..., description="The user's ID", ge=1)
+):
+    return {"user_id": user_id}
+
+# ── Query Parameters ─────────────────────────────
+@app.get("/search")
+async def search(
+    q: str = Query(..., min_length=1, description="Search query"),
+    limit: int = Query(10, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    active: Optional[bool] = None,
+):
+    return {"query": q, "limit": limit, "offset": offset, "active": active}
+
+# ── All HTTP Methods ─────────────────────────────
+@app.post("/items")
+async def create_item(): ...
+
+@app.put("/items/{item_id}")
+async def update_item(item_id: int): ...
+
+@app.patch("/items/{item_id}")
+async def partial_update(item_id: int): ...
+
+@app.delete("/items/{item_id}")
+async def delete_item(item_id: int): ...
+</code><span class="lang-label">python</span></pre>
+
+  <h4>APIRouter — Organising a Large App</h4>
+  <pre><code class="language-python"># routers/agents.py
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/agents", tags=["Agents"])
+
+@router.get("/")
+async def list_agents():
+    return [{"id": 1, "name": "ResearchAgent"}]
+
+@router.post("/{agent_id}/run")
+async def run_agent(agent_id: int):
+    return {"status": "running", "agent_id": agent_id}
+
+# ─────────────────────────────────────────────────
+# main.py
+from fastapi import FastAPI
+from routers import agents
+
+app = FastAPI()
+app.include_router(agents.router)
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── PYDANTIC ── -->
+<section id="fastapi-pydantic">
+  <h3>2.4 Pydantic Models — The Heart of FastAPI</h3>
+  <p>Pydantic models define the shape of your request bodies, responses, and config. They provide automatic validation, serialisation, and documentation.</p>
+
+  <pre><code class="language-python">from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Literal
+from datetime import datetime
+from enum import Enum
+
+class AgentStatus(str, Enum):
+    idle      = "idle"
+    running   = "running"
+    completed = "completed"
+    failed    = "failed"
+
+class ToolConfig(BaseModel):
+    name: str = Field(..., description="Tool identifier")
+    enabled: bool = Field(True)
+    timeout_seconds: int = Field(30, ge=1, le=300)
+
+class AgentCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100, examples=["ResearchAgent"])
+    model: str = Field("gpt-4o", description="LLM model to use")
+    system_prompt: Optional[str] = None
+    tools: list[ToolConfig] = Field(default_factory=list)
+    max_iterations: int = Field(10, ge=1, le=100)
+
+    @field_validator("name")
+    @classmethod
+    def name_must_not_contain_spaces(cls, v: str) -> str:
+        if " " in v:
+            raise ValueError("Agent name must not contain spaces")
+        return v
+
+class AgentResponse(BaseModel):
+    id: int
+    name: str
+    status: AgentStatus
+    created_at: datetime
+    model: str
+
+    model_config = {"from_attributes": True}  # Pydantic v2
+
+# ── Using in Endpoints ────────────────────────────
+from fastapi import FastAPI
+app = FastAPI()
+
+@app.post("/agents", response_model=AgentResponse, status_code=201)
+async def create_agent(body: AgentCreateRequest):
+    # body is fully validated before reaching here
+    agent = {
+        "id": 1,
+        "name": body.name,
+        "status": AgentStatus.idle,
+        "created_at": datetime.utcnow(),
+        "model": body.model,
+    }
+    return agent
+</code><span class="lang-label">python</span></pre>
+
+  <div class="box tip">
+    <strong>💡 Response Models</strong>
+    Always specify <code>response_model=</code>. This strips any extra internal fields
+    (like passwords or API keys) before sending the response. Security by default!
+  </div>
+</section>
+
+<!-- ── ASYNC ── -->
+<section id="fastapi-async">
+  <h3>2.5 Async & Concurrency — Critical for AI APIs</h3>
+  <p>LLM calls can take 5–60+ seconds. Without async, one slow request blocks your entire server. FastAPI is fully async-first.</p>
+
+  <pre><code class="language-python">import asyncio
+import httpx
+from fastapi import FastAPI
+from openai import AsyncOpenAI
+
+app = FastAPI()
+openai_client = AsyncOpenAI()  # Always use async client with FastAPI
+
+# ── Async endpoint calling an LLM ────────────────
+@app.post("/chat")
+async def chat(message: str):
+    # This does NOT block other requests
+    response = await openai_client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": message}]
+    )
+    return {"reply": response.choices[0].message.content}
+
+# ── Running multiple LLM calls concurrently ───────
+@app.post("/multi-agent")
+async def multi_agent(task: str):
+    # Kick off 3 LLM calls at the same time
+    results = await asyncio.gather(
+        openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": f"Research: {task}"}]
+        ),
+        openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": f"Summarize: {task}"}]
+        ),
+        openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": f"Critique: {task}"}]
+        ),
+    )
+    return {
+        "research":  results[0].choices[0].message.content,
+        "summary":   results[1].choices[0].message.content,
+        "critique":  results[2].choices[0].message.content,
+    }
+
+# ── When you MUST use sync code (e.g. blocking DB) ─
+from fastapi.concurrency import run_in_threadpool
+
+@app.get("/sync-work")
+async def sync_work():
+    # run_in_threadpool prevents blocking the event loop
+    result = await run_in_threadpool(some_blocking_function, arg1, arg2)
+    return {"result": result}
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── DEPENDENCY INJECTION ── -->
+<section id="fastapi-deps">
+  <h3>2.6 Dependency Injection — The DI System</h3>
+  <p>FastAPI's DI system lets you declare reusable logic (DB connections, auth checks, config) that gets injected into any endpoint automatically.</p>
+
+  <pre><code class="language-python">from fastapi import FastAPI, Depends, HTTPException, status
+from functools import lru_cache
+from pydantic_settings import BaseSettings
+
+# ── Settings via Pydantic ─────────────────────────
+class Settings(BaseSettings):
+    openai_api_key: str
+    database_url: str
+    secret_key: str
+
+    class Config:
+        env_file = ".env"
+
+@lru_cache()  # Only create settings once
+def get_settings() -> Settings:
+    return Settings()
+
+# ── DB Session Dependency ─────────────────────────
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+
+engine = create_async_engine("sqlite+aiosqlite:///./agents.db")
+AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+async def get_db() -> AsyncSession:  # This is a dependency
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session  # Yield gives session to endpoint
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
+# ── Auth Dependency ───────────────────────────────
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+
+security = HTTPBearer()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    try:
+        payload = jwt.decode(credentials.credentials, settings.secret_key, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+# ── Using Dependencies in Endpoints ──────────────
+app = FastAPI()
+
+@app.get("/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    return {"user": current_user}
+
+@app.get("/agents")
+async def get_agents(
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
+    # db, user, and settings are all injected automatically
+    return {"user": current_user["sub"], "db_url": settings.database_url}
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── MIDDLEWARE & CORS ── -->
+<section id="fastapi-middleware">
+  <h3>2.7 Middleware & CORS</h3>
+
+  <pre><code class="language-python">from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+import time
+import uuid
+
+app = FastAPI()
+
+# ── CORS (required for browser clients) ──────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://myapp.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── Gzip compression ──────────────────────────────
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# ── Custom Request Logging Middleware ─────────────
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    request_id = str(uuid.uuid4())[:8]
+    start_time = time.time()
+
+    # Add request ID to headers for tracing
+    request.state.request_id = request_id
+
+    response = await call_next(request)
+
+    process_time = (time.time() - start_time) * 1000
+    print(f"[{request_id}] {request.method} {request.url.path} "
+          f"→ {response.status_code} ({process_time:.1f}ms)")
+
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Process-Time"] = f"{process_time:.1f}ms"
+    return response
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── AUTH ── -->
+<section id="fastapi-auth">
+  <h3>2.8 Auth — JWT + OAuth2</h3>
+
+  <pre><code class="language-python">from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+import jwt
+import bcrypt
+
+SECRET_KEY = "your-256-bit-secret"
+ALGORITHM  = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+app = FastAPI()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+# Fake user DB for demo
+USERS_DB = {
+    "alice": {
+        "username": "alice",
+        "hashed_password": bcrypt.hashpw(b"password123", bcrypt.gensalt()).decode(),
+    }
+}
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401)
+        return {"username": username}
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+@app.post("/token", response_model=Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = USERS_DB.get(form_data.username)
+    if not user or not bcrypt.checkpw(form_data.password.encode(), user["hashed_password"].encode()):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    access_token = create_access_token(
+        data={"sub": form_data.username},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    return Token(access_token=access_token, token_type="bearer")
+
+@app.get("/protected")
+async def protected_route(current_user: dict = Depends(get_current_user)):
+    return {"message": f"Hello, {current_user['username']}!"}
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── WEBSOCKETS / SSE ── -->
+<section id="fastapi-ws">
+  <h3>2.9 WebSockets & Server-Sent Events (SSE) — LLM Streaming</h3>
+  <p>When using LLMs, you want to stream tokens as they arrive rather than waiting for the full response. FastAPI handles both WebSockets and SSE perfectly.</p>
+
+  <h4>Streaming LLM Response via SSE</h4>
+  <pre><code class="language-python">from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+from openai import AsyncOpenAI
+import asyncio
+
+app = FastAPI()
+client = AsyncOpenAI()
+
+@app.post("/stream-chat")
+async def stream_chat(message: str):
+
+    async def generate():
+        stream = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": message}],
+            stream=True,  # Enable streaming
+        )
+        async for chunk in stream:
+            delta = chunk.choices[0].delta.content
+            if delta:
+                # SSE format: data: <content>\n\n
+                yield f"data: {delta}\n\n"
+
+        yield "data: [DONE]\n\n"  # Signal end of stream
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # Disable Nginx buffering
+        }
+    )
+</code><span class="lang-label">python</span></pre>
+
+  <h4>WebSocket for Bidirectional Agent Chat</h4>
+  <pre><code class="language-python">from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from typing import dict, Any
+import json
+
+app = FastAPI()
+
+class AgentWebSocketManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_message(self, websocket: WebSocket, data: dict):
+        await websocket.send_json(data)
+
+manager = AgentWebSocketManager()
+
+@app.websocket("/ws/agent/{session_id}")
+async def websocket_agent(websocket: WebSocket, session_id: str):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Wait for user message
+            data = await websocket.receive_json()
+            user_message = data.get("message", "")
+
+            # Acknowledge receipt
+            await manager.send_message(websocket, {
+                "type": "thinking",
+                "session_id": session_id
+            })
+
+            # Process with agent (simplified)
+            response = await run_agent(user_message)
+
+            # Send response back
+            await manager.send_message(websocket, {
+                "type": "response",
+                "content": response,
+                "session_id": session_id,
+            })
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+async def run_agent(message: str) -> str:
+    # Placeholder for actual agent logic
+    return f"Agent processed: {message}"
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── BACKGROUND TASKS ── -->
+<section id="fastapi-bg">
+  <h3>2.10 Background Tasks & Lifespan</h3>
+
+  <pre><code class="language-python">from fastapi import FastAPI, BackgroundTasks
+from contextlib import asynccontextmanager
+import asyncio
+
+# ── Lifespan Events (startup/shutdown) ────────────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # STARTUP — runs before accepting requests
+    print("🚀 Starting up...")
+    app.state.mcp_client = await create_mcp_client()
+    app.state.db_pool    = await create_db_pool()
+
+    yield  # App is running here
+
+    # SHUTDOWN — runs after last request
+    print("🛑 Shutting down...")
+    await app.state.mcp_client.close()
+    await app.state.db_pool.close()
+
+app = FastAPI(lifespan=lifespan)
+
+# ── Background Tasks ──────────────────────────────
+async def send_notification(email: str, message: str):
+    """Runs after the HTTP response is sent."""
+    await asyncio.sleep(1)  # Simulate email delay
+    print(f"Email sent to {email}: {message}")
+
+async def log_agent_run(run_id: str, result: dict):
+    """Log result to DB asynchronously."""
+    print(f"Logging run {run_id}: {result}")
+
+@app.post("/run-agent")
+async def run_agent_endpoint(
+    task: str,
+    user_email: str,
+    background_tasks: BackgroundTasks,
+):
+    # Do the main work
+    result = {"status": "completed", "output": f"Result for: {task}"}
+
+    # Schedule background work — response is sent BEFORE these run
+    background_tasks.add_task(send_notification, user_email, "Your agent task completed!")
+    background_tasks.add_task(log_agent_run, "run-123", result)
+
+    return result  # User gets this immediately
+</code><span class="lang-label">python</span></pre>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PART 3 — AGENTIC AI CONCEPTS
+═════════════════════════════════════════════ -->
+<section id="agent-concepts">
+  <h2>🧠 Part 3 — Agentic AI Concepts</h2>
+
+  <h3>3.1 What Is an AI Agent?</h3>
+  <p>
+    An <strong>AI Agent</strong> is a system where an LLM autonomously decides what actions to take,
+    executes them, observes results, and loops until a goal is achieved — without human intervention
+    for each step.
+  </p>
+
+  <div class="diagram">
+  ╔═══════════════════════════════════════╗
+  ║           AGENT LOOP (ReAct)          ║
+  ║                                       ║
+  ║   User Goal                           ║
+  ║       │                               ║
+  ║       ▼                               ║
+  ║   ┌───────┐    Thought                ║
+  ║   │  LLM  │──────────────────────┐   ║
+  ║   └───────┘                      │   ║
+  ║       ▲                          ▼   ║
+  ║       │                    ┌─────────┐║
+  ║   Observation               │  Tool   ║║
+  ║       │                    │  Call   ║║
+  ║       │                    └────┬────┘║
+  ║       └────────────────────────┘     ║
+  ║              (repeat until done)      ║
+  ╚═══════════════════════════════════════╝
+  </div>
+
+  <h4>Agent Architectures</h4>
+  <table>
+    <tr><th>Pattern</th><th>Description</th><th>Best For</th></tr>
+    <tr>
+      <td><strong>ReAct</strong></td>
+      <td>Reasoning + Acting — LLM alternates between thinking and tool use</td>
+      <td>General purpose agents</td>
+    </tr>
+    <tr>
+      <td><strong>Plan-and-Execute</strong></td>
+      <td>First plan all steps, then execute them</td>
+      <td>Complex multi-step tasks</td>
+    </tr>
+    <tr>
+      <td><strong>Reflection</strong></td>
+      <td>Agent critiques its own outputs and refines them</td>
+      <td>High-quality content generation</td>
+    </tr>
+    <tr>
+      <td><strong>Multi-Agent</strong></td>
+      <td>Multiple specialized agents collaborate</td>
+      <td>Parallel workstreams</td>
+    </tr>
+    <tr>
+      <td><strong>Supervisor</strong></td>
+      <td>One orchestrator agent delegates to sub-agents</td>
+      <td>Enterprise workflows</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ── TOOL CALLING ── -->
+<section id="agent-tools">
+  <h3>3.2 Tool Calling — The Core Mechanism</h3>
+  <p>Modern LLMs natively support tool calling (function calling). You define tools as JSON schemas, and the model decides when and how to use them.</p>
+
+  <pre><code class="language-python">from openai import AsyncOpenAI
+import json
+
+client = AsyncOpenAI()
+
+# 1. Define your tools as JSON Schema
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search_web",
+            "description": "Search the web for up-to-date information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query"
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results",
+                        "default": 5
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_file",
+            "description": "Read the contents of a local file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string"}
+                },
+                "required": ["path"]
+            }
+        }
+    }
+]
+
+# 2. Implement the actual tool functions
+async def search_web(query: str, max_results: int = 5) -> str:
+    # In production: call Bing/Google/Brave API
+    return f"Search results for '{query}': [result1, result2...]"
+
+async def read_file(path: str) -> str:
+    try:
+        with open(path) as f:
+            return f.read()
+    except FileNotFoundError:
+        return f"Error: File not found: {path}"
+
+# 3. Tool dispatcher
+async def execute_tool(name: str, arguments: dict) -> str:
+    if name == "search_web":
+        return await search_web(**arguments)
+    elif name == "read_file":
+        return await read_file(**arguments)
+    return f"Unknown tool: {name}"
+
+# 4. The agent loop
+async def run_agent(user_goal: str) -> str:
+    messages = [{"role": "user", "content": user_goal}]
+
+    while True:
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            tools=tools,
+            tool_choice="auto",  # Let model decide
+        )
+        message = response.choices[0].message
+
+        # Check if the model wants to call tools
+        if message.tool_calls:
+            # Add assistant's response to history
+            messages.append(message)
+
+            # Execute each requested tool call
+            for tool_call in message.tool_calls:
+                args = json.loads(tool_call.function.arguments)
+                result = await execute_tool(tool_call.function.name, args)
+
+                # Add tool result to messages
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": result,
+                })
+
+            # Loop back — model will process results
+            continue
+
+        # No tool calls — model has the final answer
+        return message.content
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── MEMORY ── -->
+<section id="agent-memory">
+  <h3>3.3 Agent Memory Patterns</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🧾</div>
+      <h4>In-Context (Short-term)</h4>
+      <p>The conversation messages list. Limited by context window. Lost after session ends.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🗂️</div>
+      <h4>External (Long-term)</h4>
+      <p>Database, Redis, or vector store. Persists across sessions. Retrieved and injected into context.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔍</div>
+      <h4>Episodic (Semantic)</h4>
+      <p>Vector embeddings of past interactions. Retrieve relevant memories by semantic similarity.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📋</div>
+      <h4>Procedural</h4>
+      <p>Stored plans, workflows, and learned behaviours. How to do X.</p>
+    </div>
+  </div>
+
+  <h4>Implementing Conversation Memory with Redis</h4>
+  <pre><code class="language-python">import json
+import redis.asyncio as redis
+from typing import Optional
+
+class ConversationMemory:
+    def __init__(self, redis_url: str = "redis://localhost"):
+        self.redis = redis.from_url(redis_url)
+        self.max_messages = 20     # Keep last N messages
+        self.ttl_seconds = 3600   # Sessions expire in 1 hour
+
+    async def get_history(self, session_id: str) -> list[dict]:
+        key = f"chat:{session_id}"
+        raw = await self.redis.get(key)
+        if raw:
+            return json.loads(raw)
+        return []
+
+    async def add_message(self, session_id: str, role: str, content: str):
+        history = await self.get_history(session_id)
+        history.append({"role": role, "content": content})
+        # Keep only recent messages to avoid context overflow
+        history = history[-self.max_messages:]
+
+        key = f"chat:{session_id}"
+        await self.redis.setex(key, self.ttl_seconds, json.dumps(history))
+
+    async def clear(self, session_id: str):
+        await self.redis.delete(f"chat:{session_id}")
+
+# ── Vector Memory with Embeddings ─────────────────
+from openai import AsyncOpenAI
+import numpy as np
+
+class VectorMemory:
+    def __init__(self):
+        self.client = AsyncOpenAI()
+        self.memories: list[dict] = []  # In prod: use Pinecone/Weaviate/pgvector
+
+    async def store(self, text: str, metadata: dict = {}):
+        embedding = await self._embed(text)
+        self.memories.append({
+            "text": text,
+            "embedding": embedding,
+            "metadata": metadata,
+        })
+
+    async def recall(self, query: str, top_k: int = 3) -> list[str]:
+        if not self.memories:
+            return []
+        query_embedding = await self._embed(query)
+        # Compute cosine similarity
+        scores = [
+            np.dot(query_embedding, m["embedding"]) /
+            (np.linalg.norm(query_embedding) * np.linalg.norm(m["embedding"]))
+            for m in self.memories
+        ]
+        top_indices = np.argsort(scores)[-top_k:][::-1]
+        return [self.memories[i]["text"] for i in top_indices]
+
+    async def _embed(self, text: str) -> list[float]:
+        response = await self.client.embeddings.create(
+            model="text-embedding-3-small", input=text
+        )
+        return response.data[0].embedding
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── ORCHESTRATION ── -->
+<section id="agent-orchestration">
+  <h3>3.4 Multi-Agent Orchestration</h3>
+
+  <pre><code class="language-python">from dataclasses import dataclass, field
+from typing import Callable, Awaitable
+from openai import AsyncOpenAI
+import asyncio
+
+client = AsyncOpenAI()
+
+@dataclass
+class Agent:
+    name: str
+    system_prompt: str
+    tools: list[dict] = field(default_factory=list)
+    model: str = "gpt-4o"
+
+    async def run(self, task: str) -> str:
+        messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user",   "content": task},
+        ]
+        response = await client.chat.completions.create(
+            model=self.model, messages=messages, tools=self.tools or None
+        )
+        return response.choices[0].message.content
+
+# ── Supervisor Pattern ─────────────────────────────
+class SupervisorOrchestrator:
+    def __init__(self):
+        self.supervisor = Agent(
+            name="Supervisor",
+            system_prompt="""You are an orchestrator. Given a task, decompose it 
+            into subtasks and assign each to the right specialist agent.
+            Available agents: Researcher, Writer, Critic, Coder""",
+        )
+        self.agents = {
+            "Researcher": Agent("Researcher", "You are an expert researcher."),
+            "Writer":     Agent("Writer",     "You are an expert technical writer."),
+            "Critic":     Agent("Critic",     "You critically review content."),
+            "Coder":      Agent("Coder",      "You write clean Python code."),
+        }
+
+    async def run(self, goal: str) -> dict:
+        # 1. Supervisor creates a plan
+        plan = await self.supervisor.run(
+            f"Goal: {goal}\nCreate a JSON plan with steps and agent assignments."
+        )
+
+        # 2. Execute steps (parallel where possible)
+        results = {}
+        for agent_name, task in self._parse_plan(plan).items():
+            if agent_name in self.agents:
+                results[agent_name] = await self.agents[agent_name].run(task)
+
+        return results
+
+    def _parse_plan(self, plan: str) -> dict:
+        # Simplified — in production parse structured JSON
+        return {"Researcher": plan, "Writer": plan}
+</code><span class="lang-label">python</span></pre>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PART 4 — INTEGRATION
+═════════════════════════════════════════════ -->
+<section id="integration">
+  <h2>🔗 Part 4 — MCP + FastAPI Integration</h2>
+
+  <h3>4.1 Architecture: FastAPI as Agent Backend with MCP Tools</h3>
+
+  <div class="diagram">
+  ┌─────────────────────────────────────────────────────────┐
+  │                  FastAPI Application                     │
+  │                                                         │
+  │  POST /agent/run ──► AgentService ──► MCP Client       │
+  │  GET  /agent/stream ─► StreamingResponse               │
+  │  WS   /agent/ws ────► WebSocket Handler               │
+  │                            │                            │
+  │  ┌─────────────────────────▼──────────────────────┐   │
+  │  │              MCP Client (manages connections)   │   │
+  │  └──────┬────────────────┬──────────────────┬─────┘   │
+  │          │                │                  │          │
+  └──────────┼────────────────┼──────────────────┼─────────┘
+             │                │                  │
+    ┌────────▼───┐  ┌─────────▼──┐  ┌───────────▼────┐
+    │ File System│  │ Database   │  │ Web Search     │
+    │ MCP Server │  │ MCP Server │  │ MCP Server     │
+    └────────────┘  └────────────┘  └────────────────┘
+  </div>
+
+  <h3>4.2 Complete Integration Example</h3>
+  <pre><code class="language-python"># app/main.py — Full Integration
+from fastapi import FastAPI, Depends, BackgroundTasks
+from fastapi.responses import StreamingResponse
+from contextlib import asynccontextmanager
+from pydantic import BaseModel
+from openai import AsyncOpenAI
+from mcp import ClientSession
+from mcp.client.http import http_client
+import json, asyncio
+
+# ── Pydantic Models ───────────────────────────────
+class AgentRequest(BaseModel):
+    session_id: str
+    message: str
+    stream: bool = False
+
+class AgentResponse(BaseModel):
+    session_id: str
+    response: str
+    tools_used: list[str] = []
+
+# ── MCP Client Manager ────────────────────────────
+class MCPToolRegistry:
+    def __init__(self):
+        self.sessions: dict[str, ClientSession] = {}
+        self.tool_schemas: list[dict] = []   # OpenAI format
+        self._tool_to_server: dict[str, str] = {}
+
+    async def connect_server(self, name: str, url: str):
+        read, write = await http_client(url).__aenter__()
+        session = ClientSession(read, write)
+        await session.initialize()
+        self.sessions[name] = session
+
+        tools_result = await session.list_tools()
+        for tool in tools_result.tools:
+            self._tool_to_server[tool.name] = name
+            self.tool_schemas.append({
+                "type": "function",
+                "function": {
+                    "name": tool.name,
+                    "description": tool.description,
+                    "parameters": tool.inputSchema,
+                }
+            })
+
+    async def execute(self, tool_name: str, arguments: dict) -> str:
+        server_name = self._tool_to_server[tool_name]
+        session = self.sessions[server_name]
+        result = await session.call_tool(tool_name, arguments)
+        return result.content[0].text if result.content else ""
+
+# ── App Lifespan ──────────────────────────────────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    registry = MCPToolRegistry()
+    await registry.connect_server("filesystem", "http://localhost:8001")
+    await registry.connect_server("search",     "http://localhost:8002")
+    app.state.registry = registry
+    app.state.llm_client = AsyncOpenAI()
+    yield
+
+app = FastAPI(title="AI Agent API", lifespan=lifespan)
+
+# ── Dependency ────────────────────────────────────
+async def get_registry(request) -> MCPToolRegistry:
+    return request.app.state.registry
+
+# ── Agent Execution Logic ─────────────────────────
+async def run_agent_loop(
+    message: str,
+    registry: MCPToolRegistry,
+    llm_client: AsyncOpenAI,
+) -> tuple[str, list[str]]:
+
+    messages = [{"role": "user", "content": message}]
+    tools_used = []
+
+    for _ in range(10):  # Max 10 iterations
+        response = await llm_client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            tools=registry.tool_schemas or None,
+            tool_choice="auto",
+        )
+        msg = response.choices[0].message
+
+        if not msg.tool_calls:
+            return msg.content, tools_used
+
+        messages.append(msg)
+        for tool_call in msg.tool_calls:
+            tool_name = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            tools_used.append(tool_name)
+            result = await registry.execute(tool_name, args)
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": result,
+            })
+
+    return "Max iterations reached.", tools_used
+
+# ── Endpoints ─────────────────────────────────────
+from fastapi import Request
+
+@app.post("/agent/run", response_model=AgentResponse)
+async def run_agent(body: AgentRequest, request: Request):
+    registry: MCPToolRegistry = request.app.state.registry
+    llm_client: AsyncOpenAI  = request.app.state.llm_client
+
+    response_text, tools_used = await run_agent_loop(
+        body.message, registry, llm_client
+    )
+    return AgentResponse(
+        session_id=body.session_id,
+        response=response_text,
+        tools_used=tools_used,
+    )
+
+@app.post("/agent/stream")
+async def stream_agent(body: AgentRequest, request: Request):
+    llm_client: AsyncOpenAI = request.app.state.llm_client
+
+    async def generate():
+        stream = await llm_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": body.message}],
+            stream=True,
+        )
+        async for chunk in stream:
+            if chunk.choices[0].delta.content:
+                yield f"data: {chunk.choices[0].delta.content}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
+</code><span class="lang-label">python</span></pre>
+</section>
+
+<!-- ── PRODUCTION ── -->
+<section id="production">
+  <h3>4.3 Production Patterns</h3>
+
+  <h4>Project Structure</h4>
+  <pre><code class="language-text">my-agent-api/
+├── app/
+│   ├── __init__.py
+│   ├── main.py               # FastAPI app + lifespan
+│   ├── config.py             # Pydantic Settings
+│   ├── models/
+│   │   ├── agent.py          # Pydantic request/response models
+│   │   └── db.py             # SQLAlchemy models
+│   ├── routers/
+│   │   ├── agents.py         # Agent endpoints
+│   │   ├── auth.py           # Auth endpoints
+│   │   └── health.py         # Health checks
+│   ├── services/
+│   │   ├── agent_service.py  # Core agent logic
+│   │   ├── mcp_registry.py   # MCP client manager
+│   │   └── memory.py         # Memory implementations
+│   ├── middleware/
+│   │   ├── auth.py
+│   │   └── logging.py
+│   └── dependencies.py       # Shared DI functions
+├── mcp_servers/
+│   ├── filesystem_server.py
+│   ├── db_server.py
+│   └── search_server.py
+├── tests/
+│   ├── test_agents.py
+│   └── test_mcp.py
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── .env
+</code><span class="lang-label">text</span></pre>
+
+  <h4>Docker Compose for Full Stack</h4>
+  <pre><code class="language-yaml">version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - mcp-filesystem
+      - mcp-search
+
+  mcp-filesystem:
+    build:
+      context: .
+      dockerfile: mcp_servers/Dockerfile.filesystem
+    ports:
+      - "8001:8001"
+
+  mcp-search:
+    build:
+      context: .
+      dockerfile: mcp_servers/Dockerfile.search
+    ports:
+      - "8002:8002"
+    environment:
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+</code><span class="lang-label">yaml</span></pre>
+
+  <h4>Error Handling & Observability</h4>
+  <pre><code class="language-python">from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+import logging, traceback
+
+logger = logging.getLogger(__name__)
+
+app = FastAPI()
+
+# ── Global Exception Handler ──────────────────────
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(
+        f"Unhandled exception on {request.method} {request.url}",
+        exc_info=exc
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "message": str(exc) if app.debug else "An error occurred",
+        }
+    )
+
+# ── Custom Application Exceptions ────────────────
+class AgentException(Exception):
+    def __init__(self, message: str, code: int = 400):
+        self.message = message
+        self.code = code
+
+@app.exception_handler(AgentException)
+async def agent_exception_handler(request: Request, exc: AgentException):
+    return JSONResponse(status_code=exc.code, content={"error": exc.message})
+
+# ── Prometheus Metrics (optional) ────────────────
+# pip install prometheus-fastapi-instrumentator
+from prometheus_fastapi_instrumentator import Instrumentator
+Instrumentator().instrument(app).expose(app)
+</code><span class="lang-label">python</span></pre>
+</section>
+
+
+<!-- ── LEARNING ROADMAP ── -->
+<section id="roadmap">
+  <h2>🗺️ Learning Roadmap</h2>
+
+  <div class="roadmap">
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div><div class="rm-bar"></div></div>
+      <div class="rm-content">
+        <h4>Week 1-2 — Python Fundamentals for AI</h4>
+        <ul>
+          <li>Python <code>async/await</code>, <code>asyncio</code> event loop</li>
+          <li>Type hints, dataclasses, decorators</li>
+          <li>Pydantic v2 basics — models, validators, settings</li>
+          <li>HTTP basics — REST, JSON, status codes</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div><div class="rm-bar"></div></div>
+      <div class="rm-content">
+        <h4>Week 3-4 — FastAPI Core</h4>
+        <ul>
+          <li>Build a CRUD API with FastAPI + SQLite</li>
+          <li>Routing, query params, path params, request bodies</li>
+          <li>Dependency Injection for DB sessions and config</li>
+          <li>JWT authentication end-to-end</li>
+          <li>Auto-generated docs (Swagger UI)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div><div class="rm-bar"></div></div>
+      <div class="rm-content">
+        <h4>Week 5-6 — LLM Integration</h4>
+        <ul>
+          <li>OpenAI / Anthropic API basics</li>
+          <li>Tool calling / function calling</li>
+          <li>Streaming responses with SSE</li>
+          <li>Build a simple chatbot API with conversation history</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div><div class="rm-bar"></div></div>
+      <div class="rm-content">
+        <h4>Week 7-8 — MCP</h4>
+        <ul>
+          <li>MCP protocol spec — read official docs</li>
+          <li>Build 2 MCP servers (local tools)</li>
+          <li>Write an MCP client that connects to them</li>
+          <li>Integrate MCP client into a FastAPI backend</li>
+          <li>HTTP Streamable transport for production</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div><div class="rm-bar"></div></div>
+      <div class="rm-content">
+        <h4>Week 9-10 — Agentic Patterns</h4>
+        <ul>
+          <li>Build a ReAct agent from scratch</li>
+          <li>Agent memory — Redis for short-term, vector DB for long-term</li>
+          <li>Multi-agent supervisor pattern</li>
+          <li>LangGraph or CrewAI for orchestration (optional frameworks)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div><div class="rm-bar"></div></div>
+      <div class="rm-content">
+        <h4>Week 11-12 — Production</h4>
+        <ul>
+          <li>Containerise with Docker + Docker Compose</li>
+          <li>Structured logging with Loguru or structlog</li>
+          <li>Prometheus metrics + Grafana dashboards</li>
+          <li>Rate limiting, timeouts, circuit breakers</li>
+          <li>Deploy to AWS / GCP / Azure / Railway</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rm-item">
+      <div class="rm-line"><div class="rm-dot"></div></div>
+      <div class="rm-content">
+        <h4>Beyond — Advanced Topics</h4>
+        <ul>
+          <li>RAG (Retrieval-Augmented Generation) pipeline</li>
+          <li>Fine-tuning and RLHF basics</li>
+          <li>Agent evaluation frameworks (RAGAS, DeepEval)</li>
+          <li>Computer Use agents (browser automation)</li>
+          <li>A2A (Agent-to-Agent) protocol (Google 2025)</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>Key Resources</h3>
+  <table>
+    <tr><th>Resource</th><th>Link / Command</th></tr>
+    <tr><td>FastAPI Official Docs</td><td><code>https://fastapi.tiangolo.com</code></td></tr>
+    <tr><td>MCP Official Spec</td><td><code>https://modelcontextprotocol.io</code></td></tr>
+    <tr><td>MCP Python SDK</td><td><code>pip install mcp</code></td></tr>
+    <tr><td>Pydantic v2 Docs</td><td><code>https://docs.pydantic.dev</code></td></tr>
+    <tr><td>OpenAI Tool Calling Guide</td><td><code>https://platform.openai.com/docs/guides/function-calling</code></td></tr>
+    <tr><td>LangGraph (Agents)</td><td><code>pip install langgraph</code></td></tr>
+    <tr><td>Async SQLAlchemy</td><td><code>pip install sqlalchemy[asyncio] aiosqlite</code></td></tr>
+  </table>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p>📚 MCP + FastAPI Agentic AI Notes &mdash; Generated 2026-05-15 &mdash; For personal learning use</p>
+  <p style="margin-top:6px;">Covers: MCP Protocol · FastAPI · Tool Calling · Memory · Orchestration · Production</p>
+</footer>
+
+<script>
+  // Highlight active nav link based on scroll position
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Smooth scroll for nav links
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

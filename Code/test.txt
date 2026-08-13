@@ -1,0 +1,37 @@
+Hi everyone, today I'll walk you through an automation I built to track AKS Kubernetes cluster upgrades. Instead of someone manually checking each cluster after an upgrade window, this pipeline does it all automatically and sends a report to the team
+
+What Problem Does This Solve?
+Every 2nd and 3rd Saturday of the month, our AKS clusters in APAC get upgraded — Dev/QA on the 2nd Saturday, and Production/DR on the 3rd Saturday.
+Before this automation, someone had to manually log into Azure, check each cluster, and confirm whether the upgrade worked. That's time-consuming and error-prone across multiple subscriptions and clusters.
+This pipeline runs automatically on those Saturdays and answers three questions:
+1.	Did an upgrade actually happen?
+2.	Did it upgrade to the right version?
+3.	Are all the node pools healthy after the upgrade?
+
+Stage 1 — Validate Parameters
+"The pipeline first figures out when it's running — what month and which Saturday week we're in. If no one manually provides these, it auto-detects them from today's date.
+It also determines whether we're in a Dev/QA cycle or a Prod/DR cycle. This matters because we only check Production subscriptions on the 3rd Saturday.
+
+Stage 2, Phase 2 — Did an Upgrade Happen?
+"Next, we check Azure's Activity Logs for each AKS cluster. Think of Activity Logs like a history book — every action taken on a cluster is recorded there.
+We search within a specific time window — starting from Friday midnight UTC, because our APAC clusters are in time zones like Singapore, India, and Japan where Saturday local time is still Friday in UTC.
+If we find an upgrade operation in the logs, we extract the target Kubernetes version the cluster was upgraded to and save it."
+ Phase 3 — What Version Are the Clusters Running NOW?
+"Then we make a direct call to the Azure ARM API 
+This gives us the current live version of every cluster, in real-time . We capture the version for both the cluster and its individual node pools."
+"Now we compare the two:
+•	The intended upgrade version from the Activity Logs
+•	The actual current version from the ARM API
+If they match → ✅ Upgrade Successful If they don't match → ❌ Upgrade Failed or still in progress"
+
+Phase 4 — Are the Node Pools Healthy?
+So we make another ARM API call to check the provisioning state of every node pool in every cluster.
+If any pool is not in a 'Succeeded' state, it gets flagged as unhealthy and included in the report."
+
+Phase 5 — Send the Report Email
+"Once all the data is collected detailed email report sents it to the cloud ops and AD teams
+
+
+
+
+

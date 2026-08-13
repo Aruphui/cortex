@@ -1,0 +1,3354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LangGraph — From Confused to Confident</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --surface3: #30363d;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --orange: #f97316;
+      --purple: #a855f7;
+      --pink: #ec4899;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --border: #30363d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    /* ─── Header ─── */
+    .nb-header {
+      background: linear-gradient(160deg, #0d0221 0%, #1a0533 40%, #0c1445 100%);
+      padding: 70px 40px 60px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .nb-header::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(124,58,237,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(6,182,212,0.1) 0%, transparent 60%);
+    }
+    .nb-header h1 {
+      font-size: 2.8rem; font-weight: 900; position: relative;
+      background: linear-gradient(90deg, #a78bfa, #22d3ee, #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 14px;
+    }
+    .nb-header .subtitle {
+      color: var(--text-muted); font-size: 1.15rem; position: relative;
+      max-width: 600px; margin: 0 auto 20px;
+    }
+    .nb-header .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; position: relative; }
+
+    /* ─── Container ─── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 48px 24px; }
+
+    /* ─── TOC ─── */
+    .toc {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 32px; margin-bottom: 56px;
+    }
+    .toc-title {
+      font-size: 0.8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 18px;
+    }
+    .toc-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px;
+    }
+    .toc-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      border-radius: 8px; border: 1px solid transparent; text-decoration: none;
+      color: var(--text); transition: all 0.2s;
+    }
+    .toc-item:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent2); }
+    .toc-num {
+      font-family: monospace; font-size: 0.8rem; font-weight: 700;
+      color: var(--accent); min-width: 28px;
+    }
+
+    /* ─── Sections ─── */
+    .section { margin-bottom: 72px; }
+    .section-hdr {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 28px; padding-bottom: 18px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .sec-num {
+      background: var(--accent); color: #fff; width: 44px; height: 44px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .section h2 { font-size: 1.9rem; font-weight: 800; }
+    .section h3 { font-size: 1.25rem; font-weight: 700; color: var(--accent2); margin: 32px 0 10px; }
+    .section h4 { font-size: 1.05rem; font-weight: 600; color: var(--text); margin: 20px 0 8px; }
+    .section p { color: var(--text-muted); margin-bottom: 14px; }
+    .section ul, .section ol { color: var(--text-muted); padding-left: 22px; margin-bottom: 16px; }
+    .section li { margin-bottom: 6px; }
+    .section strong { color: var(--text); }
+
+    /* ─── Code Blocks ─── */
+    .code-wrap { margin: 22px 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .code-bar {
+      background: var(--surface2); padding: 9px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .code-dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .d-r { background: #ff5f57; } .d-y { background: #febc2e; } .d-g { background: #28c840; }
+    .code-file { font-family: monospace; font-size: 0.78rem; color: var(--text-muted); }
+    pre[class*="language-"] { margin: 0 !important; border-radius: 0 !important; font-size: 0.86rem !important; }
+
+    /* ─── Callouts ─── */
+    .callout {
+      border-radius: 10px; padding: 18px 22px; margin: 18px 0; border-left: 4px solid;
+    }
+    .callout-hdr { font-weight: 700; font-size: 0.9rem; margin-bottom: 7px; }
+    .callout p { margin-bottom: 0; font-size: 0.93rem; }
+    .callout ul { font-size: 0.93rem; margin-bottom: 0; }
+
+    .c-trick { background: rgba(124,58,237,.12); border-color: var(--accent); }
+    .c-trick .callout-hdr { color: #a78bfa; }
+
+    .c-key { background: rgba(6,182,212,.08); border-color: var(--accent2); }
+    .c-key .callout-hdr { color: var(--accent2); }
+
+    .c-warn { background: rgba(245,158,11,.1); border-color: var(--yellow); }
+    .c-warn .callout-hdr { color: var(--yellow); }
+
+    .c-ok { background: rgba(34,197,94,.08); border-color: var(--green); }
+    .c-ok .callout-hdr { color: var(--green); }
+
+    .c-info { background: rgba(168,85,247,.08); border-color: var(--purple); }
+    .c-info .callout-hdr { color: var(--purple); }
+
+    /* ─── Diagrams ─── */
+    .diagram {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 28px 24px; margin: 22px 0; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+      font-size: 0.83rem; color: var(--accent2); overflow-x: auto; white-space: pre; line-height: 1.5;
+    }
+
+    /* ─── Tables ─── */
+    .cmp-table { width: 100%; border-collapse: collapse; margin: 22px 0; border-radius: 12px; overflow: hidden; }
+    .cmp-table th { background: var(--surface2); padding: 13px 18px; text-align: left; font-weight: 700; color: var(--accent2); border-bottom: 1px solid var(--border); }
+    .cmp-table td { padding: 12px 18px; border-bottom: 1px solid var(--surface2); color: var(--text-muted); vertical-align: top; }
+    .cmp-table tr:last-child td { border-bottom: none; }
+    .cmp-table .yes { color: var(--green); font-weight: 700; }
+    .cmp-table .no  { color: var(--red);   font-weight: 700; }
+
+    /* ─── Tags ─── */
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin: 2px; }
+    .t-blue   { background: rgba(99,102,241,.2); color: #818cf8; }
+    .t-green  { background: rgba(34,197,94,.2);  color: #4ade80; }
+    .t-yellow { background: rgba(245,158,11,.2); color: #fbbf24; }
+    .t-red    { background: rgba(239,68,68,.2);  color: #f87171; }
+    .t-purple { background: rgba(168,85,247,.2); color: #c084fc; }
+    .t-cyan   { background: rgba(6,182,212,.2);  color: #22d3ee; }
+    .t-pink   { background: rgba(236,72,153,.2); color: #f472b6; }
+
+    /* ─── Inline code ─── */
+    code:not([class]) {
+      background: var(--surface2); padding: 2px 7px; border-radius: 5px;
+      font-family: 'Fira Code', Consolas, monospace; font-size: 0.87em; color: #f472b6;
+    }
+
+    /* ─── Flow steps ─── */
+    .flow { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 0; position: relative;
+    }
+    .flow-step:not(:last-child)::after {
+      content: ""; position: absolute; left: 18px; top: 40px;
+      width: 2px; height: calc(100% - 8px); background: var(--accent); opacity: .4;
+    }
+    .flow-icon {
+      background: var(--accent); color: #fff; width: 38px; height: 38px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0; z-index: 1; margin: 0 16px 24px 0;
+    }
+    .flow-body h4 { font-size: 1rem; color: var(--text); margin: 6px 0 4px; }
+    .flow-body p  { font-size: 0.9rem; margin-bottom: 0; }
+
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 60px 0; }
+
+    /* ─── Badge ─── */
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700; margin-left: 8px; vertical-align: middle;
+    }
+
+    /* ─── Highlight ─── */
+    .hl  { color: var(--accent2); font-weight: 600; }
+    .hlp { color: #c084fc; font-weight: 600; }
+    .hlg { color: var(--green); font-weight: 600; }
+
+    /* ─── Footer ─── */
+    footer {
+      text-align: center; padding: 40px; border-top: 1px solid var(--border);
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════  HEADER  ═══════════════════════ -->
+<div class="nb-header">
+  <h1>LangGraph — From Confused to Confident</h1>
+  <p class="subtitle">
+    A complete, beginner-friendly guide to building stateful, multi-turn AI agents with memory, human-in-the-loop, and more.
+  </p>
+  <div class="tags">
+    <span class="tag t-purple">LangGraph</span>
+    <span class="tag t-blue">LangChain</span>
+    <span class="tag t-cyan">StateGraph</span>
+    <span class="tag t-green">Memory</span>
+    <span class="tag t-yellow">ReAct</span>
+    <span class="tag t-pink">Human-in-Loop</span>
+    <span class="tag t-red">SQLite Checkpointer</span>
+    <span class="tag t-cyan">Streaming</span>
+    <span class="tag t-purple">Subgraphs</span>
+    <span class="tag t-blue">Azure AI Search</span>
+    <span class="tag t-green">Advanced RAG</span>
+    <span class="tag t-yellow">Production</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════  MAIN  ═══════════════════════ -->
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">📖 Table of Contents</div>
+    <div class="toc-grid">
+      <a class="toc-item" href="#s0"><span class="toc-num">00</span> Setup &amp; Installation</a>
+      <a class="toc-item" href="#s1"><span class="toc-num">01</span> How State Flows Through Nodes</a>
+      <a class="toc-item" href="#s2"><span class="toc-num">02</span> ReAct Pattern — What &amp; Why</a>
+      <a class="toc-item" href="#s3"><span class="toc-num">03</span> Reflexion Agent</a>
+      <a class="toc-item" href="#s4"><span class="toc-num">04</span> StateGraph vs MessageGraph</a>
+      <a class="toc-item" href="#s5"><span class="toc-num">05</span> Why Do We Need Memory?</a>
+      <a class="toc-item" href="#s6"><span class="toc-num">06</span> SQLite Checkpointer</a>
+      <a class="toc-item" href="#s7"><span class="toc-num">07</span> Human in the Loop</a>
+      <a class="toc-item" href="#s8"><span class="toc-num">08</span> Multi-turn Conversations</a>
+      <a class="toc-item" href="#s9"><span class="toc-num">09</span> Complete Chatbot App</a>
+      <a class="toc-item" href="#s10"><span class="toc-num">10</span> Tips &amp; Tricks to Write Code</a>
+      <a class="toc-item" href="#s11"><span class="toc-num">11</span> Streaming</a>
+      <a class="toc-item" href="#s12"><span class="toc-num">12</span> LangGraph Subgraphs</a>
+      <a class="toc-item" href="#s13"><span class="toc-num">13</span> Advanced RAG with Azure AI Search</a>
+      <a class="toc-item" href="#s14"><span class="toc-num">14</span> Production &amp; Deployment</a>
+    </div>
+  </div>
+
+  <!-- ───────────────── SECTION 0 ───────────────── -->
+  <div class="section" id="s0">
+    <div class="section-hdr">
+      <div class="sec-num">0</div>
+      <h2>Setup &amp; Installation</h2>
+    </div>
+
+    <p>Install everything you need before running any code in this notebook.</p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">terminal</span>
+      </div>
+      <pre><code class="language-bash">pip install langgraph langchain langchain-openai langchain-community
+pip install langgraph-checkpoint-sqlite   # for SQLite memory</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">azure_setup.py — run this once to configure your env variables</span>
+      </div>
+      <pre><code class="language-python">import os
+
+# ─── Azure OpenAI Credentials ────────────────────────────────────────────
+os.environ["AZURE_OPENAI_API_KEY"]      = "YOUR_AZURE_OPENAI_KEY"
+os.environ["AZURE_OPENAI_ENDPOINT"]     = "https://your-resource.openai.azure.com/"
+os.environ["AZURE_OPENAI_API_VERSION"]  = "2024-02-01"
+os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"] = "gpt-4o"   # your deployment name
+
+# ─── Create the LLM object (reuse in every section below) ────────────────
+from langchain_openai import AzureChatOpenAI
+
+llm = AzureChatOpenAI(
+    azure_deployment=os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"],
+    api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+    temperature=0,      # 0 = deterministic, good for agents
+    max_tokens=1024,
+)
+
+print("LLM ready:", llm.model_name)</code></pre>
+    </div>
+
+    <div class="callout c-key">
+      <div class="callout-hdr">🔑 The Golden Imports — memorise these 4 lines</div>
+      <p>Every LangGraph program starts with these same four imports. Burn them into muscle memory.</p>
+    </div>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">golden_imports.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated   # for defining State
+from langgraph.graph import StateGraph, START, END  # the graph builder
+from langgraph.graph.message import add_messages    # special reducer for chat messages
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage</code></pre>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 1 ───────────────── -->
+  <div class="section" id="s1">
+    <div class="section-hdr">
+      <div class="sec-num">1</div>
+      <h2>How State Flows Through Nodes</h2>
+    </div>
+
+    <p>
+      This is the single most confusing thing for beginners. Let's kill the confusion permanently.
+    </p>
+
+    <h3>What is State, really?</h3>
+    <p>
+      State is just a <strong>Python dictionary</strong> that LangGraph manages for you. It holds all the information
+      your graph needs — messages, counters, user names, whatever you define. Every node reads from this dict and writes back to it.
+    </p>
+
+    <div class="diagram">┌──────────────────────────────────────────────────────────┐
+│                    THE LANGGRAPH LOOP                    │
+│                                                          │
+│  State (dict)  ──────→  Node Function  ──────→  State   │
+│  { "count": 0 }         reads state             (merged) │
+│  { "name": "Alice" }    returns partial dict    update  │
+│                                                          │
+│  RULE: node receives FULL state, returns PARTIAL update  │
+└──────────────────────────────────────────────────────────┘</div>
+
+    <h3>Step 1 — Define your State with TypedDict</h3>
+    <p>
+      <code>TypedDict</code> is just a typed dictionary. It tells Python (and your IDE) what keys exist and their types.
+      LangGraph uses this as the schema for every node.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">state_basics.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated
+from langgraph.graph.message import add_messages
+
+# ─── Define your state schema ────────────────────────────────────────────────
+class MyState(TypedDict):
+    # TypedDict = a Python dict with named fields and type hints.
+    # These are the ONLY fields LangGraph tracks.
+
+    messages: Annotated[list, add_messages]
+    # ↑ SPECIAL FIELD: add_messages is a "reducer".
+    # Normal dict update = REPLACE the whole list.
+    # add_messages reducer = APPEND new messages to existing list.
+    # Without this, every node call would WIPE your chat history!
+
+    user_name: str          # a simple string field — just replaced on update
+    turn_count: int         # a counter — just replaced on update
+
+# ─── What this looks like as an actual runtime value ─────────────────────────
+example_state = {
+    "messages": [],         # starts empty
+    "user_name": "Alice",
+    "turn_count": 0,
+}
+# LangGraph holds this dict and passes it to each node automatically.</code></pre>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="callout-hdr">⚠️ The #1 Beginner Mistake — Forgetting add_messages</div>
+      <p>
+        If you write <code>messages: list</code> instead of <code>messages: Annotated[list, add_messages]</code>,
+        every time a node runs it will <strong>replace</strong> (not append) the messages list.
+        Your conversation history will disappear after every step. Always use <code>Annotated[list, add_messages]</code>
+        for chat messages.
+      </p>
+    </div>
+
+    <h3>Step 2 — Write a Node Function</h3>
+    <p>
+      A node is just a regular Python function. LangGraph automatically passes the current state to it.
+      The node must return a <strong>dict of only the fields it wants to update</strong>.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">node_basics.py</span>
+      </div>
+      <pre><code class="language-python">from langchain_core.messages import HumanMessage, AIMessage
+
+# ─── A node is JUST a Python function ────────────────────────────────────────
+#     Signature: def my_node(state: MyState) -> dict
+#     LangGraph calls this automatically with the current state.
+
+def chatbot_node(state: MyState) -> dict:
+    # ─── READ from state like a normal dict ──────────────────────────────────
+    all_messages = state["messages"]   # the full list of messages so far
+    user_name    = state["user_name"]  # the user's name
+    turn_count   = state["turn_count"] # how many turns have happened
+
+    print(f"Turn {turn_count}: Processing {len(all_messages)} messages")
+
+    # ─── Do your LLM call ────────────────────────────────────────────────────
+    system_msg = SystemMessage(content=f"You are a helpful assistant. The user's name is {user_name}.")
+    response   = llm.invoke([system_msg] + all_messages)
+    # response is an AIMessage object from the LLM
+
+    # ─── RETURN only the fields you want to UPDATE ───────────────────────────
+    # You do NOT need to return the full state.
+    # LangGraph merges what you return with the existing state.
+    return {
+        "messages":   [response],          # add_messages will APPEND this AIMessage
+        "turn_count": turn_count + 1,      # increment the counter (replaces old value)
+        # "user_name" is NOT returned — LangGraph keeps it unchanged automatically
+    }
+
+# ─── KEY INSIGHT ─────────────────────────────────────────────────────────────
+# "messages" gets APPENDED  (because of add_messages reducer)
+# "turn_count" gets REPLACED (no reducer = simple replace)
+# "user_name" stays the SAME  (not returned = untouched)</code></pre>
+    </div>
+
+    <h3>Step 3 — Build the Graph</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">graph_basics.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import StateGraph, START, END
+
+# ─── 1. Create a builder with your state schema ──────────────────────────────
+builder = StateGraph(MyState)
+
+# ─── 2. Add nodes ────────────────────────────────────────────────────────────
+#    add_node("name_you_choose", the_python_function)
+builder.add_node("chatbot", chatbot_node)
+
+# ─── 3. Add edges ────────────────────────────────────────────────────────────
+#    START is a special built-in node that represents the entry point.
+#    END   is a special built-in node that terminates the graph.
+builder.add_edge(START, "chatbot")   # graph starts → chatbot node
+builder.add_edge("chatbot", END)     # chatbot node → graph ends
+
+# ─── 4. Compile ──────────────────────────────────────────────────────────────
+#    compile() locks the graph and makes it runnable.
+graph = builder.compile()
+
+# ─── 5. Run ──────────────────────────────────────────────────────────────────
+initial_state = {
+    "messages":   [HumanMessage(content="Hello!")],
+    "user_name":  "Alice",
+    "turn_count": 0,
+}
+result = graph.invoke(initial_state)
+print(result["messages"][-1].content)  # the AI's reply</code></pre>
+    </div>
+
+    <h3>Visual: How LangGraph passes state</h3>
+    <div class="diagram">    BEFORE invoke():
+    state = { "messages": [HumanMessage("Hi")], "turn_count": 0 }
+                         │
+                         ▼
+    ┌─────────────────────────────────────────┐
+    │  chatbot_node(state) is called          │
+    │  state["messages"]   → [HumanMessage]  │
+    │  state["turn_count"] → 0               │
+    │                                         │
+    │  returns: { "messages": [AIMessage],   │
+    │             "turn_count": 1 }          │
+    └─────────────────────────────────────────┘
+                         │
+                         ▼
+    AFTER invoke():
+    state = { "messages": [HumanMessage("Hi"), AIMessage("Hello!")],
+              "turn_count": 1, "user_name": "Alice" }
+                         ↑ add_messages APPENDED     ↑ unchanged</div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 The Trick to Write Nodes Without Thinking</div>
+      <p>
+        Always use this 3-part template when writing any node:<br><br>
+        <strong>1. READ</strong> — <code>value = state["key"]</code><br>
+        <strong>2. COMPUTE</strong> — do your logic, call LLM, transform data<br>
+        <strong>3. RETURN</strong> — <code>return {"key": new_value}</code> (only changed fields)<br><br>
+        That's it. Every single node in LangGraph follows this exact pattern.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 2 ───────────────── -->
+  <div class="section" id="s2">
+    <div class="section-hdr">
+      <div class="sec-num">2</div>
+      <h2>ReAct Pattern — What, Why, and How</h2>
+    </div>
+
+    <p>
+      ReAct stands for <strong>Re</strong>asoning + <strong>Act</strong>ing. It is the most common agent pattern
+      in the world. Understanding it will let you build almost any real AI agent.
+    </p>
+
+    <h3>The Problem it Solves</h3>
+    <p>
+      A plain LLM can only generate text. It can't look things up, run calculations, check databases, or call APIs.
+      What if we want an AI that can actually <em>do</em> things in the world?
+    </p>
+    <p>
+      <strong>The solution:</strong> Give the LLM access to <em>tools</em>, and let it decide which tool to call,
+      run it, see the result, and keep going until the task is done.
+    </p>
+
+    <div class="diagram">  ReAct Loop:
+
+  User Question
+       │
+       ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │  AGENT NODE (LLM thinks)                                │
+  │  "I need to search for the capital of France"           │
+  │  → Decides to call tool: search("capital of France")   │
+  └──────────────────┬──────────────────────────────────────┘
+                     │ tool_call in response
+                     ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │  TOOLS NODE (executes the function)                     │
+  │  search("capital of France") → "Paris"                  │
+  └──────────────────┬──────────────────────────────────────┘
+                     │ ToolMessage with result
+                     ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │  AGENT NODE again (LLM sees the result)                 │
+  │  "The answer is Paris. I'm done."                       │
+  │  → No more tool calls → route to END                    │
+  └──────────────────┬──────────────────────────────────────┘
+                     │
+                     ▼
+                Final Answer</div>
+
+    <h3>Why a Loop?</h3>
+    <p>
+      This is why LangGraph exists. Simple tools like LangChain's <code>AgentExecutor</code> were hard to
+      customize and control. LangGraph models the reasoning loop as a <strong>graph</strong> — you can see every
+      step, add custom logic, pause mid-loop, inject human feedback, and more.
+    </p>
+
+    <h3>Implementation: The Easy Way (Prebuilt)</h3>
+    <p>
+      LangGraph ships a prebuilt ReAct agent. Use this to get started fast.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">react_prebuilt.py</span>
+      </div>
+      <pre><code class="language-python">from langchain_core.tools import tool
+from langgraph.prebuilt import create_react_agent
+
+# ─── Step 1: Define tools ─────────────────────────────────────────────────────
+# A tool is just a Python function decorated with @tool.
+# The docstring is CRITICAL — the LLM reads it to understand what the tool does!
+
+@tool
+def get_weather(city: str) -> str:
+    """Get the current weather for a city. Use this when asked about weather."""
+    # In a real app, you'd call a weather API here.
+    weather_data = {
+        "New York": "72°F, Sunny",
+        "London": "58°F, Cloudy",
+        "Tokyo": "68°F, Partly Cloudy",
+    }
+    return weather_data.get(city, f"Weather data not available for {city}")
+
+@tool
+def calculate(expression: str) -> str:
+    """Safely evaluate a math expression. Input must be a valid Python math expression."""
+    try:
+        # SECURITY NOTE: use ast.literal_eval or numexpr in production!
+        # For demo purposes only:
+        allowed = set("0123456789+-*/(). ")
+        if all(c in allowed for c in expression):
+            return str(eval(expression))  # noqa: S307
+        return "Invalid expression"
+    except Exception as e:
+        return f"Error: {e}"
+
+# ─── Step 2: Bundle tools into a list ─────────────────────────────────────────
+tools = [get_weather, calculate]
+
+# ─── Step 3: Create the ReAct agent in ONE line ───────────────────────────────
+agent = create_react_agent(
+    model=llm,      # your AzureChatOpenAI instance
+    tools=tools,    # list of tools the agent can use
+)
+
+# ─── Step 4: Run it ───────────────────────────────────────────────────────────
+result = agent.invoke({
+    "messages": [HumanMessage(content="What's the weather in London and what is 15 * 23?")]
+})
+
+# The agent will: call get_weather("London"), then call calculate("15 * 23"), then answer.
+for msg in result["messages"]:
+    print(f"{msg.__class__.__name__}: {msg.content[:100]}")</code></pre>
+    </div>
+
+    <h3>Implementation: The Manual Way (Full Control)</h3>
+    <p>
+      Build it yourself when you need custom logic — custom prompts, special routing, interrupts, etc.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">react_manual.py</span>
+      </div>
+      <pre><code class="language-python">from typing import Annotated
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode     # handles tool execution automatically
+from langchain_core.messages import SystemMessage
+
+# ─── State ────────────────────────────────────────────────────────────────────
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]
+
+# ─── Bind tools to the LLM ────────────────────────────────────────────────────
+# This is the magic step. When the LLM is "bound" to tools, it knows they exist
+# and can choose to call them by including a tool_calls block in its response.
+llm_with_tools = llm.bind_tools(tools)
+
+# ─── Node 1: The "brain" — LLM decides what to do next ───────────────────────
+def agent_node(state: AgentState) -> dict:
+    system = SystemMessage(content="You are a helpful assistant. Use tools when needed.")
+    response = llm_with_tools.invoke([system] + state["messages"])
+    # response will either be:
+    # - a normal AIMessage (LLM is done, no tools needed)
+    # - an AIMessage with .tool_calls (LLM wants to call a tool)
+    return {"messages": [response]}
+
+# ─── Node 2: The "hands" — executes the tool calls ───────────────────────────
+# ToolNode is prebuilt. It looks at the last AIMessage, finds .tool_calls,
+# runs each tool function, and returns ToolMessage results.
+tool_node = ToolNode(tools)   # pass the same tools list
+
+# ─── Conditional Router — "should we call tools or are we done?" ──────────────
+def should_continue(state: AgentState) -> str:
+    last_message = state["messages"][-1]   # what did the LLM just say?
+
+    if last_message.tool_calls:
+        # LLM included tool_calls → go run the tools
+        return "tools"
+    else:
+        # No tool calls → LLM is done → end the graph
+        return END
+
+# ─── Build the graph ──────────────────────────────────────────────────────────
+builder = StateGraph(AgentState)
+builder.add_node("agent", agent_node)
+builder.add_node("tools", tool_node)
+
+builder.add_edge(START, "agent")    # always start with the agent
+
+# Conditional edge: after "agent" runs, call should_continue() to decide next step
+builder.add_conditional_edges(
+    "agent",             # from this node
+    should_continue,     # call this function to get the next node name
+    ["tools", END],      # possible destinations (optional, for documentation)
+)
+
+builder.add_edge("tools", "agent")  # after tools run → back to agent for next thought
+
+graph = builder.compile()
+
+# ─── Test ─────────────────────────────────────────────────────────────────────
+result = graph.invoke({"messages": [HumanMessage(content="What is 144 / 12?")]})
+print(result["messages"][-1].content)</code></pre>
+    </div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 Trick: How to write conditional edges every time</div>
+      <p>
+        A conditional edge router always follows the same pattern:<br>
+        <code>def router(state) → str</code> — inspect the state, return a <em>string</em> that matches a node name or <code>END</code>.
+        It's just an if/else that returns strings.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 3 ───────────────── -->
+  <div class="section" id="s3">
+    <div class="section-hdr">
+      <div class="sec-num">3</div>
+      <h2>Reflexion Agent</h2>
+    </div>
+
+    <p>
+      Reflexion is a pattern where an AI agent <strong>critiques its own output</strong> and then improves it.
+      Instead of giving one answer, it goes through a loop: generate → reflect → revise → repeat.
+    </p>
+
+    <h3>Why Reflexion?</h3>
+    <p>
+      LLMs often give mediocre first answers. If you ask the same LLM to critique that answer and then
+      improve it, the second (or third) answer is significantly better. Reflexion automates this process.
+    </p>
+
+    <div class="diagram">  Reflexion Loop:
+
+  ┌─────────────┐     ┌─────────────────┐     ┌──────────────────┐
+  │  GENERATE   │────►│     REFLECT     │────►│ Good enough?     │
+  │  Write an   │     │ Critique the    │     │  YES → END       │
+  │  answer     │◄────│ answer. What's  │     │  NO  → Generate  │
+  └─────────────┘     │ missing? Wrong? │     │  again (improved)│
+                      └─────────────────┘     └──────────────────┘
+
+  The key: the reflection/critique is added to the messages,
+  so the next "Generate" call sees the critique and can improve.</div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">reflexion_agent.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+
+# ─── State ────────────────────────────────────────────────────────────────────
+class ReflexionState(TypedDict):
+    task: str               # the original task/question from the user
+    messages: Annotated[list, add_messages]  # full conversation including critiques
+    iteration: int          # how many times we've looped
+    max_iterations: int     # stop after this many loops to avoid infinite loop
+
+# ─── Node 1: GENERATE ─────────────────────────────────────────────────────────
+# First time: write an answer.
+# Later times: improve based on the critique in messages.
+def generate_node(state: ReflexionState) -> dict:
+    # On first iteration, messages has just the task.
+    # On later iterations, messages also has the previous answer + critique.
+    # The LLM will see all of this and produce an improved answer.
+
+    response = llm.invoke(state["messages"])
+    print(f"\n[Generate - Iteration {state['iteration'] + 1}]")
+    print(response.content[:200])  # preview
+
+    return {
+        "messages": [response],    # append the generated answer
+        "iteration": state["iteration"] + 1,
+    }
+
+# ─── Node 2: REFLECT ──────────────────────────────────────────────────────────
+# Critically evaluate the last generated answer.
+def reflect_node(state: ReflexionState) -> dict:
+    last_answer = state["messages"][-1].content  # the most recent generation
+
+    critique_prompt = f"""You are a critical reviewer. 
+
+Task that was given: {state['task']}
+
+The answer provided was:
+{last_answer}
+
+Critique this answer. Be specific:
+- What is missing or incomplete?
+- What is factually wrong?
+- What could be improved or clarified?
+
+If the answer is genuinely excellent and complete, say "ACCEPT: " followed by your reason.
+Otherwise say "REVISE: " followed by specific improvement instructions."""
+
+    critique = llm.invoke([HumanMessage(content=critique_prompt)])
+    print(f"\n[Reflect] {critique.content[:200]}")
+
+    return {
+        # We add the critique as an AIMessage so generate_node sees it next
+        "messages": [AIMessage(content=f"[CRITIQUE]: {critique.content}")],
+    }
+
+# ─── Conditional Router ───────────────────────────────────────────────────────
+def should_continue_reflexion(state: ReflexionState) -> str:
+    # Stop if: max iterations reached OR last critique says ACCEPT
+    if state["iteration"] >= state["max_iterations"]:
+        print("\n[Router] Max iterations reached. Stopping.")
+        return END
+
+    last_message = state["messages"][-1].content
+    if "ACCEPT:" in last_message:
+        print("\n[Router] Critique accepted the answer. Stopping.")
+        return END
+
+    print(f"\n[Router] Revision needed. Loop {state['iteration']}/{state['max_iterations']}")
+    return "generate"   # go back to generate with the critique in context
+
+# ─── Build the graph ──────────────────────────────────────────────────────────
+builder = StateGraph(ReflexionState)
+builder.add_node("generate", generate_node)
+builder.add_node("reflect",  reflect_node)
+
+builder.add_edge(START, "generate")
+builder.add_edge("generate", "reflect")
+
+builder.add_conditional_edges(
+    "reflect",                    # after reflect, decide:
+    should_continue_reflexion,    # check if we should continue
+    ["generate", END],            # possible next steps
+)
+
+reflexion_graph = builder.compile()
+
+# ─── Run ──────────────────────────────────────────────────────────────────────
+task = "Explain the difference between supervised and unsupervised machine learning in simple terms."
+
+initial_state = {
+    "task": task,
+    "messages": [
+        HumanMessage(content=f"Task: {task}\n\nPlease write a clear, complete answer.")
+    ],
+    "iteration": 0,
+    "max_iterations": 3,   # will loop at most 3 times
+}
+
+result = reflexion_graph.invoke(initial_state)
+
+# Get the final answer (last non-critique message)
+final_messages = [m for m in result["messages"] if "[CRITIQUE]" not in m.content]
+print("\n=== FINAL ANSWER ===")
+print(final_messages[-1].content)</code></pre>
+    </div>
+
+    <div class="callout c-key">
+      <div class="callout-hdr">🔑 The Key Insight of Reflexion</div>
+      <p>
+        The secret is that the <strong>critique becomes part of the message history</strong>.
+        When <code>generate_node</code> runs again, the LLM sees its own previous answer <em>and</em> the critique
+        in the conversation. It naturally produces a better answer. No magic — just prompting in a loop.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 4 ───────────────── -->
+  <div class="section" id="s4">
+    <div class="section-hdr">
+      <div class="sec-num">4</div>
+      <h2>StateGraph vs MessageGraph</h2>
+    </div>
+
+    <p>
+      This confuses everyone. Here is the definitive answer.
+    </p>
+
+    <h3>The Short Answer</h3>
+    <p>
+      <strong>MessageGraph is deprecated.</strong> You should always use <code>StateGraph</code> today.
+      <code>MessagesState</code> (note: different from <code>MessageGraph</code>) is the recommended starting point for chatbots.
+    </p>
+
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>StateGraph</th>
+          <th>MessageGraph (deprecated)</th>
+          <th>StateGraph + MessagesState</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>State shape</strong></td>
+          <td>You define it (TypedDict)</td>
+          <td>Just a list of messages, hard-coded</td>
+          <td>Pre-built: just messages, but extensible</td>
+        </tr>
+        <tr>
+          <td><strong>Custom fields</strong></td>
+          <td class="yes">✓ Yes</td>
+          <td class="no">✗ No</td>
+          <td class="yes">✓ Yes (extend it)</td>
+        </tr>
+        <tr>
+          <td><strong>Status</strong></td>
+          <td><span class="tag t-green">✓ Current</span></td>
+          <td><span class="tag t-red">✗ Deprecated</span></td>
+          <td><span class="tag t-green">✓ Recommended</span></td>
+        </tr>
+        <tr>
+          <td><strong>Use when</strong></td>
+          <td>Complex agents with custom state</td>
+          <td>Don't use</td>
+          <td>Chatbots, simple agents</td>
+        </tr>
+        <tr>
+          <td><strong>Node signature</strong></td>
+          <td><code>def n(state: YourState)</code></td>
+          <td><code>def n(messages: list)</code></td>
+          <td><code>def n(state: MessagesState)</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>MessagesState — The Convenient Shortcut</h3>
+    <p>
+      <code>MessagesState</code> is just a pre-defined <code>TypedDict</code> with one field: <code>messages</code>
+      with <code>add_messages</code>. LangGraph ships it so you don't have to write it yourself for simple cases.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">messages_state_comparison.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import MessagesState, StateGraph, START, END
+
+# ─── Option A: MessagesState shortcut ────────────────────────────────────────
+# Use this for simple chatbots. State has only "messages".
+
+builder = StateGraph(MessagesState)
+# nodes receive state["messages"] automatically
+
+# ─── Option B: Custom StateGraph (most common in real apps) ──────────────────
+# Use this when you need more than just messages.
+
+class AdvancedState(TypedDict):
+    messages: Annotated[list, add_messages]   # chat history
+    user_id: str                               # who is talking
+    session_topic: str                         # current topic
+    tool_call_count: int                       # how many tools called so far
+    user_preferences: dict                     # any preferences learned
+
+builder2 = StateGraph(AdvancedState)
+
+# ─── The equivalence: MessagesState is literally just this ────────────────────
+# You can think of MessagesState as:
+class MessagesStateEquivalent(TypedDict):
+    messages: Annotated[list, add_messages]
+# That's it. The shortcut just saves you from writing these 2 lines.
+
+# ─── NEVER do this (MessageGraph — deprecated) ────────────────────────────────
+# from langgraph.graph import MessageGraph   ← DON'T USE
+# builder = MessageGraph()                   ← DON'T USE</code></pre>
+    </div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 Rule of Thumb</div>
+      <p>
+        Start with <code>StateGraph(MessagesState)</code>. When you need to track anything beyond messages
+        (user info, counters, flags, etc.) switch to a custom TypedDict.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 5 ───────────────── -->
+  <div class="section" id="s5">
+    <div class="section-hdr">
+      <div class="sec-num">5</div>
+      <h2>Why Do We Need Memory? The Stateless Problem</h2>
+    </div>
+
+    <p>
+      This is the most important conceptual leap in LangGraph. Let's understand the problem first.
+    </p>
+
+    <h3>The Problem: LangGraph is Stateless by Default</h3>
+    <p>
+      Every time you call <code>graph.invoke()</code>, LangGraph creates a <strong>brand new state from scratch</strong>.
+      The previous conversation is completely gone. This is fine for a one-shot task, but terrible for a chatbot.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">stateless_problem.py — BROKEN example (no memory)</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import MessagesState, StateGraph, START, END
+
+def chatbot(state):
+    return {"messages": [llm.invoke(state["messages"])]}
+
+builder = StateGraph(MessagesState)
+builder.add_node("chatbot", chatbot)
+builder.add_edge(START, "chatbot")
+builder.add_edge("chatbot", END)
+graph = builder.compile()   # ← no checkpointer = no memory!
+
+# Turn 1
+result1 = graph.invoke({"messages": [HumanMessage(content="My name is Alice")]})
+print(result1["messages"][-1].content)  # "Nice to meet you, Alice!"
+
+# Turn 2 — PROBLEM!
+result2 = graph.invoke({"messages": [HumanMessage(content="What is my name?")]})
+print(result2["messages"][-1].content)
+# Output: "I don't know your name. Could you tell me?"  ← FORGOT Alice!
+
+# WHY? Because invoke() started a FRESH state.
+# result1 was thrown away. result2 has no idea about Alice.</code></pre>
+    </div>
+
+    <h3>The Solution: A Checkpointer</h3>
+    <p>
+      A <strong>checkpointer</strong> is an object that saves the full state after every step, keyed by a
+      <code>thread_id</code>. When you invoke again with the same <code>thread_id</code>, LangGraph loads
+      the saved state automatically. This is "memory."
+    </p>
+
+    <div class="diagram">  WITHOUT checkpointer:
+  invoke() → fresh state → run nodes → return result → state is DISCARDED
+
+  WITH checkpointer + thread_id:
+  invoke() → load saved state for thread_id ──────────────────────────────┐
+           → merge with new input                                          │
+           → run nodes                                                     │
+           → save updated state for thread_id ◄────────────────────────── ┘
+           → return result
+
+  thread_id = a unique string that identifies ONE conversation.
+  Think of it as a conversation ID or session ID.</div>
+
+    <div class="callout c-info">
+      <div class="callout-hdr">🧠 Two Kinds of Memory</div>
+      <ul>
+        <li><strong>Short-term memory (in-graph):</strong> The messages in the state — the current conversation history. The LLM can "remember" things because they're in the message list it reads.</li>
+        <li><strong>Long-term memory (cross-graph):</strong> A separate vector store or database where you proactively store and retrieve facts across different conversations.</li>
+        <li>Checkpointers handle short-term memory. For long-term memory you need external stores (covered in the full LangGraph docs).</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 6 ───────────────── -->
+  <div class="section" id="s6">
+    <div class="section-hdr">
+      <div class="sec-num">6</div>
+      <h2>SQLite Checkpointer — Persistent Memory</h2>
+    </div>
+
+    <p>
+      LangGraph ships two built-in checkpointers. Use <code>MemorySaver</code> for development and testing,
+      and <code>SqliteSaver</code> for a real app that survives restarts.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">checkpointers.py — all options side by side</span>
+      </div>
+      <pre><code class="language-python">import sqlite3
+from langgraph.checkpoint.memory  import MemorySaver
+from langgraph.checkpoint.sqlite  import SqliteSaver
+
+# ─── Option 1: MemorySaver ────────────────────────────────────────────────────
+# Stores state in a Python dict in RAM.
+# PROS: zero setup, great for testing.
+# CONS: all conversations lost when your script ends.
+
+memory_saver = MemorySaver()
+
+# ─── Option 2: SqliteSaver — in-memory SQLite ────────────────────────────────
+# Still in RAM (":memory:"), but uses SQLite structures.
+# Slightly more overhead than MemorySaver, same ephemeral limitation.
+
+sqlite_memory = SqliteSaver.from_conn_string(":memory:")
+
+# ─── Option 3: SqliteSaver — file-based SQLite (RECOMMENDED for apps) ────────
+# Persists conversations to a file on disk.
+# Conversations survive script restarts!
+
+conn = sqlite3.connect("chatbot_memory.db", check_same_thread=False)
+#                                           ↑ needed if multiple threads access it
+sqlite_file = SqliteSaver(conn)
+
+# ─── Attach checkpointer when compiling ───────────────────────────────────────
+graph_with_memory = builder.compile(checkpointer=sqlite_file)
+# That single keyword argument is all it takes!</code></pre>
+    </div>
+
+    <h3>Using thread_id — The Key to Multi-user Support</h3>
+    <p>
+      Every <code>invoke()</code> or <code>stream()</code> call must include a <code>config</code> dict with a
+      <code>thread_id</code>. LangGraph uses this to save/load the right conversation.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">thread_id_demo.py</span>
+      </div>
+      <pre><code class="language-python">from langchain_core.messages import HumanMessage
+
+# ─── Config is how you pass thread_id ─────────────────────────────────────────
+# Format is always: {"configurable": {"thread_id": "some_string"}}
+# Use any unique string — user ID, session ID, UUID, etc.
+
+config_alice = {"configurable": {"thread_id": "alice_session_1"}}
+config_bob   = {"configurable": {"thread_id": "bob_session_1"}}
+
+# ─── Alice's conversation ─────────────────────────────────────────────────────
+result = graph_with_memory.invoke(
+    {"messages": [HumanMessage(content="Hi! I'm Alice. I love cats.")]},
+    config_alice,   # ← always pass config with thread_id
+)
+print("Alice turn 1:", result["messages"][-1].content)
+
+result = graph_with_memory.invoke(
+    {"messages": [HumanMessage(content="What do I love?")]},
+    config_alice,   # ← same thread_id → remembers Alice loves cats
+)
+print("Alice turn 2:", result["messages"][-1].content)
+# Output: "You mentioned you love cats!"
+
+# ─── Bob's conversation — completely separate ─────────────────────────────────
+result = graph_with_memory.invoke(
+    {"messages": [HumanMessage(content="What do I love?")]},
+    config_bob,   # ← different thread_id → fresh conversation, no Alice info
+)
+print("Bob turn 1:", result["messages"][-1].content)
+# Output: "I don't know yet — could you tell me?"
+
+# ─── Inspect saved state ──────────────────────────────────────────────────────
+saved_state = graph_with_memory.get_state(config_alice)
+print("\nSaved messages for Alice:")
+for msg in saved_state.values["messages"]:
+    print(f"  {msg.__class__.__name__}: {msg.content[:60]}")</code></pre>
+    </div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 Trick: Think of thread_id as a "conversation folder"</div>
+      <p>
+        The SQLite database is like a filing cabinet. Each <code>thread_id</code> is a folder.
+        Every conversation lives in its own folder. When you invoke with a thread_id, LangGraph opens
+        that folder and picks up where the conversation left off.
+      </p>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="callout-hdr">⚠️ Always pass config — it's easy to forget!</div>
+      <p>
+        If you forget the <code>config</code> argument, LangGraph uses a temporary thread. Your memory
+        checkpointer won't save anything and you'll wonder why memory isn't working.
+        <strong>Rule: if your graph has a checkpointer, always pass config.</strong>
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 7 ───────────────── -->
+  <div class="section" id="s7">
+    <div class="section-hdr">
+      <div class="sec-num">7</div>
+      <h2>Human in the Loop</h2>
+    </div>
+
+    <p>
+      Human-in-the-loop (HITL) means pausing the graph mid-execution to get a human's input or approval
+      before continuing. This is critical for:
+    </p>
+    <ul>
+      <li>Reviewing an agent's planned action before it executes (e.g., "Are you sure you want to delete this file?")</li>
+      <li>Asking the user for missing information mid-flow</li>
+      <li>Collecting feedback to improve the agent's next step</li>
+    </ul>
+
+    <div class="callout c-key">
+      <div class="callout-hdr">🔑 HITL requires a checkpointer</div>
+      <p>
+        When the graph pauses for human input, the state must be saved somewhere so it can be resumed later.
+        You cannot do HITL without a checkpointer.
+      </p>
+    </div>
+
+    <h3>Method 1: interrupt() — Pause inside a node (recommended)</h3>
+    <p>
+      The <code>interrupt()</code> function, called inside a node, pauses the graph and sends a message to the human.
+      When the human responds, the graph resumes from exactly where it left off.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">hitl_interrupt.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.types import interrupt, Command
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import StateGraph, START, END
+
+class ReviewState(TypedDict):
+    messages:       Annotated[list, add_messages]
+    draft_answer:   str    # the AI's draft answer before human review
+    approved:       bool   # did the human approve it?
+    human_feedback: str    # what did the human say?
+
+# ─── Node 1: AI generates a draft ─────────────────────────────────────────────
+def generate_draft(state: ReviewState) -> dict:
+    response = llm.invoke(state["messages"])
+    return {
+        "draft_answer": response.content,
+        "messages": [response],
+    }
+
+# ─── Node 2: Human review — PAUSES HERE and waits ─────────────────────────────
+def human_review(state: ReviewState) -> dict:
+    print(f"\n--- DRAFT ANSWER ---\n{state['draft_answer']}\n---")
+
+    # interrupt() PAUSES the graph and returns control to the caller.
+    # The string you pass is shown to the human as a prompt.
+    # The graph will NOT continue until you call invoke() with a Command.
+    feedback = interrupt(
+        "Please review the draft answer above. "
+        "Type 'approve' to accept, or type your feedback to request changes."
+    )
+    # Code below interrupt() runs AFTER the human responds.
+    approved = feedback.lower().strip() == "approve"
+    return {
+        "human_feedback": feedback,
+        "approved": approved,
+    }
+
+# ─── Node 3: Revise if not approved ───────────────────────────────────────────
+def revise_or_finalize(state: ReviewState) -> dict:
+    if state["approved"]:
+        final_msg = f"✅ Final answer (approved):\n{state['draft_answer']}"
+    else:
+        # Regenerate with the human's feedback
+        revision_prompt = (
+            f"Original answer: {state['draft_answer']}\n\n"
+            f"Human feedback: {state['human_feedback']}\n\n"
+            "Please revise the answer based on this feedback."
+        )
+        revised = llm.invoke([HumanMessage(content=revision_prompt)])
+        final_msg = f"✏️ Revised answer:\n{revised.content}"
+    return {"messages": [AIMessage(content=final_msg)]}
+
+# ─── Build ────────────────────────────────────────────────────────────────────
+builder = StateGraph(ReviewState)
+builder.add_node("generate",  generate_draft)
+builder.add_node("review",    human_review)
+builder.add_node("finalize",  revise_or_finalize)
+
+builder.add_edge(START,      "generate")
+builder.add_edge("generate", "review")
+builder.add_edge("review",   "finalize")
+builder.add_edge("finalize", END)
+
+memory = MemorySaver()   # MUST have a checkpointer for HITL
+hitl_graph = builder.compile(checkpointer=memory)
+
+# ─── HOW TO RUN WITH HITL ─────────────────────────────────────────────────────
+config = {"configurable": {"thread_id": "review-session-1"}}
+
+initial_state = {
+    "messages":       [HumanMessage(content="Explain what a neural network is in one paragraph.")],
+    "draft_answer":   "",
+    "approved":       False,
+    "human_feedback": "",
+}
+
+# Step 1: Run the graph — it will pause at interrupt()
+print("Running graph...")
+result = hitl_graph.invoke(initial_state, config)
+# result is None or incomplete because the graph paused.
+# Check the current state:
+current_state = hitl_graph.get_state(config)
+print("Graph paused. Interrupt value:", current_state.tasks[0].interrupts[0].value)
+
+# Step 2: Human provides input. Resume with Command(resume=...).
+from langgraph.types import Command
+
+# Option A: Human approves
+human_input = "approve"
+
+# Option B: Human requests changes
+# human_input = "Please make it simpler, no technical jargon."
+
+final_result = hitl_graph.invoke(Command(resume=human_input), config)
+print("\n=== FINAL ===")
+print(final_result["messages"][-1].content)</code></pre>
+    </div>
+
+    <h3>Method 2: interrupt_before — Pause before a node runs</h3>
+    <p>
+      Set at compile time. Pauses the graph before a specific node runs every time. Good when you always
+      want to review before a certain action (e.g., a "send email" node).
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">interrupt_before.py</span>
+      </div>
+      <pre><code class="language-python"># ─── Compile with interrupt_before ───────────────────────────────────────────
+graph_with_pause = builder.compile(
+    checkpointer=memory,
+    interrupt_before=["send_email"],  # pause BEFORE this node runs
+    # interrupt_after=["tool_node"],  # or pause AFTER a node
+)
+
+config = {"configurable": {"thread_id": "email-session-1"}}
+
+# Run — graph will stop just before "send_email" node
+result = graph_with_pause.invoke(initial_state, config)
+
+# Inspect what the agent was about to do
+state = graph_with_pause.get_state(config)
+print("Agent wants to send:", state.values)
+
+# Approve and resume — this will now run the "send_email" node
+graph_with_pause.invoke(None, config)   # pass None to just continue
+# or update state before resuming:
+# graph_with_pause.update_state(config, {"recipient": "corrected@email.com"})
+# graph_with_pause.invoke(None, config)</code></pre>
+    </div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 interrupt() vs interrupt_before — when to use which?</div>
+      <p>
+        Use <strong><code>interrupt()</code> inside a node</strong> when you need dynamic pausing (e.g., only pause if the confidence score is low, or to ask a specific question based on context).<br><br>
+        Use <strong><code>interrupt_before</code> at compile time</strong> when you always want to pause before a specific action regardless of context (e.g., always review before sending an email).
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 8 ───────────────── -->
+  <div class="section" id="s8">
+    <div class="section-hdr">
+      <div class="sec-num">8</div>
+      <h2>Multi-turn Conversations</h2>
+    </div>
+
+    <p>
+      A multi-turn conversation is a back-and-forth chat where the AI remembers everything said so far.
+      This combines everything: State, add_messages, a checkpointer, and thread_id.
+    </p>
+
+    <h3>How it actually works under the hood</h3>
+    <div class="diagram">  Turn 1 (thread: "chat-1"):
+  ─────────────────────────────────────────────────────────────────
+  invoke({"messages": [HumanMessage("Hi Alice!")]}, config)
+     │
+     ▼ Checkpointer loads state for "chat-1" (empty, first time)
+     ▼ Merge: state = { messages: [HumanMessage("Hi Alice!")] }
+     ▼ chatbot_node runs → LLM sees [HumanMessage("Hi Alice!")]
+     ▼ LLM returns AIMessage("Hello! I'm Alice...")
+     ▼ add_messages appends → state = { messages: [Human, AI] }
+     ▼ Checkpointer SAVES state for "chat-1"
+
+  Turn 2 (thread: "chat-1"):
+  ─────────────────────────────────────────────────────────────────
+  invoke({"messages": [HumanMessage("What's my name?")]}, config)
+     │
+     ▼ Checkpointer LOADS state for "chat-1"
+     ▼ Merge: state.messages = [Human1, AI1] + [HumanMessage("What?")]
+     ▼ chatbot_node runs → LLM sees ALL 3 messages
+     ▼ LLM returns AIMessage("I called you Alice earlier!")
+     ▼ add_messages appends → 4 messages total
+     ▼ Checkpointer SAVES</div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">multi_turn_chat.py — complete working example</span>
+      </div>
+      <pre><code class="language-python">import sqlite3
+from typing import TypedDict, Annotated
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langchain_core.messages import HumanMessage, SystemMessage
+
+# ─── State ────────────────────────────────────────────────────────────────────
+class ChatState(TypedDict):
+    messages: Annotated[list, add_messages]
+
+# ─── Node ─────────────────────────────────────────────────────────────────────
+SYSTEM_PROMPT = SystemMessage(content=(
+    "You are a friendly AI assistant. "
+    "You have a great memory and always refer back to things the user told you."
+))
+
+def chatbot(state: ChatState) -> dict:
+    # state["messages"] already contains ALL previous messages
+    # (loaded by the checkpointer automatically)
+    all_messages = [SYSTEM_PROMPT] + state["messages"]
+    response = llm.invoke(all_messages)
+    return {"messages": [response]}   # add_messages will append this
+
+# ─── Build ────────────────────────────────────────────────────────────────────
+builder = StateGraph(ChatState)
+builder.add_node("chatbot", chatbot)
+builder.add_edge(START, "chatbot")
+builder.add_edge("chatbot", END)
+
+conn   = sqlite3.connect("chat_history.db", check_same_thread=False)
+memory = SqliteSaver(conn)
+graph  = builder.compile(checkpointer=memory)
+
+# ─── Interactive multi-turn loop ──────────────────────────────────────────────
+def chat(user_id: str):
+    """Run a multi-turn chat for a specific user."""
+    config = {"configurable": {"thread_id": f"user_{user_id}"}}
+    print(f"Chatting as user: {user_id}. Type 'quit' to exit, 'history' to see messages.\n")
+
+    while True:
+        user_input = input("You: ").strip()
+        if not user_input:
+            continue
+        if user_input.lower() == "quit":
+            break
+        if user_input.lower() == "history":
+            state = graph.get_state(config)
+            for i, msg in enumerate(state.values["messages"]):
+                print(f"  [{i+1}] {msg.__class__.__name__}: {msg.content[:80]}")
+            continue
+
+        # Send message — LangGraph loads history, adds this, runs, saves.
+        result = graph.invoke(
+            {"messages": [HumanMessage(content=user_input)]},
+            config,
+        )
+        print(f"AI: {result['messages'][-1].content}\n")
+
+# To run:
+# chat("alice")
+# chat("bob")   # completely separate conversation</code></pre>
+    </div>
+
+    <div class="callout c-ok">
+      <div class="callout-hdr">✅ Multi-turn in 5 key facts</div>
+      <ul>
+        <li><strong>1.</strong> State has <code>messages: Annotated[list, add_messages]</code></li>
+        <li><strong>2.</strong> Graph compiled with <code>checkpointer=SqliteSaver(...)</code></li>
+        <li><strong>3.</strong> Every invoke passes <code>config = {"configurable": {"thread_id": "unique_id"}}</code></li>
+        <li><strong>4.</strong> LangGraph auto-loads old state and auto-merges new messages</li>
+        <li><strong>5.</strong> LLM sees full history because all messages are in <code>state["messages"]</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 9 ───────────────── -->
+  <div class="section" id="s9">
+    <div class="section-hdr">
+      <div class="sec-num">9</div>
+      <h2>Complete Chatbot App <span class="badge">ALL FEATURES</span></h2>
+    </div>
+
+    <p>
+      Everything combined: custom state, ReAct tools, SQLite memory, human-in-the-loop review,
+      multi-turn conversation, and a CLI interface.
+    </p>
+
+    <div class="callout c-info">
+      <div class="callout-hdr">🗺️ Architecture Overview</div>
+      <ul>
+        <li><strong>State:</strong> messages + user_name + tool_use_count + pending_approval</li>
+        <li><strong>Nodes:</strong> chatbot (LLM + tools) → [optional] human_approval → finalize</li>
+        <li><strong>Tools:</strong> calculator, note-taker</li>
+        <li><strong>Memory:</strong> SQLite checkpointer with per-user thread_id</li>
+        <li><strong>HITL:</strong> agent pauses when using "sensitive" tools to ask for approval</li>
+        <li><strong>Multi-turn:</strong> each session remembers everything</li>
+      </ul>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">chatbot_app.py — PART 1: Imports, State, Tools</span>
+      </div>
+      <pre><code class="language-python">import sqlite3
+from typing import TypedDict, Annotated
+
+from langgraph.graph         import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.prebuilt      import ToolNode
+from langgraph.types         import interrupt, Command
+
+from langchain_openai        import AzureChatOpenAI
+from langchain_core.tools    import tool
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+import os
+
+# ─── LLM Setup ───────────────────────────────────────────────────────────────
+llm = AzureChatOpenAI(
+    azure_deployment=os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"],
+    api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+    temperature=0,
+)
+
+# ─── State ────────────────────────────────────────────────────────────────────
+class AppState(TypedDict):
+    messages:           Annotated[list, add_messages]  # full chat history
+    user_name:          str          # learned from conversation
+    tool_use_count:     int          # track how many tools have been called
+    needs_approval:     bool         # flag: is there a pending approval?
+    pending_action_desc: str         # what action needs approval?
+
+# ─── Tools ────────────────────────────────────────────────────────────────────
+@tool
+def calculator(expression: str) -> str:
+    """Evaluate a mathematical expression. E.g. '2 + 2', '100 * 0.15', 'sqrt(16)'."""
+    import math
+    try:
+        # Safe evaluation with math functions available
+        safe_env = {k: getattr(math, k) for k in dir(math) if not k.startswith("_")}
+        result = eval(expression, {"__builtins__": {}}, safe_env)  # noqa: S307
+        return f"Result: {result}"
+    except Exception as e:
+        return f"Error evaluating '{expression}': {e}"
+
+@tool
+def save_note(title: str, content: str) -> str:
+    """Save an important note or reminder for the user. 
+    Use when the user asks to remember something or take a note."""
+    # In production: save to a database. Here: just acknowledge.
+    return f"✅ Note saved — '{title}': {content}"
+
+@tool
+def get_current_time() -> str:
+    """Get the current date and time."""
+    from datetime import datetime
+    return datetime.now().strftime("%A, %B %d %Y at %I:%M %p")
+
+tools = [calculator, save_note, get_current_time]
+
+# Bind tools to the LLM
+llm_with_tools = llm.bind_tools(tools)</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">chatbot_app.py — PART 2: Nodes</span>
+      </div>
+      <pre><code class="language-python"># ─── Node 1: The main chatbot brain ───────────────────────────────────────────
+def chatbot_node(state: AppState) -> dict:
+    system_content = (
+        "You are a friendly, helpful AI assistant with a great memory. "
+        "You have access to a calculator, note-saving tool, and time tool. "
+    )
+    if state.get("user_name"):
+        system_content += f"The user's name is {state['user_name']}. "
+    system_content += "Always be concise and helpful."
+
+    response = llm_with_tools.invoke(
+        [SystemMessage(content=system_content)] + state["messages"]
+    )
+    return {"messages": [response]}
+
+# ─── Node 2: Tool executor ────────────────────────────────────────────────────
+# ToolNode is prebuilt — it finds tool_calls in the last AIMessage,
+# runs each tool function, and returns ToolMessages with the results.
+tool_executor = ToolNode(tools)
+
+# ─── Node 3: Human approval for note-saving ───────────────────────────────────
+# We pause here if the agent wants to save a note.
+def approval_node(state: AppState) -> dict:
+    last_msg = state["messages"][-1]
+
+    # Check if the agent is trying to call "save_note"
+    needs_approval = any(
+        tc["name"] == "save_note"
+        for tc in (last_msg.tool_calls if hasattr(last_msg, "tool_calls") else [])
+    )
+
+    if needs_approval:
+        # Find what note they want to save
+        note_call = next(
+            (tc for tc in last_msg.tool_calls if tc["name"] == "save_note"), None
+        )
+        desc = f"Save note: '{note_call['args'].get('title')}' - {note_call['args'].get('content')}"
+
+        # PAUSE HERE — ask human for approval
+        decision = interrupt(
+            f"\n🔔 APPROVAL NEEDED\n{desc}\n\nType 'yes' to approve or 'no' to cancel: "
+        )
+        if decision.lower().strip() == "yes":
+            return {"needs_approval": False, "pending_action_desc": ""}
+        else:
+            # Cancel the tool call by overwriting the last message
+            return {
+                "messages": [AIMessage(content="I've cancelled the note-saving as requested.")],
+                "needs_approval": False,
+            }
+
+    return {"needs_approval": False}
+
+# ─── Conditional Router 1: after chatbot, route to tools or end ───────────────
+def route_after_chatbot(state: AppState) -> str:
+    last_msg = state["messages"][-1]
+
+    if not hasattr(last_msg, "tool_calls") or not last_msg.tool_calls:
+        return END   # no tool calls → conversation is done for this turn
+
+    # Check if any tool needs approval
+    tool_names = [tc["name"] for tc in last_msg.tool_calls]
+    if "save_note" in tool_names:
+        return "approval"   # route to human approval first
+
+    return "tools"   # other tools: run directly
+
+# ─── Conditional Router 2: after approval, either run tools or end ────────────
+def route_after_approval(state: AppState) -> str:
+    # If the approval node cancelled the action, last message is a plain AIMessage
+    last_msg = state["messages"][-1]
+    if hasattr(last_msg, "tool_calls") and last_msg.tool_calls:
+        return "tools"   # approved → run tools
+    return END           # cancelled → end</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">chatbot_app.py — PART 3: Graph Assembly &amp; Run</span>
+      </div>
+      <pre><code class="language-python"># ─── Build the graph ──────────────────────────────────────────────────────────
+builder = StateGraph(AppState)
+
+# Add all nodes
+builder.add_node("chatbot",  chatbot_node)
+builder.add_node("tools",    tool_executor)
+builder.add_node("approval", approval_node)
+
+# Entry point
+builder.add_edge(START, "chatbot")
+
+# After chatbot: route to tools, approval, or end
+builder.add_conditional_edges(
+    "chatbot",
+    route_after_chatbot,
+    ["tools", "approval", END],
+)
+
+# After approval: route to tools or end
+builder.add_conditional_edges(
+    "approval",
+    route_after_approval,
+    ["tools", END],
+)
+
+# After tools: always go back to chatbot so it can respond with results
+builder.add_edge("tools", "chatbot")
+
+# ─── Compile with SQLite memory ───────────────────────────────────────────────
+conn   = sqlite3.connect("full_chatbot.db", check_same_thread=False)
+memory = SqliteSaver(conn)
+
+app = builder.compile(checkpointer=memory)
+
+# ─── CLI Interface ────────────────────────────────────────────────────────────
+def run_chatbot():
+    print("=" * 60)
+    print("    LangGraph Chatbot — Multi-turn with Memory & HITL")
+    print("=" * 60)
+
+    user_id = input("Enter your user ID (or press Enter for 'guest'): ").strip()
+    user_id = user_id or "guest"
+    config  = {"configurable": {"thread_id": f"user_{user_id}"}}
+
+    # Initial state (only used on first run for this user; ignored on resume)
+    initial_state: AppState = {
+        "messages":            [],
+        "user_name":           "",
+        "tool_use_count":      0,
+        "needs_approval":      False,
+        "pending_action_desc": "",
+    }
+
+    print(f"\nLoaded session for user: {user_id}")
+    print("Commands: 'quit' → exit | 'history' → show messages | 'clear' → new session\n")
+
+    while True:
+        user_input = input("You: ").strip()
+        if not user_input:
+            continue
+
+        if user_input.lower() == "quit":
+            print("Goodbye!")
+            break
+
+        if user_input.lower() == "history":
+            state = app.get_state(config)
+            if state.values:
+                for i, msg in enumerate(state.values.get("messages", [])):
+                    prefix = "👤" if msg.__class__.__name__ == "HumanMessage" else "🤖"
+                    print(f"  {prefix} {msg.content[:100]}")
+            else:
+                print("  (no history yet)")
+            continue
+
+        if user_input.lower() == "clear":
+            # Start a new session with a different thread_id
+            config = {"configurable": {"thread_id": f"user_{user_id}_new"}}
+            print("Started new session.\n")
+            continue
+
+        # ─── Invoke the graph ──────────────────────────────────────────────────
+        try:
+            result = app.invoke(
+                {"messages": [HumanMessage(content=user_input)]},
+                config,
+            )
+
+            # Check if graph paused for human approval (interrupt)
+            current_state = app.get_state(config)
+            while current_state.tasks:   # there are pending tasks = graph paused
+                # Get the interrupt value (the question asked by the graph)
+                interrupt_val = current_state.tasks[0].interrupts[0].value
+                human_response = input(interrupt_val).strip()
+
+                # Resume the graph with the human's response
+                result = app.invoke(Command(resume=human_response), config)
+                current_state = app.get_state(config)
+
+            # Print the final AI response
+            if result and result.get("messages"):
+                ai_msg = result["messages"][-1]
+                if hasattr(ai_msg, "content") and ai_msg.content:
+                    print(f"AI: {ai_msg.content}\n")
+
+        except Exception as e:
+            print(f"Error: {e}\n")
+
+if __name__ == "__main__":
+    run_chatbot()</code></pre>
+    </div>
+
+    <h3>Graph Visualization</h3>
+    <div class="diagram">    ┌─────────────────────────────────────────────────────────┐
+    │                      GRAPH FLOW                         │
+    │                                                         │
+    │   START                                                 │
+    │     │                                                   │
+    │     ▼                                                   │
+    │  ┌──────────┐    no tool calls    ┌─────┐              │
+    │  │ chatbot  │ ──────────────────► │ END │              │
+    │  └──────────┘                     └─────┘              │
+    │       │  tool calls (save_note)                         │
+    │       ▼                                                 │
+    │  ┌──────────┐    cancelled        ┌─────┐              │
+    │  │ approval │ ──────────────────► │ END │              │
+    │  └──────────┘                     └─────┘              │
+    │       │  approved                                       │
+    │       ▼                                                 │
+    │  ┌──────────┐    other tools                            │
+    │  │  tools   │ ◄────────────────── chatbot              │
+    │  └──────────┘                                           │
+    │       │                                                 │
+    │       └─────────────────────────► chatbot (loop back)  │
+    └─────────────────────────────────────────────────────────┘</div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 10 ───────────────── -->
+  <div class="section" id="s10">
+    <div class="section-hdr">
+      <div class="sec-num">10</div>
+      <h2>Tips &amp; Tricks to Write Code Fast</h2>
+    </div>
+
+    <p>
+      These are the mental models and templates that let you write LangGraph code without getting stuck.
+    </p>
+
+    <h3>Trick 1 — The Universal State Template</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">template_state.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated
+from langgraph.graph.message import add_messages
+
+# ── COPY THIS TEMPLATE FOR EVERY PROJECT ──────────────────────────────────────
+class MyState(TypedDict):
+    messages: Annotated[list, add_messages]   # ALWAYS include this for chatbots
+    # ... add your custom fields below:
+    # user_id: str
+    # some_flag: bool
+    # some_counter: int
+    # some_data: dict</code></pre>
+    </div>
+
+    <h3>Trick 2 — The Universal Node Template</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">template_node.py</span>
+      </div>
+      <pre><code class="language-python"># ── COPY THIS TEMPLATE FOR EVERY NODE ─────────────────────────────────────────
+def my_node(state: MyState) -> dict:
+    # 1. READ  — get values from state
+    some_value = state["messages"]        # read a field
+    other_val  = state.get("flag", False) # safe get with default
+
+    # 2. DO    — your logic here
+    result = llm.invoke(state["messages"])  # or any computation
+
+    # 3. RETURN — only return what changed
+    return {
+        "messages": [result],  # add_messages will APPEND
+        # "flag": True,        # plain fields are REPLACED
+    }</code></pre>
+    </div>
+
+    <h3>Trick 3 — The Universal Router Template</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">template_router.py</span>
+      </div>
+      <pre><code class="language-python"># ── COPY THIS TEMPLATE FOR EVERY CONDITIONAL EDGE ─────────────────────────────
+def my_router(state: MyState) -> str:
+    # A router ALWAYS returns a string.
+    # That string must be a node name or END.
+
+    # Pattern: inspect state, return string
+    last_msg = state["messages"][-1]
+
+    if hasattr(last_msg, "tool_calls") and last_msg.tool_calls:
+        return "tools"     # → route to "tools" node
+
+    if state.get("needs_review"):
+        return "review"    # → route to "review" node
+
+    return END             # → finish the graph
+
+
+# When adding this to the graph:
+builder.add_conditional_edges(
+    "source_node",         # from which node
+    my_router,             # the router function
+    ["tools", "review", END],  # all possible destinations (optional but helpful)
+)</code></pre>
+    </div>
+
+    <h3>Trick 4 — The Universal Graph Assembly Template</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">template_graph.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import StateGraph, START, END
+import sqlite3
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+# ── GRAPH ASSEMBLY ALWAYS IN THIS ORDER ───────────────────────────────────────
+builder = StateGraph(MyState)           # 1. Create builder
+
+builder.add_node("n1", node1_fn)        # 2. Add nodes
+builder.add_node("n2", node2_fn)
+
+builder.add_edge(START, "n1")           # 3. Add START edge
+
+builder.add_edge("n1", "n2")            # 4. Add fixed edges
+builder.add_conditional_edges("n2", router, ["n1", END])  # 5. Add conditional edges
+
+conn    = sqlite3.connect("my.db", check_same_thread=False)
+memory  = SqliteSaver(conn)
+graph   = builder.compile(checkpointer=memory)  # 6. Compile
+
+config  = {"configurable": {"thread_id": "session_1"}}  # 7. Config
+result  = graph.invoke(initial_state, config)            # 8. Run</code></pre>
+    </div>
+
+    <h3>Trick 5 — Debug by streaming</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">debug_streaming.py</span>
+      </div>
+      <pre><code class="language-python"># ── STREAM EVENTS TO SEE EXACTLY WHAT'S HAPPENING ────────────────────────────
+for event in graph.stream(initial_state, config, stream_mode="updates"):
+    for node_name, node_output in event.items():
+        print(f"\n── Node: {node_name} ──")
+        if "messages" in node_output:
+            last = node_output["messages"][-1]
+            print(f"  Message type: {last.__class__.__name__}")
+            print(f"  Content: {last.content[:200]}")
+        else:
+            print(f"  Output: {node_output}")</code></pre>
+    </div>
+
+    <h3>Trick 6 — Common Patterns Cheat Sheet</h3>
+    <table class="cmp-table">
+      <thead>
+        <tr><th>I want to…</th><th>Use this code</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Start a simple chatbot</td>
+          <td><code>StateGraph(MessagesState)</code></td>
+        </tr>
+        <tr>
+          <td>Add tools to LLM</td>
+          <td><code>llm.bind_tools(tools)</code></td>
+        </tr>
+        <tr>
+          <td>Auto-execute tools</td>
+          <td><code>ToolNode(tools)</code></td>
+        </tr>
+        <tr>
+          <td>Add persistent memory</td>
+          <td><code>builder.compile(checkpointer=SqliteSaver(conn))</code></td>
+        </tr>
+        <tr>
+          <td>Remember conversation</td>
+          <td>Pass same <code>thread_id</code> in <code>config</code></td>
+        </tr>
+        <tr>
+          <td>Pause for human</td>
+          <td><code>interrupt("question?")</code> inside a node</td>
+        </tr>
+        <tr>
+          <td>Resume after interrupt</td>
+          <td><code>graph.invoke(Command(resume="answer"), config)</code></td>
+        </tr>
+        <tr>
+          <td>Loop (ReAct / Reflexion)</td>
+          <td>Conditional edge that returns a node name (not END)</td>
+        </tr>
+        <tr>
+          <td>See what node ran</td>
+          <td><code>graph.stream(..., stream_mode="updates")</code></td>
+        </tr>
+        <tr>
+          <td>Inspect saved state</td>
+          <td><code>graph.get_state(config)</code></td>
+        </tr>
+        <tr>
+          <td>Modify saved state</td>
+          <td><code>graph.update_state(config, {"key": new_val})</code></td>
+        </tr>
+        <tr>
+          <td>Quick ReAct agent</td>
+          <td><code>create_react_agent(llm, tools)</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Trick 7 — How to think about writing a new graph</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">1</div>
+        <div class="flow-body">
+          <h4>Sketch the flow on paper first</h4>
+          <p>Draw boxes (nodes) and arrows (edges). Don't touch code. What are the steps? What decides the next step?</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">2</div>
+        <div class="flow-body">
+          <h4>Define your State</h4>
+          <p>Ask: "What information does every node need access to?" Each answer is a field in your TypedDict.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">3</div>
+        <div class="flow-body">
+          <h4>Write each node as a plain function</h4>
+          <p>Forget LangGraph. Write the Python function that does the work. Then wrap it in the node template (read → compute → return dict).</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">4</div>
+        <div class="flow-body">
+          <h4>Write routers as simple if/else</h4>
+          <p>A router is just: look at state, return a string. The string is the next node name or END.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">5</div>
+        <div class="flow-body">
+          <h4>Assemble using the template</h4>
+          <p>add_node → add_edge/add_conditional_edges → compile. Always in this order.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">6</div>
+        <div class="flow-body">
+          <h4>Test with stream_mode="updates"</h4>
+          <p>Stream to see which node is running and what it outputs. This is how you debug LangGraph.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 The Mental Model That Makes Everything Click</div>
+      <p>
+        LangGraph is just a <strong>while loop with a dictionary</strong>.<br><br>
+        Every iteration of the loop: pick a node based on routing logic → call that node function with the dict → update the dict with what the function returned → check if we're done.<br><br>
+        The "graph" is just a fancy way of defining <em>which function runs next</em>. Everything else is just Python.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 11 ───────────────── -->
+  <div class="section" id="s11">
+    <div class="section-hdr">
+      <div class="sec-num">11</div>
+      <h2>Streaming</h2>
+    </div>
+
+    <p>
+      Streaming lets you see the graph's output token-by-token or node-by-node as it runs, instead of waiting for the
+      entire execution to finish. This makes your app feel instant and allows real-time UIs.
+    </p>
+
+    <h3>Four Stream Modes — Which One Do You Need?</h3>
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Mode</th><th>What you get</th><th>Best for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>"values"</code></td>
+          <td>Full state snapshot after each node completes</td>
+          <td>Debugging, seeing full state evolution</td>
+        </tr>
+        <tr>
+          <td><code>"updates"</code></td>
+          <td>Only the delta (what each node returned)</td>
+          <td>Monitoring which nodes ran and what they changed</td>
+        </tr>
+        <tr>
+          <td><code>"messages"</code></td>
+          <td>LLM tokens as they stream, plus message metadata</td>
+          <td>Chat UIs — show text appearing word by word</td>
+        </tr>
+        <tr>
+          <td><code>"debug"</code></td>
+          <td>Everything — all internal events</td>
+          <td>Deep debugging only (very verbose)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>stream_mode="updates" — See Every Node Step</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">streaming_updates.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import StateGraph, MessagesState, START, END
+from langchain_core.messages import HumanMessage
+
+# Build your graph (any graph)
+builder = StateGraph(MessagesState)
+builder.add_node("chatbot", lambda s: {"messages": [llm.invoke(s["messages"])]})
+builder.add_edge(START, "chatbot")
+builder.add_edge("chatbot", END)
+graph = builder.compile()
+
+# ─── Stream with "updates" mode ───────────────────────────────────────────────
+# Each chunk is: { "node_name": { ...what that node returned... } }
+for chunk in graph.stream(
+    {"messages": [HumanMessage(content="Tell me a fun fact about Python.")]},
+    stream_mode="updates",
+):
+    for node_name, node_output in chunk.items():
+        print(f"\n── Node: {node_name} ──")
+        if "messages" in node_output:
+            last_msg = node_output["messages"][-1]
+            print(f"  {last_msg.__class__.__name__}: {last_msg.content[:200]}")
+        else:
+            print(f"  Output: {node_output}")</code></pre>
+    </div>
+
+    <h3>stream_mode="messages" — Token-by-Token for Chat UIs</h3>
+    <p>
+      This is the mode you use in production chat applications. Each chunk contains a single token (or small group of tokens)
+      as the LLM generates it, plus metadata about which node emitted it.
+    </p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">streaming_messages.py</span>
+      </div>
+      <pre><code class="language-python">from langchain_core.messages import AIMessageChunk
+
+# ─── Token-by-token streaming ────────────────────────────────────────────────
+# Each chunk is a tuple: (message_chunk, metadata)
+# message_chunk can be AIMessageChunk, HumanMessage, ToolMessage, etc.
+
+print("AI: ", end="", flush=True)
+
+for message_chunk, metadata in graph.stream(
+    {"messages": [HumanMessage(content="Write a short poem about LangGraph.")]},
+    stream_mode="messages",
+):
+    # Only print LLM tokens (AIMessageChunk), skip other message types
+    if isinstance(message_chunk, AIMessageChunk) and message_chunk.content:
+        print(message_chunk.content, end="", flush=True)
+        # ↑ end="" and flush=True make tokens appear inline as they arrive
+
+print()  # newline at the end</code></pre>
+    </div>
+
+    <h3>Async Streaming — For FastAPI / Web Servers</h3>
+    <p>
+      In a web server you should use the async API (<code>astream</code>) so that streaming one user's response
+      doesn't block other requests.
+    </p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">async_streaming_fastapi.py</span>
+      </div>
+      <pre><code class="language-python">from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+from langchain_core.messages import HumanMessage, AIMessageChunk
+import asyncio
+
+app_api = FastAPI()
+
+# ─── Async generator that yields tokens ───────────────────────────────────────
+async def token_generator(user_message: str):
+    config = {"configurable": {"thread_id": "web-session-1"}}
+    async for message_chunk, metadata in graph.astream(
+        {"messages": [HumanMessage(content=user_message)]},
+        config,
+        stream_mode="messages",
+    ):
+        if isinstance(message_chunk, AIMessageChunk) and message_chunk.content:
+            # Yield Server-Sent Events format (works with EventSource in browser)
+            yield f"data: {message_chunk.content}\n\n"
+
+    yield "data: [DONE]\n\n"   # signal the end
+
+# ─── FastAPI endpoint ─────────────────────────────────────────────────────────
+@app_api.get("/chat")
+async def chat_stream(message: str):
+    return StreamingResponse(
+        token_generator(message),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",   # disable nginx buffering
+        },
+    )
+
+# ─── Matching JavaScript client code ─────────────────────────────────────────
+# const evtSource = new EventSource(`/chat?message=${encodeURIComponent(msg)}`);
+# evtSource.onmessage = (e) => {
+#   if (e.data === "[DONE]") { evtSource.close(); return; }
+#   document.getElementById("output").textContent += e.data;
+# };</code></pre>
+    </div>
+
+    <h3>Streaming with Multiple stream_modes at Once</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">multi_mode_streaming.py</span>
+      </div>
+      <pre><code class="language-python"># You can pass a list of modes to get multiple event types in one stream
+for event_type, chunk in graph.stream(
+    {"messages": [HumanMessage(content="What is 7 * 8?")]},
+    stream_mode=["messages", "updates"],  # ← list of modes
+):
+    if event_type == "messages":
+        msg_chunk, meta = chunk
+        if isinstance(msg_chunk, AIMessageChunk) and msg_chunk.content:
+            print(msg_chunk.content, end="", flush=True)
+    elif event_type == "updates":
+        for node_name, output in chunk.items():
+            print(f"\n[{node_name} completed]")</code></pre>
+    </div>
+
+    <div class="callout c-trick">
+      <div class="callout-hdr">💡 Streaming Quick Reference</div>
+      <ul>
+        <li><strong>Dev / debugging:</strong> <code>stream_mode="updates"</code> — see node names + outputs</li>
+        <li><strong>Chat UI (CLI):</strong> <code>stream_mode="messages"</code> + check <code>isinstance(chunk, AIMessageChunk)</code></li>
+        <li><strong>Web server:</strong> use <code>graph.astream()</code> inside an <code>async</code> generator</li>
+        <li><strong>See full state after each step:</strong> <code>stream_mode="values"</code></li>
+      </ul>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="callout-hdr">⚠️ Azure OpenAI Streaming Requires streaming=True</div>
+      <p>
+        To get real token-level streaming with Azure OpenAI, set <code>streaming=True</code> on your <code>AzureChatOpenAI</code> instance:
+        <code>llm = AzureChatOpenAI(..., streaming=True)</code>. Without this, the LLM waits for the full response before yielding anything.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 12 ───────────────── -->
+  <div class="section" id="s12">
+    <div class="section-hdr">
+      <div class="sec-num">12</div>
+      <h2>LangGraph Subgraphs</h2>
+    </div>
+
+    <p>
+      A subgraph is a compiled LangGraph graph that is <strong>used as a node</strong> inside another (parent) graph.
+      Subgraphs let you decompose complex systems into reusable, independently-testable components — exactly like
+      functions in regular programming.
+    </p>
+
+    <h3>Why Subgraphs?</h3>
+    <ul>
+      <li><strong>Modularity:</strong> build and test each agent independently, then compose them.</li>
+      <li><strong>Reuse:</strong> the same subgraph can be used in multiple parent graphs.</li>
+      <li><strong>Isolation:</strong> subgraphs have their own state — they can't accidentally corrupt the parent's state.</li>
+      <li><strong>Team scale:</strong> different teams can own different subgraphs.</li>
+    </ul>
+
+    <div class="diagram">  Parent Graph                 Subgraph A               Subgraph B
+  ────────────────────         ──────────────────────    ──────────────────────
+  START                        START                     START
+    │                            │                         │
+    ▼                            ▼                         ▼
+  router_node                  fetch_data_node           analyze_node
+    │  (calls subgraph_a)        │                         │
+    ▼                            ▼                         ▼
+  [SubGraph A] ────────────→  transform_node            score_node
+    │  (calls subgraph_b)        │                         │
+    ▼                            ▼                         ▼
+  [SubGraph B]                  END                       END
+    │
+    ▼
+  final_node
+    │
+    ▼
+  END</div>
+
+    <h3>State Communication: Parent ↔ Subgraph</h3>
+    <p>
+      The parent graph and subgraph have <strong>separate state schemas</strong>. LangGraph automatically maps
+      shared fields by name. Any field with the same name in both schemas is passed through automatically.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">subgraph_basic.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+
+# ══════════════════════════════════════════════════════════════════
+#  SUBGRAPH: Research Agent — searches and summarises information
+# ══════════════════════════════════════════════════════════════════
+
+class ResearchState(TypedDict):
+    """State used ONLY inside the research subgraph."""
+    messages:    Annotated[list, add_messages]  # shared with parent (same name)
+    query:       str      # search query to run
+    raw_results: list     # raw search snippets
+    summary:     str      # final summarised answer
+
+def search_node(state: ResearchState) -> dict:
+    """Simulate a web search."""
+    query = state["query"]
+    # In a real app: call Bing/Google/Azure AI Search here
+    fake_results = [
+        f"Result 1 about '{query}': LangGraph is a stateful graph framework...",
+        f"Result 2 about '{query}': It supports multi-agent architectures...",
+        f"Result 3 about '{query}': Built on top of LangChain...",
+    ]
+    return {"raw_results": fake_results}
+
+def summarise_node(state: ResearchState) -> dict:
+    """Summarise the raw search results into a clean answer."""
+    context = "\n".join(state["raw_results"])
+    prompt  = f"Summarise these search results for the query '{state['query']}':\n\n{context}"
+    summary = llm.invoke([HumanMessage(content=prompt)])
+    return {
+        "summary":  summary.content,
+        "messages": [AIMessage(content=f"Research summary: {summary.content}")],
+    }
+
+# Build and compile the subgraph
+research_builder = StateGraph(ResearchState)
+research_builder.add_node("search",    search_node)
+research_builder.add_node("summarise", summarise_node)
+research_builder.add_edge(START,      "search")
+research_builder.add_edge("search",   "summarise")
+research_builder.add_edge("summarise", END)
+
+research_subgraph = research_builder.compile()   # ← compiled = can be used as a node
+
+# ══════════════════════════════════════════════════════════════════
+#  PARENT GRAPH: Orchestrates research + final answer
+# ══════════════════════════════════════════════════════════════════
+
+class ParentState(TypedDict):
+    """Parent graph state. 'messages' is shared with the subgraph (same field name)."""
+    messages: Annotated[list, add_messages]
+    query:    str       # also shared — parent sets it, subgraph reads it
+    summary:  str       # also shared — subgraph sets it, parent reads it
+
+def extract_query_node(state: ParentState) -> dict:
+    """Extract the search query from the user's last message."""
+    user_msg = state["messages"][-1].content
+    # In production: use LLM to extract the query.
+    # For demo: just use the message as the query directly.
+    return {"query": user_msg}
+
+def final_answer_node(state: ParentState) -> dict:
+    """Produce a polished final answer using the research summary."""
+    prompt = (
+        f"Based on this research summary:\n{state['summary']}\n\n"
+        "Write a clear, helpful answer for the user."
+    )
+    answer = llm.invoke([SystemMessage(content="You are a helpful assistant."),
+                         HumanMessage(content=prompt)])
+    return {"messages": [answer]}
+
+# Build the parent graph
+parent_builder = StateGraph(ParentState)
+parent_builder.add_node("extract_query", extract_query_node)
+
+# Add the compiled subgraph directly as a node
+parent_builder.add_node("research", research_subgraph)   # ← subgraph as node!
+
+parent_builder.add_node("final_answer", final_answer_node)
+
+parent_builder.add_edge(START,           "extract_query")
+parent_builder.add_edge("extract_query", "research")
+parent_builder.add_edge("research",      "final_answer")
+parent_builder.add_edge("final_answer",  END)
+
+parent_graph = parent_builder.compile()
+
+# ─── Run ──────────────────────────────────────────────────────────────────────
+result = parent_graph.invoke({
+    "messages": [HumanMessage(content="Tell me about LangGraph subgraphs.")],
+    "query":    "",
+    "summary":  "",
+})
+
+print(result["messages"][-1].content)</code></pre>
+    </div>
+
+    <h3>Custom State Handoff — When Field Names Differ</h3>
+    <p>
+      If your parent and subgraph have different field names, wrap the subgraph call in a regular node
+      that translates the state manually.
+    </p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">subgraph_handoff.py</span>
+      </div>
+      <pre><code class="language-python"># ─── Wrap the subgraph in a regular node for custom state mapping ─────────────
+def call_research_subgraph(state: ParentState) -> dict:
+    """Manually translate parent state → subgraph input → parent update."""
+    # Map parent fields to subgraph fields
+    subgraph_input = {
+        "messages":    state["messages"],
+        "query":       state["user_query"],      # parent uses "user_query"
+        "raw_results": [],
+        "summary":     "",
+    }
+
+    # Run the subgraph
+    subgraph_result = research_subgraph.invoke(subgraph_input)
+
+    # Map subgraph results back to parent fields
+    return {
+        "messages":      subgraph_result["messages"],
+        "research_done": True,                           # parent field
+        "last_summary":  subgraph_result["summary"],     # parent uses "last_summary"
+    }
+
+# Add this wrapper as a node in the parent graph instead of the raw subgraph
+parent_builder.add_node("research", call_research_subgraph)</code></pre>
+    </div>
+
+    <h3>Multi-Agent Pattern with Subgraphs</h3>
+    <div class="diagram">  Multi-Agent Architecture:
+
+  Parent Supervisor Graph
+  ┌─────────────────────────────────────────────────────────────┐
+  │  START → supervisor_node                                    │
+  │              │                                              │
+  │     ┌────────┼────────┐                                     │
+  │     ▼        ▼        ▼                                     │
+  │  [Researcher] [Coder] [Writer]  ← each is a subgraph        │
+  │     └────────┴────────┘                                     │
+  │              │                                              │
+  │          aggregator_node → END                              │
+  └─────────────────────────────────────────────────────────────┘
+
+  supervisor_node decides which subgraph(s) to invoke
+  based on the user's request.</div>
+
+    <div class="callout c-key">
+      <div class="callout-hdr">🔑 Subgraph Rules</div>
+      <ul>
+        <li>A subgraph is just <code>compiled_graph</code> passed to <code>add_node()</code> — no special syntax needed.</li>
+        <li>Fields with the <strong>same name</strong> in both state schemas are automatically shared.</li>
+        <li>Each subgraph can have its own checkpointer (or inherit the parent's).</li>
+        <li>Subgraphs can be nested — a subgraph can itself contain another subgraph.</li>
+        <li>Test subgraphs independently before wiring them into the parent.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 13 ───────────────── -->
+  <div class="section" id="s13">
+    <div class="section-hdr">
+      <div class="sec-num">13</div>
+      <h2>Advanced RAG with Azure AI Search</h2>
+    </div>
+
+    <p>
+      Retrieval-Augmented Generation (RAG) grounds your LLM in real documents from a knowledge base.
+      This section shows how to build production-grade RAG pipelines using <strong>Azure AI Search</strong>
+      as the vector store inside LangGraph — including Corrective RAG, Self-RAG, and Adaptive RAG patterns.
+    </p>
+
+    <h3>Setup — Azure AI Search + Azure OpenAI Embeddings</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">terminal</span>
+      </div>
+      <pre><code class="language-bash">pip install azure-search-documents azure-identity langchain-community
+# azure-search-documents — official Azure AI Search SDK
+# langchain-community    — includes AzureSearch vectorstore wrapper</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">rag_setup.py</span>
+      </div>
+      <pre><code class="language-python">import os
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from langchain_community.vectorstores.azuresearch import AzureSearch
+from azure.search.documents.indexes.models import (
+    SearchableField, SearchField, SearchFieldDataType, SimpleField,
+)
+
+# ─── Credentials ─────────────────────────────────────────────────────────────
+os.environ["AZURE_OPENAI_API_KEY"]           = "YOUR_KEY"
+os.environ["AZURE_OPENAI_ENDPOINT"]          = "https://your-resource.openai.azure.com/"
+os.environ["AZURE_OPENAI_API_VERSION"]       = "2024-02-01"
+os.environ["AZURE_AI_SEARCH_ENDPOINT"]       = "https://your-search.search.windows.net"
+os.environ["AZURE_AI_SEARCH_API_KEY"]        = "YOUR_SEARCH_KEY"
+os.environ["AZURE_AI_SEARCH_INDEX_NAME"]     = "your-index"
+
+# ─── LLM + Embeddings ────────────────────────────────────────────────────────
+llm = AzureChatOpenAI(
+    azure_deployment="gpt-4o",
+    api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+    temperature=0,
+    streaming=True,
+)
+
+embeddings = AzureOpenAIEmbeddings(
+    azure_deployment="text-embedding-3-small",  # your embeddings deployment
+    api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+)
+
+# ─── Azure AI Search Vector Store ────────────────────────────────────────────
+vector_store = AzureSearch(
+    azure_search_endpoint=os.environ["AZURE_AI_SEARCH_ENDPOINT"],
+    azure_search_key=os.environ["AZURE_AI_SEARCH_API_KEY"],
+    index_name=os.environ["AZURE_AI_SEARCH_INDEX_NAME"],
+    embedding_function=embeddings.embed_query,
+    # ↓ Enable hybrid search: combines vector similarity + BM25 keyword matching
+    search_type="hybrid",   # options: "similarity", "hybrid", "semantic_hybrid"
+)
+
+# ─── Index your documents (run once) ─────────────────────────────────────────
+from langchain_core.documents import Document
+
+docs = [
+    Document(page_content="LangGraph is a stateful graph framework for building AI agents.",
+             metadata={"source": "langgraph_docs", "topic": "langgraph"}),
+    Document(page_content="Azure AI Search supports vector, keyword, and hybrid search.",
+             metadata={"source": "azure_docs", "topic": "azure_search"}),
+    # ... load your real documents here
+]
+vector_store.add_documents(docs)
+print(f"Indexed {len(docs)} documents")</code></pre>
+    </div>
+
+    <h3>Pattern 1 — Basic RAG Graph</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">basic_rag.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated, List
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langchain_core.documents import Document
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+
+# ─── State ────────────────────────────────────────────────────────────────────
+class RAGState(TypedDict):
+    messages:         Annotated[list, add_messages]
+    question:         str          # extracted from the last user message
+    retrieved_docs:   List[Document]  # documents from Azure AI Search
+    context:          str          # formatted string of retrieved docs
+    answer:           str          # final LLM answer
+
+# ─── Node 1: Retrieve relevant documents ─────────────────────────────────────
+def retrieve_node(state: RAGState) -> dict:
+    question = state["question"]
+
+    # Hybrid search: vector similarity + keyword matching
+    docs = vector_store.similarity_search(
+        query=question,
+        k=4,                # top-4 most relevant documents
+        search_type="hybrid",
+    )
+
+    # Format context for the LLM prompt
+    context = "\n\n---\n\n".join([
+        f"[Source: {d.metadata.get('source', 'unknown')}]\n{d.page_content}"
+        for d in docs
+    ])
+
+    print(f"[Retrieve] Found {len(docs)} docs for: '{question}'")
+    return {"retrieved_docs": docs, "context": context}
+
+# ─── Node 2: Generate answer from context ────────────────────────────────────
+def generate_node(state: RAGState) -> dict:
+    system_prompt = """You are a helpful assistant. Answer the question using ONLY 
+the provided context. If the context does not contain enough information, say so clearly.
+Do NOT make up information."""
+
+    prompt = f"""Context:
+{state['context']}
+
+Question: {state['question']}
+
+Answer:"""
+
+    response = llm.invoke([
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=prompt),
+    ])
+
+    return {
+        "answer":   response.content,
+        "messages": [AIMessage(content=response.content)],
+    }
+
+# ─── Build basic RAG graph ────────────────────────────────────────────────────
+def build_rag_graph():
+    builder = StateGraph(RAGState)
+    builder.add_node("retrieve", retrieve_node)
+    builder.add_node("generate", generate_node)
+    builder.add_edge(START,      "retrieve")
+    builder.add_edge("retrieve", "generate")
+    builder.add_edge("generate", END)
+    return builder.compile()
+
+rag_graph = build_rag_graph()
+
+# ─── Run ──────────────────────────────────────────────────────────────────────
+result = rag_graph.invoke({
+    "messages":       [HumanMessage(content="What is LangGraph?")],
+    "question":       "What is LangGraph?",
+    "retrieved_docs": [],
+    "context":        "",
+    "answer":         "",
+})
+print(result["answer"])</code></pre>
+    </div>
+
+    <h3>Pattern 2 — Corrective RAG (CRAG)</h3>
+    <p>
+      Corrective RAG adds a <strong>relevance grader</strong> after retrieval. If the retrieved documents
+      are not relevant enough, the graph re-routes to a different retrieval strategy (e.g., broader search or web search)
+      before generating. This prevents hallucination from poor retrieval.
+    </p>
+    <div class="diagram">  Corrective RAG Flow:
+
+  question
+     │
+     ▼
+  [retrieve]  → Azure AI Search (hybrid)
+     │
+     ▼
+  [grade_docs]  ← LLM rates each doc: "relevant" / "not relevant"
+     │
+     ├── all relevant?  ──────────────────────────────► [generate] → answer
+     │
+     └── some not relevant?
+              │
+              ▼
+         [rewrite_query]  ← LLM rewrites the question for better retrieval
+              │
+              ▼
+         [retrieve again]  → broader search
+              │
+              ▼
+         [generate] → answer</div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">corrective_rag.py</span>
+      </div>
+      <pre><code class="language-python">from typing import TypedDict, Annotated, List, Literal
+from pydantic import BaseModel, Field
+from langgraph.graph import StateGraph, START, END
+from langchain_core.documents import Document
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+
+# ─── Grading schema (structured output) ──────────────────────────────────────
+class DocumentGrade(BaseModel):
+    """Binary relevance grade for a retrieved document."""
+    score: Literal["yes", "no"] = Field(
+        description="'yes' if the document is relevant to the question, 'no' otherwise."
+    )
+
+grader_llm = llm.with_structured_output(DocumentGrade)
+
+# ─── State ────────────────────────────────────────────────────────────────────
+class CRAGState(TypedDict):
+    messages:         Annotated[list, add_messages]
+    question:         str
+    retrieved_docs:   List[Document]
+    filtered_docs:    List[Document]   # only relevant docs
+    context:          str
+    answer:           str
+    retry_count:      int
+
+# ─── Node 1: Retrieve ─────────────────────────────────────────────────────────
+def retrieve_node(state: CRAGState) -> dict:
+    docs = vector_store.similarity_search(state["question"], k=5, search_type="hybrid")
+    return {"retrieved_docs": docs}
+
+# ─── Node 2: Grade each document ─────────────────────────────────────────────
+def grade_documents_node(state: CRAGState) -> dict:
+    question = state["question"]
+    filtered = []
+    for doc in state["retrieved_docs"]:
+        grade_prompt = (
+            f"Question: {question}\n\n"
+            f"Document:\n{doc.page_content}\n\n"
+            "Is this document relevant to answering the question?"
+        )
+        result = grader_llm.invoke([HumanMessage(content=grade_prompt)])
+        if result.score == "yes":
+            filtered.append(doc)
+
+    print(f"[Grade] {len(filtered)}/{len(state['retrieved_docs'])} docs are relevant.")
+    context = "\n\n---\n\n".join([d.page_content for d in filtered])
+    return {"filtered_docs": filtered, "context": context}
+
+# ─── Node 3: Rewrite query if needed ─────────────────────────────────────────
+def rewrite_query_node(state: CRAGState) -> dict:
+    rewrite_prompt = (
+        f"The original question '{state['question']}' returned poor search results. "
+        "Rewrite it to be more specific and search-friendly. Return only the rewritten question."
+    )
+    new_query = llm.invoke([HumanMessage(content=rewrite_prompt)])
+    print(f"[Rewrite] New query: {new_query.content}")
+    return {"question": new_query.content, "retry_count": state["retry_count"] + 1}
+
+# ─── Node 4: Generate ─────────────────────────────────────────────────────────
+def generate_node(state: CRAGState) -> dict:
+    if not state["context"]:
+        answer = "I could not find relevant information to answer your question."
+    else:
+        prompt = (
+            f"Answer the question using ONLY this context:\n\n"
+            f"{state['context']}\n\nQuestion: {state['question']}"
+        )
+        resp   = llm.invoke([SystemMessage(content="Answer strictly from context."),
+                              HumanMessage(content=prompt)])
+        answer = resp.content
+
+    return {"answer": answer, "messages": [AIMessage(content=answer)]}
+
+# ─── Router: after grading, decide to generate or rewrite ────────────────────
+def route_after_grading(state: CRAGState) -> str:
+    # If we have enough relevant docs, generate
+    if len(state["filtered_docs"]) >= 2:
+        return "generate"
+    # If we've already retried once, generate anyway (avoid infinite loop)
+    if state["retry_count"] >= 1:
+        print("[Route] Max retries reached. Generating with available context.")
+        return "generate"
+    # Otherwise rewrite the query and try again
+    return "rewrite_query"
+
+# ─── Build CRAG graph ─────────────────────────────────────────────────────────
+crag_builder = StateGraph(CRAGState)
+crag_builder.add_node("retrieve",      retrieve_node)
+crag_builder.add_node("grade_docs",    grade_documents_node)
+crag_builder.add_node("rewrite_query", rewrite_query_node)
+crag_builder.add_node("generate",      generate_node)
+
+crag_builder.add_edge(START,           "retrieve")
+crag_builder.add_edge("retrieve",      "grade_docs")
+crag_builder.add_conditional_edges(
+    "grade_docs",
+    route_after_grading,
+    ["generate", "rewrite_query"],
+)
+crag_builder.add_edge("rewrite_query", "retrieve")   # loop back with new query
+crag_builder.add_edge("generate",      END)
+
+crag_graph = crag_builder.compile()
+
+result = crag_graph.invoke({
+    "messages":       [HumanMessage(content="How does Azure AI Search handle semantic ranking?")],
+    "question":       "How does Azure AI Search handle semantic ranking?",
+    "retrieved_docs": [], "filtered_docs": [],
+    "context": "", "answer": "", "retry_count": 0,
+})
+print(result["answer"])</code></pre>
+    </div>
+
+    <h3>Pattern 3 — Self-RAG with Hallucination Check</h3>
+    <p>
+      Self-RAG adds a post-generation step that checks whether the answer is
+      <strong>grounded in the retrieved documents</strong> (no hallucination) and actually <strong>answers the question</strong>.
+      If either check fails, the graph regenerates.
+    </p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">self_rag.py</span>
+      </div>
+      <pre><code class="language-python">from pydantic import BaseModel, Field
+from typing import Literal
+
+# ─── Grading schemas ──────────────────────────────────────────────────────────
+class HallucinationGrade(BaseModel):
+    score: Literal["yes", "no"] = Field(
+        description="'yes' if the answer is fully grounded in the documents, 'no' if it hallucinated."
+    )
+
+class AnswerGrade(BaseModel):
+    score: Literal["yes", "no"] = Field(
+        description="'yes' if the answer actually addresses the question, 'no' if it does not."
+    )
+
+hallucination_grader = llm.with_structured_output(HallucinationGrade)
+answer_grader        = llm.with_structured_output(AnswerGrade)
+
+# ─── Self-RAG state extends basic RAGState ────────────────────────────────────
+class SelfRAGState(CRAGState):
+    generation_count: int   # avoid infinite regeneration loop
+
+# ─── Node: Check for hallucinations ──────────────────────────────────────────
+def check_hallucination_node(state: SelfRAGState) -> dict:
+    prompt = (
+        f"Context:\n{state['context']}\n\n"
+        f"Answer:\n{state['answer']}\n\n"
+        "Is the answer fully supported by the context documents?"
+    )
+    result = hallucination_grader.invoke([HumanMessage(content=prompt)])
+    print(f"[Hallucination Check] Grounded: {result.score}")
+    # We don't update state here — we just use the result in the router.
+    # Store the grade result as a flag so the router can read it.
+    return {"_hallucination_ok": result.score == "yes"}   # custom flag field
+
+# ─── Node: Check if answer is useful ─────────────────────────────────────────
+def check_answer_node(state: SelfRAGState) -> dict:
+    prompt = (
+        f"Question: {state['question']}\n\n"
+        f"Answer:\n{state['answer']}\n\n"
+        "Does this answer actually address the question?"
+    )
+    result = answer_grader.invoke([HumanMessage(content=prompt)])
+    print(f"[Answer Check] Useful: {result.score}")
+    return {"_answer_useful": result.score == "yes"}
+
+# ─── Routers ─────────────────────────────────────────────────────────────────
+def route_after_hallucination(state: SelfRAGState) -> str:
+    if state.get("_hallucination_ok") and state["generation_count"] < 3:
+        return "check_answer"   # grounded → check usefulness
+    if state["generation_count"] >= 3:
+        return END              # too many retries → stop
+    return "generate"           # hallucinated → regenerate
+
+def route_after_answer_check(state: SelfRAGState) -> str:
+    if state.get("_answer_useful"):
+        return END              # useful answer → done!
+    if state["generation_count"] >= 3:
+        return END              # too many retries → stop
+    return "rewrite_query"      # not useful → rewrite query and retry</code></pre>
+    </div>
+
+    <h3>Hybrid Search Configuration (Azure AI Search)</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">hybrid_search_config.py</span>
+      </div>
+      <pre><code class="language-python">from azure.search.documents import SearchClient
+from azure.core.credentials import AzureKeyCredential
+from langchain_community.vectorstores.azuresearch import AzureSearch
+
+# ─── Three search types available ────────────────────────────────────────────
+
+# 1. Pure vector similarity (semantic meaning only)
+vector_store_sim = AzureSearch(
+    azure_search_endpoint=os.environ["AZURE_AI_SEARCH_ENDPOINT"],
+    azure_search_key=os.environ["AZURE_AI_SEARCH_API_KEY"],
+    index_name=os.environ["AZURE_AI_SEARCH_INDEX_NAME"],
+    embedding_function=embeddings.embed_query,
+    search_type="similarity",
+)
+
+# 2. Hybrid (vector + BM25 keyword) — RECOMMENDED for most RAG use cases
+vector_store_hybrid = AzureSearch(
+    azure_search_endpoint=os.environ["AZURE_AI_SEARCH_ENDPOINT"],
+    azure_search_key=os.environ["AZURE_AI_SEARCH_API_KEY"],
+    index_name=os.environ["AZURE_AI_SEARCH_INDEX_NAME"],
+    embedding_function=embeddings.embed_query,
+    search_type="hybrid",
+)
+
+# 3. Semantic hybrid (vector + keyword + Azure semantic re-ranker) — BEST quality
+# Requires "semantic search" enabled on your Azure AI Search tier (Standard+)
+vector_store_semantic = AzureSearch(
+    azure_search_endpoint=os.environ["AZURE_AI_SEARCH_ENDPOINT"],
+    azure_search_key=os.environ["AZURE_AI_SEARCH_API_KEY"],
+    index_name=os.environ["AZURE_AI_SEARCH_INDEX_NAME"],
+    embedding_function=embeddings.embed_query,
+    search_type="semantic_hybrid",
+    semantic_configuration_name="my-semantic-config",  # set in Azure portal
+)
+
+# ─── Use with metadata filtering ─────────────────────────────────────────────
+# Filter by metadata field (e.g., only search within "azure_docs" source)
+filtered_docs = vector_store_hybrid.similarity_search(
+    query="how to configure hybrid search",
+    k=4,
+    filters="source eq 'azure_docs'",   # OData filter syntax
+)</code></pre>
+    </div>
+
+    <div class="callout c-key">
+      <div class="callout-hdr">🔑 Azure AI Search RAG Cheat Sheet</div>
+      <ul>
+        <li><strong>Use <code>search_type="hybrid"</code></strong> — catches both semantic and exact keyword matches.</li>
+        <li><strong>Use <code>search_type="semantic_hybrid"</code></strong> for best quality when on Standard+ tier.</li>
+        <li><strong>Grade before generating</strong> — don't send irrelevant docs to the LLM.</li>
+        <li><strong>Check for hallucination</strong> — use structured output graders after generation.</li>
+        <li><strong>Rewrite queries</strong> — if retrieval quality is poor, let the LLM reformulate the query.</li>
+        <li><strong>Use metadata filters</strong> — scope searches to relevant document subsets for accuracy.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ───────────────── SECTION 14 ───────────────── -->
+  <div class="section" id="s14">
+    <div class="section-hdr">
+      <div class="sec-num">14</div>
+      <h2>Production &amp; Deployment</h2>
+    </div>
+
+    <p>
+      Running LangGraph in production requires attention to async performance, observability, error handling,
+      and scalable deployment. This section covers everything needed to take your graph from your laptop to Azure.
+    </p>
+
+    <h3>1 — Production Checkpointers</h3>
+    <p>
+      <code>MemorySaver</code> and <code>SqliteSaver</code> are for development only. In production, use a
+      scalable backend: <strong>PostgreSQL</strong> (multi-server) or <strong>Azure Cosmos DB</strong>
+      (serverless, globally distributed).
+    </p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">terminal</span>
+      </div>
+      <pre><code class="language-bash">pip install langgraph-checkpoint-postgres   # PostgreSQL checkpointer
+pip install psycopg[binary,pool]            # async PostgreSQL driver</code></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">production_checkpointer.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+import os
+
+# ─── PostgreSQL checkpointer (recommended for multi-instance deployments) ──────
+# Use Azure Database for PostgreSQL Flexible Server in production.
+POSTGRES_URI = os.environ["POSTGRES_URI"]
+# Format: "postgresql+psycopg://user:password@host:5432/dbname"
+
+# Initialize the schema on first run (creates the checkpointing tables)
+async def setup_postgres_checkpointer():
+    async with AsyncPostgresSaver.from_conn_string(POSTGRES_URI) as checkpointer:
+        await checkpointer.setup()   # creates tables if they don't exist
+        return checkpointer
+
+# ─── Use inside an async FastAPI app ──────────────────────────────────────────
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+checkpointer = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global checkpointer
+    checkpointer = await setup_postgres_checkpointer()
+    yield   # app runs here
+    # cleanup on shutdown (if needed)
+
+prod_api = FastAPI(lifespan=lifespan)
+
+@prod_api.post("/chat")
+async def chat(thread_id: str, message: str):
+    graph = build_graph().compile(checkpointer=checkpointer)
+    config = {"configurable": {"thread_id": thread_id}}
+    result = await graph.ainvoke(
+        {"messages": [HumanMessage(content=message)]},
+        config,
+    )
+    return {"reply": result["messages"][-1].content}</code></pre>
+    </div>
+
+    <h3>2 — Async Graphs for High Throughput</h3>
+    <p>
+      Use <code>ainvoke</code> and <code>astream</code> (async versions) so that one slow LLM call doesn't
+      block your entire server. This requires your node functions to be <code>async def</code>.
+    </p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">async_graph.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import StateGraph, MessagesState, START, END
+
+# ─── Make nodes async ─────────────────────────────────────────────────────────
+async def async_chatbot(state: MessagesState) -> dict:
+    # ainvoke → non-blocking LLM call
+    response = await llm.ainvoke(state["messages"])
+    return {"messages": [response]}
+
+async def async_retrieve(state) -> dict:
+    # Run multiple async operations concurrently with asyncio.gather
+    import asyncio
+    query = state["question"]
+    docs, other_data = await asyncio.gather(
+        vector_store.asimilarity_search(query, k=4),   # async search
+        some_async_api_call(query),                     # any other async call
+    )
+    return {"retrieved_docs": docs, "extra": other_data}
+
+# Build with async nodes (same API as sync)
+builder = StateGraph(MessagesState)
+builder.add_node("chatbot", async_chatbot)
+builder.add_edge(START, "chatbot")
+builder.add_edge("chatbot", END)
+async_graph = builder.compile()
+
+# ─── Run asynchronously ───────────────────────────────────────────────────────
+import asyncio
+
+async def main():
+    result = await async_graph.ainvoke(
+        {"messages": [HumanMessage(content="Hello!")]},
+        {"configurable": {"thread_id": "async-demo-1"}},
+    )
+    print(result["messages"][-1].content)
+
+asyncio.run(main())</code></pre>
+    </div>
+
+    <h3>3 — Error Handling and Retries</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">error_handling.py</span>
+      </div>
+      <pre><code class="language-python">from langgraph.graph import StateGraph, START, END
+from langchain_core.messages import AIMessage
+import asyncio
+
+# ─── Option 1: Retry policy on a node ────────────────────────────────────────
+from langgraph.pregel import RetryPolicy
+
+builder = StateGraph(MessagesState)
+
+builder.add_node(
+    "chatbot",
+    async_chatbot,
+    retry=RetryPolicy(
+        max_attempts=3,                     # retry up to 3 times
+        retry_on=(Exception,),              # retry on any exception
+        backoff_factor=2.0,                 # exponential backoff: 1s, 2s, 4s
+        initial_interval=1.0,               # start with 1 second wait
+    ),
+)
+
+# ─── Option 2: Catch errors in the node itself ────────────────────────────────
+async def safe_chatbot(state: MessagesState) -> dict:
+    try:
+        response = await llm.ainvoke(state["messages"])
+        return {"messages": [response]}
+    except Exception as e:
+        # Return a graceful fallback message instead of crashing
+        error_msg = AIMessage(
+            content="I'm temporarily unavailable. Please try again in a moment."
+        )
+        # Log the real error for monitoring
+        print(f"LLM error: {type(e).__name__}: {e}")
+        return {"messages": [error_msg]}
+
+# ─── Option 3: Fallback node ─────────────────────────────────────────────────
+def error_fallback_node(state: MessagesState) -> dict:
+    """Catch-all error handler node."""
+    return {"messages": [AIMessage(content="An error occurred. Please try again.")]}
+
+# Route to fallback on unexpected errors
+def route_with_fallback(state: MessagesState) -> str:
+    if state.get("_error"):
+        return "fallback"
+    return END</code></pre>
+    </div>
+
+    <h3>4 — Observability with LangSmith</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">langsmith_setup.py</span>
+      </div>
+      <pre><code class="language-python">import os
+
+# ─── Enable LangSmith tracing (set before importing LangGraph) ────────────────
+os.environ["LANGCHAIN_TRACING_V2"]   = "true"
+os.environ["LANGCHAIN_API_KEY"]      = "YOUR_LANGSMITH_KEY"
+os.environ["LANGCHAIN_PROJECT"]      = "my-langgraph-app"   # project name in LangSmith
+os.environ["LANGCHAIN_ENDPOINT"]     = "https://api.smith.langchain.com"
+
+# Once set, ALL graph invocations are automatically traced.
+# You can view traces at: https://smith.langchain.com
+# Traces show: which nodes ran, LLM inputs/outputs, token counts, latency.
+
+# ─── Add custom metadata to a specific run ────────────────────────────────────
+from langchain_core.callbacks import tracing_v2_enabled
+
+with tracing_v2_enabled(project_name="prod-critical"):
+    result = graph.invoke(
+        {"messages": [HumanMessage(content="Important query")]},
+        config={
+            "configurable": {"thread_id": "prod-001"},
+            "metadata": {           # custom metadata visible in LangSmith
+                "user_id":    "user_abc",
+                "app_version": "2.1.0",
+                "environment": "production",
+            },
+            "tags": ["production", "high-priority"],
+        },
+    )</code></pre>
+    </div>
+
+    <h3>5 — Deploying to Azure Container Apps</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">Dockerfile</span>
+      </div>
+      <pre><code class="language-bash">FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Expose the port FastAPI runs on
+EXPOSE 8000
+
+# Run with uvicorn (async ASGI server)
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">requirements.txt</span>
+      </div>
+      <pre><code class="language-bash">langgraph>=0.2
+langchain>=0.3
+langchain-openai>=0.2
+langgraph-checkpoint-postgres>=2.0
+fastapi>=0.115
+uvicorn[standard]>=0.30
+psycopg[binary,pool]>=3.2
+azure-search-documents>=11.6
+azure-identity>=1.17</code></pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">terminal — deploy to Azure Container Apps</span>
+      </div>
+      <pre><code class="language-bash"># 1. Login to Azure
+az login
+
+# 2. Create a resource group
+az group create --name rg-langgraph --location eastus
+
+# 3. Create an Azure Container Registry
+az acr create --name mylanggraphacr --resource-group rg-langgraph --sku Basic --admin-enabled true
+
+# 4. Build and push your Docker image
+az acr build --registry mylanggraphacr --image langgraph-app:latest .
+
+# 5. Create a Container Apps environment
+az containerapp env create \
+  --name langgraph-env \
+  --resource-group rg-langgraph \
+  --location eastus
+
+# 6. Deploy the container app with environment variables
+az containerapp create \
+  --name langgraph-app \
+  --resource-group rg-langgraph \
+  --environment langgraph-env \
+  --image mylanggraphacr.azurecr.io/langgraph-app:latest \
+  --target-port 8000 \
+  --ingress external \
+  --min-replicas 1 \
+  --max-replicas 10 \
+  --env-vars \
+    AZURE_OPENAI_API_KEY=secretref:openai-key \
+    AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/ \
+    AZURE_OPENAI_API_VERSION=2024-02-01 \
+    POSTGRES_URI=secretref:postgres-uri \
+    LANGCHAIN_TRACING_V2=true \
+    LANGCHAIN_API_KEY=secretref:langsmith-key
+
+echo "Deployed! Get your URL with: az containerapp show --name langgraph-app --resource-group rg-langgraph --query properties.configuration.ingress.fqdn"</code></pre>
+    </div>
+
+    <h3>6 — Production-Ready FastAPI App Structure</h3>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots"><span class="dot d-r"></span><span class="dot d-y"></span><span class="dot d-g"></span></div>
+        <span class="code-file">main.py — production FastAPI entry point</span>
+      </div>
+      <pre><code class="language-python">import os
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from langchain_core.messages import HumanMessage, AIMessageChunk
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+
+# Ensure LangSmith tracing is configured before any graph imports
+os.environ.setdefault("LANGCHAIN_TRACING_V2", "true")
+
+# ─── Request / Response models ────────────────────────────────────────────────
+class ChatRequest(BaseModel):
+    thread_id: str
+    message:   str
+    user_id:   str = "anonymous"
+
+class ChatResponse(BaseModel):
+    reply:     str
+    thread_id: str
+
+# ─── App lifespan — setup + teardown ─────────────────────────────────────────
+graph_instance = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global graph_instance
+    # Setup: connect to PostgreSQL and compile graph
+    async with AsyncPostgresSaver.from_conn_string(os.environ["POSTGRES_URI"]) as cp:
+        await cp.setup()
+        from graph_definition import build_graph   # your graph module
+        graph_instance = build_graph().compile(checkpointer=cp)
+        yield   # app is running
+    # Teardown: connection closes automatically
+
+app = FastAPI(title="LangGraph API", lifespan=lifespan)
+
+# ─── Synchronous chat endpoint ────────────────────────────────────────────────
+@app.post("/chat", response_model=ChatResponse)
+async def chat(req: ChatRequest):
+    if graph_instance is None:
+        raise HTTPException(status_code=503, detail="Graph not initialised")
+
+    config = {
+        "configurable": {"thread_id": req.thread_id},
+        "metadata": {"user_id": req.user_id},
+    }
+    result = await graph_instance.ainvoke(
+        {"messages": [HumanMessage(content=req.message)]},
+        config,
+    )
+    return ChatResponse(
+        reply=result["messages"][-1].content,
+        thread_id=req.thread_id,
+    )
+
+# ─── Streaming chat endpoint ─────────────────────────────────────────────────
+@app.post("/chat/stream")
+async def chat_stream(req: ChatRequest):
+    if graph_instance is None:
+        raise HTTPException(status_code=503, detail="Graph not initialised")
+
+    config = {"configurable": {"thread_id": req.thread_id}}
+
+    async def event_generator():
+        async for msg_chunk, _ in graph_instance.astream(
+            {"messages": [HumanMessage(content=req.message)]},
+            config,
+            stream_mode="messages",
+        ):
+            if isinstance(msg_chunk, AIMessageChunk) and msg_chunk.content:
+                yield f"data: {msg_chunk.content}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+# ─── Health check ─────────────────────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    return {"status": "ok", "graph_ready": graph_instance is not None}</code></pre>
+    </div>
+
+    <h3>Production Checklist</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-body">
+          <h4>Use PostgreSQL checkpointer</h4>
+          <p>Replace <code>MemorySaver</code>/<code>SqliteSaver</code> with <code>AsyncPostgresSaver</code> for multi-instance deployments. Use Azure Database for PostgreSQL.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-body">
+          <h4>Use async nodes and ainvoke/astream</h4>
+          <p>Async prevents one user's slow LLM call from blocking all other requests on the same server.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-body">
+          <h4>Enable LangSmith tracing</h4>
+          <p>Set <code>LANGCHAIN_TRACING_V2=true</code>. Every graph run is automatically logged — invaluable for debugging production issues.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-body">
+          <h4>Add RetryPolicy to LLM nodes</h4>
+          <p>Azure OpenAI has rate limits. A <code>RetryPolicy</code> with exponential backoff handles transient 429/503 errors automatically.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-body">
+          <h4>Store secrets in Azure Key Vault</h4>
+          <p>Never hard-code API keys. Use Azure Key Vault + managed identity to inject secrets as environment variables at runtime.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-body">
+          <h4>Set max_concurrency on long graphs</h4>
+          <p>For graphs with many parallel branches, set <code>config={"max_concurrency": 5}</code> to cap simultaneous LLM calls and stay within rate limits.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout c-ok">
+      <div class="callout-hdr">✅ Deployment Quick Reference</div>
+      <table class="cmp-table" style="margin-top:10px">
+        <thead>
+          <tr><th>Component</th><th>Development</th><th>Production (Azure)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Checkpointer</td><td><code>MemorySaver</code></td><td><code>AsyncPostgresSaver</code> (Azure PostgreSQL)</td></tr>
+          <tr><td>Invocation</td><td><code>graph.invoke()</code></td><td><code>await graph.ainvoke()</code></td></tr>
+          <tr><td>Server</td><td><code>uvicorn main:app</code></td><td>Azure Container Apps (auto-scale)</td></tr>
+          <tr><td>Secrets</td><td><code>.env</code> file</td><td>Azure Key Vault + Managed Identity</td></tr>
+          <tr><td>Observability</td><td>print statements</td><td>LangSmith + Azure Monitor</td></tr>
+          <tr><td>Vector Store</td><td>In-memory / local Chroma</td><td>Azure AI Search (Standard+)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p>LangGraph Complete Guide · Built for Azure OpenAI · May 2026</p>
+  <p style="margin-top:6px; font-size:0.8rem;">
+    All code uses LangGraph ≥ 0.2 · <code>langchain-openai</code> · <code>langgraph-checkpoint-sqlite</code> · <code>langgraph-checkpoint-postgres</code> · <code>azure-search-documents</code>
+  </p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

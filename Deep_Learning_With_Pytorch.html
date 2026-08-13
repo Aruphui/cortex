@@ -1,0 +1,3810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Learning &amp; PyTorch — In-Depth Beginner's Guide</title>
+<style>
+  :root {
+    --accent: #4f46e5;
+    --accent-light: #eef2ff;
+    --accent-dark: #3730a3;
+    --text: #1f2933;
+    --text-light: #52606d;
+    --muted: #a0aec0;
+    --code-bg: #f5f7fa;
+    --code-border: #cbd5e1;
+    --border: #d9e2ec;
+    --note-bg: #fffbea;
+    --note-border: #f0c000;
+    --tip-bg: #e6fffa;
+    --tip-border: #38b2ac;
+    --tip-dark: #047857;
+    --warn-bg: #fff5f5;
+    --warn-border: #e53e3e;
+    --warn-dark: #991b1b;
+    --success-bg: #f0fdf4;
+    --success-border: #22c55e;
+    --info-bg: #f0f9ff;
+    --info-border: #0284c7;
+    --ex-bg: #f0f5ff;
+    --ex-border: #4f46e5;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 15px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    line-height: 1.75;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 72px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     HEADINGS
+     ════════════════════════════════════════════════════════════════ */
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    font-weight: 700;
+    color: #111;
+    margin-top: 1.5em;
+    margin-bottom: 0.7em;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+    margin: 0 0 0.3em;
+    color: var(--accent);
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 0.4em;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    margin: 2.4em 0 0.9em;
+    padding-bottom: 0.4em;
+    border-bottom: 3px solid var(--accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+  }
+
+  h2::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 24px;
+    background: var(--accent);
+    border-radius: 3px;
+    margin-right: 12px;
+  }
+
+  h3 {
+    font-size: 1.32rem;
+    margin: 1.9em 0 0.6em;
+    color: var(--accent-dark);
+    padding-left: 0;
+  }
+
+  h3::before {
+    content: "▸ ";
+    color: var(--accent);
+    margin-right: 8px;
+    font-weight: bold;
+  }
+
+  h4 {
+    font-size: 1.08rem;
+    margin: 1.5em 0 0.5em;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     PARAGRAPHS & TEXT
+     ════════════════════════════════════════════════════════════════ */
+
+  p {
+    margin: 0.7em 0;
+    text-align: justify;
+  }
+
+  .lead {
+    font-size: 1.15rem;
+    color: var(--text-light);
+    font-weight: 500;
+    margin: 1.2em 0;
+    padding-left: 16px;
+    border-left: 4px solid var(--accent);
+  }
+
+  strong {
+    font-weight: 700;
+    color: var(--accent-dark);
+  }
+
+  em {
+    font-style: italic;
+    color: var(--text-light);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     LINKS
+     ════════════════════════════════════════════════════════════════ */
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  a:hover {
+    color: var(--accent-dark);
+    text-decoration: underline;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CODE & SYNTAX
+     ════════════════════════════════════════════════════════════════ */
+
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: #b4315e;
+    border: 1px solid var(--code-border);
+  }
+
+  pre {
+    background: #1e293b;
+    border: 1px solid var(--code-border);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 1.2em 0;
+    line-height: 1.55;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: #e2e8f0;
+    font-size: 0.84rem;
+    border: none;
+  }
+
+  /* Code syntax highlighting (basic) */
+  .keyword {
+    color: #ff79c6;
+  }
+
+  .string {
+    color: #f1fa8c;
+  }
+
+  .comment {
+    color: #6272a4;
+    font-style: italic;
+  }
+
+  .number {
+    color: #bd93f9;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     TABLES
+     ════════════════════════════════════════════════════════════════ */
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  th {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  td {
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td {
+    background: #fafbfc;
+  }
+
+  tr:hover td {
+    background: var(--accent-light);
+    transition: background 0.2s ease;
+  }
+
+  /* Special table for line-by-line code explanation */
+  .linebyline {
+    font-size: 0.88rem;
+  }
+
+  .linebyline th {
+    font-weight: 700;
+  }
+
+  .linebyline td:first-child {
+    font-family: Consolas, monospace;
+    white-space: nowrap;
+    background: #f5f7fa;
+    color: #b4315e;
+    font-weight: 600;
+    width: 25%;
+  }
+
+  .linebyline td:last-child {
+    color: var(--text);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     LISTS
+     ════════════════════════════════════════════════════════════════ */
+
+  ul, ol {
+    margin: 0.8em 0;
+    padding-left: 1.8em;
+  }
+
+  li {
+    margin: 0.5em 0;
+    color: var(--text);
+  }
+
+  li strong {
+    color: var(--accent-dark);
+  }
+
+  /* Custom list styling */
+  ul > li::marker {
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  ol > li::marker {
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  /* Nested lists */
+  ul ul, ol ol {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     BLOCKQUOTES
+     ════════════════════════════════════════════════════════════════ */
+
+  blockquote {
+    margin: 1.2em 0;
+    padding: 14px 20px;
+    background: var(--accent-light);
+    border-left: 5px solid var(--accent);
+    border-radius: 4px;
+    color: var(--text-light);
+    font-style: italic;
+  }
+
+  blockquote strong {
+    color: var(--accent-dark);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     NOTE / TIP / WARNING / EXAMPLE BOXES
+     ════════════════════════════════════════════════════════════════ */
+
+  .note, .tip, .warn, .example, .success, .info {
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin: 1.2em 0;
+    border-left: 5px solid;
+  }
+
+  .note {
+    background: var(--note-bg);
+    border-left-color: var(--note-border);
+  }
+
+  .note strong {
+    color: #b8860b;
+  }
+
+  .tip {
+    background: var(--tip-bg);
+    border-left-color: var(--tip-border);
+  }
+
+  .tip strong {
+    color: var(--tip-dark);
+  }
+
+  .warn {
+    background: var(--warn-bg);
+    border-left-color: var(--warn-border);
+  }
+
+  .warn strong {
+    color: var(--warn-dark);
+  }
+
+  .example {
+    background: var(--ex-bg);
+    border-left-color: var(--ex-border);
+  }
+
+  .example strong {
+    color: var(--accent-dark);
+  }
+
+  .success {
+    background: var(--success-bg);
+    border-left-color: var(--success-border);
+  }
+
+  .success strong {
+    color: #16a34a;
+  }
+
+  .info {
+    background: var(--info-bg);
+    border-left-color: var(--info-border);
+  }
+
+  .info strong {
+    color: #0369a1;
+  }
+
+  .note::before {
+    content: "📌 ";
+    margin-right: 6px;
+  }
+
+  .tip::before {
+    content: "💡 ";
+    margin-right: 6px;
+  }
+
+  .warn::before {
+    content: "⚠️ ";
+    margin-right: 6px;
+  }
+
+  .example::before {
+    content: "📝 ";
+    margin-right: 6px;
+  }
+
+  .success::before {
+    content: "✓ ";
+    margin-right: 6px;
+  }
+
+  .info::before {
+    content: "ℹ️ ";
+    margin-right: 6px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     ASCII ART / CODE DIAGRAMS
+     ════════════════════════════════════════════════════════════════ */
+
+  .ascii {
+    background: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid var(--code-border);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 1.2em 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     HORIZONTAL RULE
+     ════════════════════════════════════════════════════════════════ */
+
+  hr {
+    border: none;
+    border-top: 2px solid var(--border);
+    margin: 2.5em 0;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     COVER & TITLE PAGE
+     ════════════════════════════════════════════════════════════════ */
+
+  .cover {
+    text-align: center;
+    padding: 120px 40px 100px;
+    border-bottom: 4px solid var(--accent);
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, var(--accent-light) 0%, white 100%);
+  }
+
+  .cover h1 {
+    font-size: 3.2rem;
+    border: none;
+    margin: 0 0 0.3em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cover .subtitle {
+    font-size: 1.4rem;
+    color: var(--text-light);
+    margin-top: 15px;
+    font-weight: 500;
+  }
+
+  .cover .meta {
+    margin-top: 50px;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .cover .meta strong {
+    color: var(--accent-dark);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     TABLE OF CONTENTS
+     ════════════════════════════════════════════════════════════════ */
+
+  .toc {
+    background: linear-gradient(135deg, var(--accent-light) 0%, #f9fafb 100%);
+    border: 2px solid var(--border);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    padding: 28px 36px;
+    margin: 2em 0;
+    page-break-after: always;
+  }
+
+  .toc h2 {
+    margin-top: 0;
+    border: none;
+    padding-bottom: 0;
+  }
+
+  .toc h2::before {
+    content: none;
+  }
+
+  .toc ol {
+    list-style: none;
+    padding-left: 0;
+    counter-reset: toc;
+  }
+
+  .toc > ol > li {
+    counter-increment: toc;
+    font-weight: 600;
+    margin: 0.8em 0;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .toc > ol > li::before {
+    content: counter(toc) ". ";
+    color: var(--accent);
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  .toc ol ol {
+    padding-left: 1.8em;
+    font-weight: 400;
+    font-size: 0.92rem;
+    counter-reset: none;
+  }
+
+  .toc ol ol li {
+    font-weight: 400;
+    margin: 0.3em 0;
+    color: var(--text-light);
+  }
+
+  .toc ol ol li::before {
+    content: "▪ ";
+    color: var(--accent);
+    margin-right: 6px;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     PAGE BREAKS
+     ════════════════════════════════════════════════════════════════ */
+
+  .page-break {
+    page-break-before: always;
+    margin-top: 3em;
+    padding-top: 2em;
+    border-top: 3px dashed var(--border);
+  }
+
+  .section-divider {
+    text-align: center;
+    margin: 3em 0;
+    padding: 2em 0;
+    border-top: 3px solid var(--border);
+    border-bottom: 3px solid var(--border);
+  }
+
+  .section-divider h2 {
+    margin: 0;
+    border: none;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     BADGES & TAGS
+     ════════════════════════════════════════════════════════════════ */
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-info {
+    background: var(--info-bg);
+    color: #0369a1;
+    border: 1px solid var(--info-border);
+  }
+
+  .badge-success {
+    background: var(--success-bg);
+    color: #16a34a;
+    border: 1px solid var(--success-border);
+  }
+
+  .badge-warning {
+    background: var(--warn-bg);
+    color: #c2410c;
+    border: 1px solid var(--warn-border);
+  }
+
+  .badge-accent {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    border: 1px solid var(--accent);
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     UTILITIES
+     ════════════════════════════════════════════════════════════════ */
+
+  .mono {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .text-muted {
+    color: var(--text-light);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .mt-small {
+    margin-top: 0.5em;
+  }
+
+  .mt-medium {
+    margin-top: 1em;
+  }
+
+  .mt-large {
+    margin-top: 2em;
+  }
+
+  .mb-small {
+    margin-bottom: 0.5em;
+  }
+
+  .mb-medium {
+    margin-bottom: 1em;
+  }
+
+  .mb-large {
+    margin-bottom: 2em;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     PRINT STYLES
+     ════════════════════════════════════════════════════════════════ */
+
+  @media print {
+    @page {
+      margin: 18mm 15mm;
+      size: A4;
+    }
+
+    html {
+      font-size: 10.5pt;
+    }
+
+    body {
+      background: white;
+    }
+
+    .page {
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      page-break-after: avoid;
+    }
+
+    h2 {
+      page-break-before: always;
+    }
+
+    pre, table, .ascii, blockquote, .note, .tip, .warn, .example, .success, .info {
+      page-break-inside: avoid;
+    }
+
+    .cover {
+      page-break-after: always;
+      border-color: var(--text);
+    }
+
+    .toc {
+      page-break-after: always;
+    }
+
+    .page-break {
+      page-break-before: always;
+      border-top-style: solid;
+      border-top-color: var(--text);
+    }
+
+    a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    a[href]::after {
+      content: "";
+    }
+
+    ul, ol {
+      page-break-inside: avoid;
+    }
+
+    li {
+      page-break-inside: avoid;
+    }
+
+    img {
+      max-width: 100%;
+      page-break-inside: avoid;
+    }
+
+    /* Remove shadows and gradients in print */
+    pre, table, .toc, .cover {
+      box-shadow: none;
+      background: white !important;
+    }
+
+    h1, .cover h1 {
+      background: none;
+      color: var(--accent) !important;
+      -webkit-text-fill-color: unset;
+    }
+
+    code {
+      background: #f5f7fa;
+    }
+
+    pre {
+      background: #f5f7fa;
+      border: 1px solid var(--border);
+    }
+
+    pre code {
+      color: var(--text);
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     RESPONSIVE (for screen viewing)
+     ════════════════════════════════════════════════════════════════ */
+
+  @media (max-width: 768px) {
+    html {
+      font-size: 14px;
+    }
+
+    .page {
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+    }
+
+    pre {
+      padding: 12px 16px;
+    }
+
+    table {
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 8px 10px;
+    }
+
+    .note, .tip, .warn, .example, .success, .info {
+      padding: 12px 16px;
+    }
+
+    .cover {
+      padding: 80px 20px 60px;
+    }
+
+    .cover h1 {
+      font-size: 2.2rem;
+    }
+
+    .cover .subtitle {
+      font-size: 1.1rem;
+    }
+
+    .toc {
+      padding: 20px 24px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    html {
+      font-size: 13px;
+    }
+
+    .page {
+      padding: 20px 16px;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    h2::before {
+      width: 4px;
+      height: 18px;
+      margin-right: 8px;
+    }
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    pre {
+      padding: 10px 12px;
+      font-size: 0.75rem;
+    }
+
+    table {
+      font-size: 0.75rem;
+      margin: 1em 0;
+    }
+
+    th, td {
+      padding: 6px 8px;
+    }
+
+    .cover {
+      padding: 60px 16px 40px;
+    }
+
+    .cover h1 {
+      font-size: 1.8rem;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Deep Learning &amp; PyTorch</h1>
+  <div class="subtitle">An In-Depth Beginner's Guide — Every Concept, Every Line Explained</div>
+  <div class="meta">
+    Foundations &rarr; PyTorch Basics &rarr; Training Pipeline &rarr; Dataset &amp; DataLoader<br>
+    With deep explanations, line-by-line code commentary, and practical worked examples
+  </div>
+</div>
+
+<div class="page">
+
+<nav class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li>Deep Learning Foundations
+      <ol>
+        <li>The Artificial Neuron (with a real analogy)</li>
+        <li>Weights &amp; Bias — deep dive with numbers</li>
+        <li>Activation Functions — why &amp; when, each explained</li>
+        <li>Forward Propagation — full multi-neuron walkthrough</li>
+        <li>Loss Functions — every formula with worked numbers</li>
+        <li>Backpropagation &amp; the Chain Rule — step by step</li>
+        <li>Gradient Descent &amp; Learning Rate — visualized</li>
+        <li>The Vanishing Gradient Problem</li>
+        <li>Optimizers — GD to AdamW, deeply</li>
+        <li>Epochs, Batches &amp; Iterations — full practical example</li>
+        <li>Overfitting, Underfitting &amp; Regularization — deep dive</li>
+      </ol>
+    </li>
+    <li>PyTorch Basics (line-by-line)</li>
+    <li>PyTorch Training Pipeline (line-by-line)</li>
+    <li>Why Dataset &amp; DataLoader?</li>
+    <li>Dataset &amp; DataLoader (line-by-line)</li>
+    <li>Capstone: Full Pipeline with DataLoader</li>
+    <li>Glossary &amp; Cheat Sheets</li>
+  </ol>
+</nav>
+
+<p class="lead" style="margin-top:2em;">
+This guide is written for someone who has <strong>never</strong> studied deep learning. We move slowly, explain <em>why</em> at every step, work through real numbers by hand, and annotate <strong>every single line of code</strong>. Read it top to bottom and the final training pipelines will feel obvious.
+</p>
+
+<!-- =================== PART 1 =================== -->
+<h1 class="page-break">Part 1 — Deep Learning Foundations</h1>
+
+<h2>1.1 The Artificial Neuron</h2>
+
+<p>Imagine you're deciding <strong>whether to go outside for a run</strong>. You weigh a few factors:</p>
+<ul>
+  <li>Is the weather good? (very important to you)</li>
+  <li>Do you have free time? (important)</li>
+  <li>Is a friend joining? (slightly matters)</li>
+</ul>
+<p>Each factor has a different <strong>importance</strong> to you. You mentally multiply each factor by how much it matters, add them up, and if the total crosses some personal threshold, you decide "yes, I'll run." <strong>That is exactly what an artificial neuron does.</strong></p>
+
+<p>Formally, a neuron takes several input numbers, multiplies each by a <strong>weight</strong> (its importance), adds them together along with a <strong>bias</strong> (a personal threshold adjustment), and finally passes the result through an <strong>activation function</strong> (the "do I fire or not, and how strongly?" decision).</p>
+
+<div class="ascii">        x1 ──(w1)──┐
+                   │
+        x2 ──(w2)──┼──▶  z = (w1·x1 + w2·x2 + w3·x3) + b  ──▶  a = f(z)  ──▶ output
+                   │
+        x3 ──(w3)──┘                    ▲
+                                        │
+                                    bias (b)
+</div>
+
+<table>
+  <tr><th>Symbol</th><th>Name</th><th>Everyday meaning</th></tr>
+  <tr><td><code>x</code></td><td>Inputs</td><td>The facts you're given (weather, time, friend)</td></tr>
+  <tr><td><code>w</code></td><td>Weights</td><td>How much each fact matters to the decision</td></tr>
+  <tr><td><code>b</code></td><td>Bias</td><td>Your baseline tendency (e.g. "I love running, so I lean yes")</td></tr>
+  <tr><td><code>z</code></td><td>Pre-activation</td><td>The total weighted score before the final decision</td></tr>
+  <tr><td><code>f</code></td><td>Activation</td><td>The rule that turns the score into an actual output</td></tr>
+  <tr><td><code>a</code></td><td>Output</td><td>The neuron's answer, passed to the next layer</td></tr>
+</table>
+
+<div class="tip">
+<strong>The key insight:</strong> A neuron is <em>not</em> intelligent by itself — it's just "multiply, add, and squash." Intelligence <em>emerges</em> when we connect thousands of these simple units into layers and let them adjust their weights automatically. A network is a democracy of tiny, dumb voters.
+</div>
+
+<h2>1.2 Weights &amp; Bias — a deep dive</h2>
+
+<h3>Weight: the "volume knob" of each input</h3>
+<p>A <strong>weight</strong> is a number that controls how much a specific input influences the neuron. Picture a mixing board with volume sliders:</p>
+<ul>
+  <li><strong>Large positive weight (e.g. 5.0):</strong> this input strongly <em>pushes the neuron toward firing</em>. Turn the volume way up.</li>
+  <li><strong>Weight near zero (e.g. 0.01):</strong> this input barely matters. The volume is almost muted.</li>
+  <li><strong>Negative weight (e.g. −3.0):</strong> this input <em>pushes the neuron away from firing</em>. It's like an "anti-vote" — the louder this input, the more the neuron wants to say "no."</li>
+</ul>
+
+<div class="example">
+<strong>Practical example — spam detection.</strong> Suppose a neuron decides "is this email spam?" Two inputs: <code>x1</code> = number of times the word "FREE" appears, <code>x2</code> = whether the sender is in your contacts (1 = yes).
+<ul>
+  <li>The word "FREE" strongly suggests spam, so its weight is a big positive number: <code>w1 = +4</code>.</li>
+  <li>Being a known contact strongly suggests <em>not</em> spam, so its weight is negative: <code>w2 = −6</code>.</li>
+</ul>
+During training, the network <em>discovers</em> these weights on its own by seeing thousands of labeled emails. You never hand-code them.
+</div>
+
+<p>Mathematically, with inputs <code>x₁, x₂, …, xₙ</code> and weights <code>w₁, w₂, …, wₙ</code>:</p>
+<pre><code>weighted_sum = w1·x1 + w2·x2 + ... + wn·xn</code></pre>
+
+<h3>Bias: the neuron's baseline tendency</h3>
+<p>A <strong>bias</strong> is an extra number added to the weighted sum that does <em>not</em> depend on any input. It shifts the neuron's "firing threshold" up or down.</p>
+
+<p><strong>Why do we even need it?</strong> Without a bias, whenever all inputs are zero the weighted sum is forced to be exactly zero — the neuron can never lean one way by default. The bias breaks that restriction. It's the exact same role as the intercept <code>b</code> in the line equation <code>y = mx + b</code>: without it, every line is forced through the origin (0,0), which is far less flexible.</p>
+
+<div class="example">
+<strong>Practical example — the "grumpy" vs "eager" neuron.</strong>
+<ul>
+  <li>A neuron with bias <code>+10</code> is <em>eager</em>: even with weak inputs, the +10 pushes its total high, so it fires easily.</li>
+  <li>A neuron with bias <code>−10</code> is <em>grumpy</em>: inputs must be very strong to overcome the −10 before it will fire.</li>
+</ul>
+So the bias lets each neuron set its own "how convinced do I need to be?" threshold.
+</div>
+
+<blockquote>Putting weight and bias together gives the <strong>pre-activation</strong> (also called the <em>logit</em>):<br><strong>z = (w · x) + b</strong></blockquote>
+
+<h4>Let's compute one by hand</h4>
+<pre><code>Inputs:  x = [2, 5, -1]
+Weights: w = [0.5, -1, 2]
+Bias:    b = 0.5
+
+z = (0.5 × 2) + (-1 × 5) + (2 × -1) + 0.5
+  =    1.0    +   (-5.0)  +  (-2.0)  + 0.5
+  = -5.5</code></pre>
+<p>So before any activation, this neuron's score is <strong>−5.5</strong>. Whether that becomes the final output depends on the activation function — which is next.</p>
+
+<h2>1.3 Activation Functions — the "firing" rule</h2>
+
+<p>An <strong>activation function</strong> takes the pre-activation <code>z</code> and transforms it into the neuron's actual output. Think of it as a <strong>gate or filter</strong>: a raw number goes in, a transformed number comes out.</p>
+
+<pre><code>z = weighted sum + bias      (raw score — could be any number)
+a = activation_function(z)   (the actual signal sent to the next layer)</code></pre>
+
+<h3>Why do we need activation functions at all?</h3>
+
+<p>There are three reasons, and the first is by far the most important:</p>
+
+<p><strong>1. They introduce non-linearity (the crucial one).</strong> A plain weighted sum <code>w·x + b</code> can only draw <em>straight lines</em> (or flat planes) to separate data. But real-world data — cats vs. dogs in photos, spam vs. not-spam — needs <em>curvy, complex</em> boundaries. Activation functions bend those straight lines into curves.</p>
+
+<div class="warn">
+<strong>What happens if you skip activations?</strong> Something surprising and fatal: no matter how many layers you stack, the entire network mathematically collapses into a <em>single</em> linear layer. Here's the intuition — a linear function of a linear function is still linear. Stacking <code>(w2·(w1·x + b1) + b2)</code> just simplifies to <code>(W·x + B)</code> for some combined <code>W</code> and <code>B</code>. You'd gain <em>nothing</em> from depth. Non-linear activations are what make "deep" learning actually deep.
+</div>
+
+<p><strong>2. They control the output range.</strong> For example, sigmoid squashes any number into 0–1 so we can read it as a probability.</p>
+<p><strong>3. They let neurons "turn off."</strong> ReLU outputs exactly 0 for negative inputs, effectively letting a neuron stay silent when its input isn't relevant.</p>
+
+<h3>The common activation functions, one by one</h3>
+
+<h4>Sigmoid — σ(z) = 1 / (1 + e⁻ᶻ)</h4>
+<p>Squashes any input into the range <strong>(0, 1)</strong>. Its S-shape means very negative inputs → near 0, very positive → near 1, and 0 → exactly 0.5. Because the output looks like a probability, it's used at the <strong>output layer for binary (yes/no) classification</strong>.</p>
+<div class="example">
+<strong>Worked value:</strong> for <code>z = 2</code>: σ(2) = 1/(1 + e⁻²) = 1/(1 + 0.135) = <strong>0.88</strong> → "88% confident it's a yes." <br>
+For <code>z = -2</code>: σ(-2) = 1/(1 + e²) = 1/(1 + 7.39) = <strong>0.12</strong> → "12% confident, i.e. probably no."
+</div>
+
+<h4>Tanh — (eᶻ − e⁻ᶻ)/(eᶻ + e⁻ᶻ)</h4>
+<p>Very similar S-shape but squashes into <strong>(−1, 1)</strong> and is <strong>zero-centered</strong> (0 maps to 0). Being zero-centered often makes training the hidden layers smoother than sigmoid, so tanh was historically preferred for internal layers.</p>
+
+<h4>ReLU — max(0, z)</h4>
+<p>The most popular hidden-layer activation. The rule is dead simple: <strong>if the input is negative, output 0; otherwise output the input unchanged.</strong></p>
+<div class="example">
+<strong>Worked values:</strong> ReLU(5) = 5, ReLU(0.3) = 0.3, ReLU(−7) = 0, ReLU(−0.001) = 0.
+</div>
+<p>Why so popular? It's extremely cheap to compute (just a comparison with 0), and — crucially — for positive inputs its "slope" is exactly 1, which helps gradients flow through deep networks without shrinking (more on this in §1.8).</p>
+
+<h4>Leaky ReLU — z if z&gt;0, else α·z (small α, e.g. 0.01)</h4>
+<p>A fix for a ReLU weakness. Plain ReLU outputs 0 for <em>all</em> negative inputs, and a neuron stuck in that zone can "die" (stop learning forever, see §1.8). Leaky ReLU instead lets a tiny negative slope through: <code>ReLU(−10)=0</code> but <code>LeakyReLU(−10) = 0.01×−10 = −0.1</code>. That small leak keeps the neuron alive.</p>
+
+<h4>Softmax — normalizes a vector into probabilities that sum to 1</h4>
+<p>Used at the <strong>output layer for multi-class classification</strong>. It takes a whole vector of scores and turns them into probabilities that add up to 100%.</p>
+<div class="example">
+<strong>Worked example — classifying an animal:</strong> raw scores <code>[Cat: 2.0, Dog: 1.0, Horse: 0.1]</code>. Softmax exponentiates and normalizes:
+<pre><code>e^2.0 = 7.39,  e^1.0 = 2.72,  e^0.1 = 1.11
+sum = 7.39 + 2.72 + 1.11 = 11.22
+Cat   = 7.39 / 11.22 = 0.66   (66%)
+Dog   = 2.72 / 11.22 = 0.24   (24%)
+Horse = 1.11 / 11.22 = 0.10   (10%)   → totals 100%</code></pre>
+</div>
+
+<h4>Linear / Identity — f(z) = z</h4>
+<p>No transformation at all. Used at the <strong>output layer for regression</strong> (predicting an unbounded number like a house price), where you don't want to squash the output into any fixed range.</p>
+
+<table>
+  <tr><th>Function</th><th>Range</th><th>Use it for</th></tr>
+  <tr><td>Sigmoid</td><td>0 to 1</td><td>Output: binary classification</td></tr>
+  <tr><td>Tanh</td><td>−1 to 1</td><td>Hidden layers (zero-centered)</td></tr>
+  <tr><td>ReLU</td><td>0 to ∞</td><td>Hidden layers (default choice)</td></tr>
+  <tr><td>Leaky ReLU</td><td>−∞ to ∞</td><td>Hidden layers when ReLU "dies"</td></tr>
+  <tr><td>Softmax</td><td>0 to 1 per class</td><td>Output: multi-class classification</td></tr>
+  <tr><td>Linear</td><td>−∞ to ∞</td><td>Output: regression</td></tr>
+</table>
+
+<div class="tip">
+<strong>Decision recipe:</strong> Hidden layers → <strong>ReLU</strong>. Output layer → <strong>Sigmoid</strong> (binary), <strong>Softmax</strong> (multi-class), or <strong>Linear</strong> (regression). Memorize this and you'll pick correctly 95% of the time.
+</div>
+
+<h2>1.4 Forward Propagation — a full walkthrough</h2>
+
+<p><strong>Forward propagation</strong> is the process of pushing input data <em>forward</em> through the network — layer by layer — until it becomes a prediction. Data flows in one direction: input layer → hidden layer(s) → output layer.</p>
+
+<div class="example">
+<strong>Complete worked example: a tiny 2-layer network.</strong><br>
+Suppose we predict something from 2 inputs, using 1 hidden layer with 2 neurons, then 1 output neuron.
+<pre><code>Inputs:  x1 = 1,  x2 = 2
+
+HIDDEN NEURON 1: weights [0.3, 0.7], bias 0.1, ReLU
+  z1 = 0.3×1 + 0.7×2 + 0.1 = 0.3 + 1.4 + 0.1 = 1.8
+  a1 = ReLU(1.8) = 1.8
+
+HIDDEN NEURON 2: weights [-0.5, 0.2], bias 0.0, ReLU
+  z2 = -0.5×1 + 0.2×2 + 0.0 = -0.5 + 0.4 = -0.1
+  a2 = ReLU(-0.1) = 0        ← this neuron stays silent!
+
+OUTPUT NEURON: weights [1.0, -1.0], bias 0.5, Sigmoid
+  (its inputs are the hidden outputs a1=1.8, a2=0)
+  z_out = 1.0×1.8 + (-1.0)×0 + 0.5 = 2.3
+  prediction = Sigmoid(2.3) = 1/(1+e^-2.3) = 0.91</code></pre>
+<strong>Result: the network predicts 0.91 (91% confident "yes").</strong> Notice how hidden neuron 2 contributed nothing because ReLU zeroed it out — that's the network selectively "ignoring" an irrelevant signal.
+</div>
+
+<p>That's the entire forward pass: repeated "multiply, add bias, activate" across layers. Every prediction a neural network makes — even GPT-4 — is fundamentally this same process, just at massive scale.</p>
+
+<h2>1.5 Loss Functions — measuring "how wrong"</h2>
+
+<p>After forward propagation gives us a prediction, we need to know <strong>how wrong it was</strong>. A <strong>loss function</strong> compares the prediction (ŷ) to the true answer (y) and outputs a single number: the error. Bigger number = worse. Training is nothing more than <em>relentlessly shrinking this number.</em></p>
+
+<blockquote>Think of the loss as a <strong>report card</strong>. A prediction can be "wrong" in different degrees — being off by 1 is very different from being off by 100 — and the loss function quantifies exactly how much improvement is needed.</blockquote>
+
+<h3>a) Mean Squared Error (MSE) — for regression</h3>
+<pre><code>L = (1/n) × Σ (y − ŷ)²</code></pre>
+<p>For each prediction, subtract it from the true value, <strong>square</strong> the result, then average over all samples.</p>
+<div class="example">
+<strong>Worked example:</strong> true price = $5 (in 100k units), model A predicts 3, model B predicts 4.8.
+<pre><code>Model A: (5 − 3)²   = 2²   = 4.0     (bad)
+Model B: (5 − 4.8)² = 0.2² = 0.04    (excellent)</code></pre>
+Model B's loss is 100× smaller, correctly telling us it's far better.
+</div>
+<p><strong>Why square the error?</strong> Two reasons. (1) Without squaring, an error of +2 and an error of −2 would cancel to 0, falsely signalling "perfect." Squaring makes both positive so they always count. (2) Squaring <em>punishes big mistakes disproportionately</em> — an error of 10 contributes 100 to the loss, while an error of 2 contributes only 4. This pushes the model to avoid large blunders.</p>
+
+<h3>b) Mean Absolute Error (MAE) — for regression</h3>
+<pre><code>L = (1/n) × Σ |y − ŷ|</code></pre>
+<p>Same idea but takes the <strong>absolute value</strong> instead of squaring. Because it doesn't square, it's <strong>less sensitive to outliers</strong> — one wildly wrong prediction won't dominate the loss the way it does with MSE.</p>
+<div class="example">
+<strong>MSE vs MAE with an outlier:</strong> errors = [1, 1, 1, 10].<br>
+MSE = (1+1+1+100)/4 = <strong>25.75</strong> (the single 10 dominates).<br>
+MAE = (1+1+1+10)/4 = <strong>3.25</strong> (the outlier has far less pull).<br>
+Choose MAE when your data has noisy outliers you don't want to over-punish.
+</div>
+
+<h3>c) Binary Cross-Entropy (BCE) — for yes/no classification</h3>
+<pre><code>L = −[ y·log(ŷ) + (1 − y)·log(1 − ŷ) ]</code></pre>
+<p>Used when the model outputs a <strong>probability</strong> (0–1) and the true label is 0 or 1. Only one of the two terms is ever "active": if the true label <code>y = 1</code>, the formula reduces to <code>−log(ŷ)</code>; if <code>y = 0</code>, it reduces to <code>−log(1 − ŷ)</code>.</p>
+<div class="example">
+<strong>Worked example (true label = 1, i.e. "spam"):</strong>
+<pre><code>Confident & right:  ŷ = 0.95 → −log(0.95) = 0.05   (tiny loss ✓)
+Unsure:             ŷ = 0.50 → −log(0.50) = 0.69   (medium loss)
+Confident & WRONG:  ŷ = 0.01 → −log(0.01) = 4.61   (HUGE loss ✗)</code></pre>
+The magic of BCE: it <strong>savagely punishes confident-but-wrong predictions.</strong> Saying "I'm 99% sure it's not spam" when it actually IS spam produces a massive loss, forcing the model to be humble.
+</div>
+
+<h3>d) Categorical Cross-Entropy — for multi-class classification</h3>
+<pre><code>L = −Σ yᵢ·log(ŷᵢ)</code></pre>
+<div class="example">
+<strong>Worked example — classifying Cat/Dog/Horse, true answer = Dog:</strong><br>
+The true label as a vector is <code>[Cat=0, Dog=1, Horse=0]</code>. Only the Dog term survives:
+<pre><code>Prediction A: Dog=0.7 → loss = −log(0.7) = 0.36   (good, confident in Dog)
+Prediction B: Dog=0.1 → loss = −log(0.1) = 2.30   (bad, missed the Dog)</code></pre>
+</div>
+
+<h4>Loss Function Cheat Sheet</h4>
+<table>
+  <tr><th>Loss</th><th>Used for</th><th>Formula</th><th>Key trait</th></tr>
+  <tr><td>MSE</td><td>Regression</td><td>(y−ŷ)²</td><td>Punishes big errors hard</td></tr>
+  <tr><td>MAE</td><td>Regression</td><td>|y−ŷ|</td><td>Robust to outliers</td></tr>
+  <tr><td>Huber</td><td>Regression w/ outliers</td><td>MSE+MAE blend</td><td>Best of both</td></tr>
+  <tr><td>Binary Cross-Entropy</td><td>Binary classification</td><td>−[y·log ŷ+(1−y)log(1−ŷ)]</td><td>Punishes confident wrongs</td></tr>
+  <tr><td>Categorical Cross-Entropy</td><td>Multi-class</td><td>−Σ yᵢ·log ŷᵢ</td><td>One-hot labels</td></tr>
+  <tr><td>Hinge</td><td>SVMs</td><td>max(0, 1−y·ŷ)</td><td>Margin-based</td></tr>
+</table>
+
+<h2>1.6 Backpropagation &amp; the Chain Rule</h2>
+
+<p>Forward propagation gave us a prediction and the loss told us how wrong it was. Now the central question: <strong>which weight caused the error, and how should we change it?</strong> A network can have millions of weights — we need a systematic way to assign "blame" to each one. That method is <strong>backpropagation.</strong></p>
+
+<div class="note">
+<strong>Why not just change weights randomly?</strong> Suppose the loss is high. We could randomly jump <code>w1: 0.5 → 100</code> and <code>w2: −1 → −50</code>. Almost certainly the prediction gets <em>worse</em>, not better. Randomness is hopeless with millions of weights. We need to know the precise <em>direction</em> to nudge each weight — and that direction comes from the <strong>gradient.</strong>
+</div>
+
+<h3>The gradient — the compass</h3>
+<p>The gradient <code>∂L/∂w</code> answers one question: <em>"If I increase this weight by a tiny amount, does the loss go up or down, and how steeply?"</em></p>
+<table>
+  <tr><th>Gradient sign</th><th>Meaning</th><th>So we should…</th></tr>
+  <tr><td>Positive (+)</td><td>Increasing the weight increases loss (bad)</td><td><strong>Decrease</strong> the weight</td></tr>
+  <tr><td>Negative (−)</td><td>Increasing the weight decreases loss (good)</td><td><strong>Increase</strong> the weight</td></tr>
+</table>
+<p>Notice the pattern: we always move the weight in the <em>opposite</em> direction of the gradient. That's why the update rule (next section) has a minus sign.</p>
+
+<h3>The chain rule — following the trail of blame</h3>
+<p>The loss doesn't depend on a weight <em>directly</em>. The weight's effect travels through a chain of steps:</p>
+<div class="ascii">Weight (w) ──▶ Weighted sum (z) ──▶ Activation (a) ──▶ Prediction ──▶ Loss (L)</div>
+<p>To find how the weight affects the loss, the chain rule says: <strong>multiply the effect at each link in the chain.</strong></p>
+<pre><code>∂L/∂w = (∂L/∂a) × (∂a/∂z) × (∂z/∂w)</code></pre>
+<table>
+  <tr><th>Term</th><th>Question it answers</th></tr>
+  <tr><td>∂L/∂a</td><td>If the neuron's output changes a bit, how much does the loss change?</td></tr>
+  <tr><td>∂a/∂z</td><td>If the weighted sum changes a bit, how much does the activation change?</td></tr>
+  <tr><td>∂z/∂w</td><td>If the weight changes a bit, how much does the weighted sum change? (= x, since z = wx + b)</td></tr>
+</table>
+
+<h3>Full worked numerical example</h3>
+<div class="example">
+<strong>Setup:</strong> input <code>x = 2</code>, weight <code>w = 3</code>, identity activation (a = z), and loss <code>L = (a − 10)²</code> (we want the output to be 10).
+<pre><code>FORWARD PASS:
+  z = w × x = 3 × 2 = 6
+  a = z = 6                     (identity activation)
+  L = (6 − 10)² = (−4)² = 16    (our error)
+
+BACKWARD PASS (compute each link):
+  Link 1:  ∂L/∂a = 2 × (a − 10) = 2 × (6 − 10) = −8
+  Link 2:  ∂a/∂z = 1            (identity activation's slope is 1)
+  Link 3:  ∂z/∂w = x = 2        (since z = w·x)
+
+MULTIPLY THE CHAIN:
+  ∂L/∂w = (−8) × 1 × 2 = −16</code></pre>
+<strong>Interpretation:</strong> the gradient is −16 (negative). By our table above, a negative gradient means <em>increasing</em> the weight will <em>decrease</em> the loss. So we should raise <code>w</code> above 3 — which makes sense, because a bigger weight makes the output bigger, moving it from 6 up toward the target of 10. Backprop figured out the right direction automatically!
+</div>
+
+<h2>1.7 Gradient Descent &amp; Learning Rate</h2>
+
+<p>Backpropagation told us the gradient (the direction). <strong>Gradient descent</strong> is the actual act of taking a step in that direction to update the weight:</p>
+<pre><code>w_new = w_old − η × (∂L/∂w)</code></pre>
+<p>where <code>η</code> (the Greek letter "eta") is the <strong>learning rate</strong>. The minus sign is what makes us move <em>opposite</em> to the gradient (downhill toward lower loss).</p>
+
+<div class="example">
+<strong>Continuing our example:</strong> gradient = −16, old weight = 3, learning rate η = 0.1.
+<pre><code>w_new = 3 − 0.1 × (−16) = 3 + 1.6 = 4.6</code></pre>
+The weight moved from 3 up to 4.6 — exactly the direction that reduces the loss. If we repeat this loop many times, the weight will keep climbing until the output hits 10 and the loss reaches ~0. <strong>That is learning.</strong>
+</div>
+
+<h3>The mountain analogy</h3>
+<div class="ascii">Loss
+ ^
+ |    ●  ← you start here (high loss)
+ |   / \
+ |  /   \     each step, gradient descent moves you
+ | /     \    downhill toward the valley (low loss)
+ |/       \___●___
+ +------------------▶ weight value
+              ▲
+          minimum loss (the goal)</div>
+<p>You're blindfolded on a mountainside (the loss landscape). The gradient tells you which way is downhill. You take a step of size <code>η</code>. Repeat until you reach the valley.</p>
+
+<h3>Learning rate: the size of each step (get this wrong and training fails)</h3>
+<table>
+  <tr><th>Learning rate</th><th>What happens</th><th>Analogy</th></tr>
+  <tr><td>Too small (e.g. 0.0001)</td><td>Training crawls; may take forever or stall</td><td>🐢 Baby steps down a huge mountain</td></tr>
+  <tr><td>Just right (e.g. 0.01)</td><td>Steady, reliable progress to the minimum</td><td>🚶 Confident strides</td></tr>
+  <tr><td>Too large (e.g. 5.0)</td><td>Overshoots the valley, bounces around, may diverge (loss explodes)</td><td>🦘 Giant leaps that overshoot the target</td></tr>
+</table>
+<div class="ascii">Target minimum is at X:
+
+Small LR:  ●→→→→→→→→X          (slow but reaches it)
+Good  LR:  ●───→───→──X         (efficient)
+Large LR:  ●─────────X─────────●   (jumps clear over it, then back — never settles)</div>
+
+<h2>1.8 The Vanishing Gradient Problem</h2>
+
+<p>This is a famous failure mode in <strong>deep</strong> networks (many layers) that use Sigmoid or Tanh activations.</p>
+
+<p>Recall backprop multiplies gradients link-by-link as it travels backward through the layers. Each layer contributes its activation's slope to the product. Here's the problem: the <strong>sigmoid's slope maxes out at just 0.25</strong> (and is usually much smaller). When you multiply many numbers below 1 together, the product shrinks toward zero fast.</p>
+
+<div class="example">
+<strong>Watch the gradient vanish across 10 layers:</strong>
+<pre><code>Each layer multiplies by at most 0.25:
+0.25² = 0.0625
+0.25⁵ = 0.00098
+0.25¹⁰ ≈ 0.00000095   ← practically zero!</code></pre>
+By the time the gradient reaches the <em>early</em> layers, it's so tiny that <code>w_new = w_old − η × (almost 0)</code> means the weight barely changes. <strong>The early layers stop learning entirely.</strong> This is the vanishing gradient problem — and it's why deep networks were hard to train for decades.
+</div>
+
+<h3>Why ReLU rescues us</h3>
+<pre><code>f(z) = max(0, z)
+
+f'(z) = 1   if z > 0     ← slope is exactly 1, not a fraction!
+      = 0   if z ≤ 0</code></pre>
+<p>For positive inputs, ReLU's slope is <strong>1</strong>. Multiplying by 1 doesn't shrink anything — so gradients can flow back through many layers without vanishing. This single property is a big reason deep learning took off, and why ReLU is the default hidden-layer activation.</p>
+
+<div class="warn">
+<strong>ReLU's own weakness — "Dying ReLU":</strong> if a neuron's input is <em>always</em> negative, ReLU always outputs 0, its gradient is always 0, and the neuron never updates again — it's effectively dead. The fixes we met earlier (Leaky ReLU, ELU, GELU) allow a small non-zero slope for negatives, keeping neurons alive.
+</div>
+
+<h2>1.9 Optimizers — from Gradient Descent to AdamW</h2>
+
+<p>An <strong>optimizer</strong> is the algorithm that decides <em>exactly how</em> to use the gradients to update the weights. Plain gradient descent (<code>w = w − η·∇L</code>) is the simplest, but researchers invented smarter optimizers to train faster and more stably. Let's walk the evolution.</p>
+
+<div class="ascii">Batch GD → SGD → Mini-Batch SGD → Momentum → Adagrad → RMSProp → Adam → AdamW
+(each one fixes a weakness of the previous)</div>
+
+<h3>1. Batch Gradient Descent</h3>
+<p>Computes the loss and gradient using <strong>the entire dataset</strong>, then makes one weight update.</p>
+<div class="example">
+<strong>Practical picture:</strong> 10,000 images. It processes all 10,000, averages the gradient, updates the weights <em>once</em>, and repeats.
+</div>
+<p><strong>Pros:</strong> the averaged gradient is very accurate → smooth, stable convergence. <strong>Cons:</strong> with millions of samples, one update requires processing everything — painfully slow and memory-hungry.</p>
+
+<h3>2. Stochastic Gradient Descent (SGD)</h3>
+<p>The opposite extreme: update the weights after <strong>every single sample.</strong></p>
+<div class="example">
+<strong>Practical picture:</strong> see image 1 → update. See image 2 → update. See image 3 → update. 10,000 images = 10,000 updates per pass.
+</div>
+<p><strong>Pros:</strong> very fast, tiny memory footprint, great for huge datasets. <strong>Cons:</strong> each single-sample gradient is a rough estimate, so the path to the minimum is <strong>noisy and zigzaggy</strong> (imagine stumbling toward a goal: ↗↘↖→↙→) rather than a smooth line. It still gets there, just messily.</p>
+
+<h3>3. Mini-Batch SGD (the standard everyone uses)</h3>
+<p>The Goldilocks compromise: update after a small <strong>batch</strong> of samples (commonly 32, 64, or 128).</p>
+<div class="example">
+<strong>Practical picture:</strong> 1,000 images, batch size 100. Process images 1–100 → update. Images 101–200 → update. … Images 901–1000 → update. That's 10 updates per pass.
+</div>
+<p><strong>Why it wins:</strong> faster than Batch GD (you update 10× per pass instead of once), far less noisy than SGD (100 samples give a decent gradient estimate), and batches map perfectly onto GPU parallelism. This is the default in essentially all modern deep learning.</p>
+
+<h3>4. Momentum</h3>
+<p>Fixes SGD's zigzagging. Imagine a <strong>ball rolling downhill</strong>: it builds up speed in a consistent direction and isn't thrown off by small bumps. Momentum gives the optimizer "memory" of past updates.</p>
+<pre><code>vt = β·vt−1 − η·∇L      (velocity: blends past motion with new gradient)
+w  = w + vt             (β ≈ 0.9, the "friction/memory" factor)</code></pre>
+<div class="example">
+<strong>Truck analogy:</strong> a heavy truck at speed doesn't stop or turn instantly — its existing momentum carries it forward smoothly. Likewise, consistent gradient directions accumulate into faster, straighter progress, while random jitter cancels out.
+</div>
+<p><strong>Pros:</strong> faster convergence, less oscillation, and enough "inertia" to roll through small bad spots (shallow local minima).</p>
+
+<h3>5. Adagrad</h3>
+<p>Key idea: <strong>different weights deserve different learning rates.</strong> Some features appear often, others rarely — they shouldn't all be updated at the same pace. Adagrad gives each parameter its own adaptive learning rate by dividing by the accumulated history of its squared gradients.</p>
+<div class="example">
+<strong>Two-students analogy:</strong> a fast learner and a slow learner shouldn't get identical teaching speed. Adagrad slows the learning rate for frequently-updated weights and keeps it large for rarely-updated ones — excellent for <strong>sparse data</strong> like text/NLP where most words are rare.
+</div>
+<p><strong>Fatal flaw:</strong> the accumulated squared gradients only ever <em>grow</em>, so the effective learning rate keeps shrinking… 0.1 → 0.01 → 0.001 → ~0. Eventually training grinds to a halt. This flaw motivated RMSProp.</p>
+
+<h3>6. RMSProp</h3>
+<p>Fixes Adagrad's shrinking-to-zero problem. Instead of accumulating <em>all</em> past squared gradients forever, RMSProp remembers only <strong>recent</strong> ones (a moving average), so old history fades away and the learning rate never collapses permanently.</p>
+<div class="example">
+<strong>Exam-marks analogy:</strong> Adagrad averages <em>all</em> your marks ever (old bad grades haunt you forever). RMSProp weights <em>recent</em> marks more, letting the estimate stay responsive. If gradients are currently large it shrinks the step; if small it grows the step.
+</div>
+<p><strong>Pros:</strong> adaptive per-parameter learning rate that doesn't die, works especially well for RNNs. <strong>Missing piece:</strong> it doesn't use momentum — which Adam adds next.</p>
+
+<h3>7. Adam (Adaptive Moment Estimation) — the popular default</h3>
+<p>Adam simply <strong>combines the two best ideas: Momentum + RMSProp.</strong></p>
+<ul>
+  <li><strong>First moment (momentum):</strong> tracks the <em>direction</em> of recent gradients → smooth, consistent motion.</li>
+  <li><strong>Second moment (RMSProp):</strong> tracks the <em>magnitude</em> of recent gradients → adaptive per-parameter step size.</li>
+  <li><strong>Bias correction:</strong> both moments start at 0, biasing early estimates toward zero; Adam applies a small correction so the first few steps aren't too timid.</li>
+</ul>
+<div class="example">
+<strong>Driving analogy:</strong> Momentum says "keep going in the same direction." RMSProp says "slow down on rough roads, speed up on smooth ones." Adam does <em>both</em> at once — confident direction plus terrain-aware speed.
+</div>
+<p><strong>Pros:</strong> fast convergence, handles noisy gradients, adaptive, works out-of-the-box on most problems → that's why it's the go-to default. <strong>Con:</strong> can occasionally generalize slightly worse than plain SGD on some vision tasks.</p>
+
+<h3>8. AdamW — the modern standard for Transformers/LLMs</h3>
+<p>To understand AdamW you first need <strong>weight decay</strong> (a form of regularization, covered fully in §1.11). Weight decay keeps weights small to prevent overfitting — like gently pulling every weight back toward zero each step.</p>
+<p>The problem: plain Adam <em>mixes</em> the weight-decay term <em>into</em> its adaptive gradient calculation. Because Adam rescales gradients per-parameter, this makes the regularization inconsistent — some weights get decayed more than intended, others less.</p>
+<p><strong>AdamW's fix: decouple the two steps.</strong> It performs the normal adaptive gradient update, and then <em>separately</em> applies weight decay as a clean, independent shrink.</p>
+<div class="example">
+<strong>Luggage analogy:</strong> Adam tries to "walk while carrying luggage" at the same time (clumsy, inconsistent). AdamW "walks properly first, then sets down the extra luggage" — two clean separate actions.
+</div>
+<p><strong>Why it matters:</strong> better, more consistent regularization → better generalization. This is why AdamW is the optimizer behind <strong>GPT, BERT, Llama, Mistral, and Gemma.</strong></p>
+
+<h4>Optimizer comparison</h4>
+<table>
+  <tr><th>Optimizer</th><th>Samples per update</th><th>Speed</th><th>Stability</th><th>Where it's used today</th></tr>
+  <tr><td>Batch GD</td><td>Whole dataset</td><td>Slow</td><td>Excellent</td><td>Teaching, tiny datasets</td></tr>
+  <tr><td>SGD</td><td>One</td><td>Fast</td><td>Noisy</td><td>Classic ML, some vision</td></tr>
+  <tr><td>Mini-Batch SGD</td><td>32–128</td><td>Fast</td><td>Good</td><td>Standard deep learning</td></tr>
+  <tr><td>Momentum</td><td>Batch</td><td>Faster</td><td>Better</td><td>CNNs, computer vision</td></tr>
+  <tr><td>Adagrad</td><td>Batch</td><td>Good then stalls</td><td>Good</td><td>Sparse/NLP (historically)</td></tr>
+  <tr><td>RMSProp</td><td>Batch</td><td>Good</td><td>Good</td><td>RNNs</td></tr>
+  <tr><td>Adam</td><td>Batch</td><td>Very fast</td><td>Great</td><td>Default for most tasks</td></tr>
+  <tr><td>AdamW</td><td>Batch</td><td>Very fast</td><td>Great</td><td>Transformers, LLMs</td></tr>
+</table>
+
+<h2>1.10 Epochs, Batches &amp; Iterations — the full story</h2>
+
+<p>These three words appear in every training script, and beginners constantly confuse them. Let's define each precisely, then work through a complete concrete example so it sticks forever.</p>
+
+<table>
+  <tr><th>Term</th><th>Precise definition</th></tr>
+  <tr><td><strong>Batch</strong></td><td>A small group of training samples processed <em>together</em> before the weights are updated once.</td></tr>
+  <tr><td><strong>Iteration</strong></td><td>One weight update = processing exactly <em>one</em> batch. (Also called a "step.")</td></tr>
+  <tr><td><strong>Epoch</strong></td><td>One <em>complete</em> pass through the <em>entire</em> training dataset (i.e. every batch has been seen once).</td></tr>
+</table>
+
+<h3>The master formula</h3>
+<pre><code>iterations per epoch = total training samples ÷ batch size
+total iterations     = iterations per epoch × number of epochs</code></pre>
+
+<div class="example">
+<strong>Full concrete example.</strong> You have a dataset of <strong>1,000 images</strong>, you choose a <strong>batch size of 100</strong>, and you train for <strong>5 epochs</strong>.
+
+<p><strong>Within a single epoch:</strong></p>
+<pre><code>iterations per epoch = 1000 ÷ 100 = 10 iterations
+
+Iteration 1:  images    1–100  → forward → loss → backward → update weights
+Iteration 2:  images  101–200  → forward → loss → backward → update weights
+Iteration 3:  images  201–300  → forward → loss → backward → update weights
+   ...
+Iteration 10: images  901–1000 → forward → loss → backward → update weights
+              ↑ the entire dataset has now been seen once = 1 EPOCH complete</code></pre>
+
+<p><strong>Across all 5 epochs:</strong></p>
+<pre><code>total iterations = 10 iterations/epoch × 5 epochs = 50 weight updates total</code></pre>
+So the model's weights get adjusted <strong>50 times</strong> over the whole training run. Each epoch, the data is (usually) reshuffled so the 10 batches contain different image groupings.
+</div>
+
+<h3>Why not just use 1 giant batch or 1 epoch?</h3>
+<ul>
+  <li><strong>Why many small batches instead of one giant one?</strong> More frequent updates = faster learning progress, and small batches fit in limited GPU memory. (This is Mini-Batch SGD from §1.9.)</li>
+  <li><strong>Why many epochs instead of one?</strong> One pass over the data is rarely enough for the weights to converge. The model needs to see the data repeatedly to gradually refine its weights — just like you re-read study material multiple times before an exam.</li>
+</ul>
+
+<div class="warn">
+<strong>Common confusion cleared up:</strong> "epoch 5" does <em>not</em> mean the 5th batch — it means the model has now seen the whole dataset 5 <em>times</em>. And "iteration" ≠ "epoch": one epoch contains many iterations (10 in our example).
+</div>
+
+<div class="tip">
+<strong>How many epochs should you pick?</strong> Too few → the model underfits (hasn't learned enough). Too many → it starts memorizing (overfits — see next section). The sweet spot is usually found by watching the validation loss: stop when it stops improving. This is called <em>early stopping</em>.
+</div>
+
+<h2>1.11 Overfitting, Underfitting &amp; Regularization — deep dive</h2>
+
+<p>This is one of the most important practical topics in all of machine learning. Getting it wrong means your model looks great in training but fails in the real world.</p>
+
+<h3>The core tension: memorizing vs. learning</h3>
+<p>There's a crucial difference between a model that has <strong>learned the underlying pattern</strong> and one that has merely <strong>memorized the training examples.</strong> Our goal is always the former — a model that <strong>generalizes</strong> to new, unseen data.</p>
+
+<div class="example">
+<strong>The student analogy (remember this one).</strong>
+<ul>
+  <li><strong>Underfitting student:</strong> didn't study enough. Fails both the practice questions AND the real exam. Too simple an understanding.</li>
+  <li><strong>Good student:</strong> understood the concepts. Does well on practice AND the real exam. Generalizes.</li>
+  <li><strong>Overfitting student:</strong> memorized the exact answers to the practice questions without understanding. Aces the practice test but bombs the real exam because the questions are slightly different. Memorized instead of learned.</li>
+</ul>
+</div>
+
+<h3>Underfitting — the model is too simple</h3>
+<p><strong>Definition:</strong> the model is not powerful enough (or hasn't trained enough) to capture the real pattern in the data.</p>
+<p><strong>Telltale symptom:</strong> <em>high error on BOTH the training set and the test set.</em> It's bad everywhere.</p>
+<div class="example">
+<strong>Concrete example:</strong> trying to fit a straight line to data that actually follows a curve (like a parabola). No matter how you position the line, it can't bend to match the curve — so it's wrong on both training and test data.
+<pre><code>Data shape:   ⌣  (a curve)
+Straight line: ╱  (can't possibly match — underfits)</code></pre>
+</div>
+<p><strong>How to fix underfitting:</strong></p>
+<ul>
+  <li>Use a bigger/more complex model (more layers, more neurons).</li>
+  <li>Train for more epochs.</li>
+  <li>Add more useful input features.</li>
+  <li>Reduce regularization if you've applied too much.</li>
+</ul>
+
+<h3>Overfitting — the model memorized the training data</h3>
+<p><strong>Definition:</strong> the model is so powerful (or trained so long) that instead of learning the general pattern, it memorizes the specific training examples — <em>including their random noise.</em></p>
+<p><strong>Telltale symptom:</strong> <em>very low error on the training set but HIGH error on the test set.</em> Great in practice, terrible on reality.</p>
+<div class="example">
+<strong>Concrete example:</strong> a wildly wiggly curve that snakes through every single training point perfectly (including noisy outliers). It scores 100% on training data but, because it chased the noise, it's a poor predictor for new points.
+<pre><code>Training points: • • • • •  (with noise)
+Overfit model:   ∿∿∿∿∿  (contorts to hit every point exactly — memorized noise)
+Good model:      ╱‾‾╲    (smooth, captures the true trend — generalizes)</code></pre>
+</div>
+<p><strong>How to spot it:</strong> watch training loss and validation loss together. When training loss keeps dropping but validation loss starts <em>rising</em>, you're overfitting.</p>
+<div class="ascii">Loss
+ |  \
+ |   \___ training loss (keeps going down)
+ |       \_______________
+ |   ___                   ← validation loss starts RISING here
+ |      \___          ___/    = OVERFITTING begins
+ |          \____ ___/
+ +----------------------------▶ epochs
+                 ▲
+          stop training here (early stopping)</div>
+
+<h3>Regularization — techniques that fight overfitting</h3>
+<p><strong>Regularization</strong> is any technique that discourages the model from memorizing, nudging it toward simpler, more general solutions. Here are the essential ones:</p>
+
+<h4>1. L2 Regularization / Weight Decay</h4>
+<p>Adds a penalty to the loss for having large weights, so the optimizer is pushed to keep all weights small. Small weights → a smoother, simpler function → less memorization.</p>
+<pre><code>new_loss = original_loss + λ × (sum of all weights²)</code></pre>
+<p>Here <code>λ</code> (lambda) controls how strong the penalty is. <strong>Why small weights help:</strong> large weights let the model produce sharp, extreme reactions to tiny input changes (exactly the wiggly overfitting curve); keeping weights small forces gentler, smoother responses. This is the "weight decay" that AdamW (§1.9) handles so cleanly.</p>
+<div class="example">
+<strong>Intuition:</strong> it's like telling the model "you're allowed to fit the data, but you'll be fined for every bit of unnecessary complexity you add." The model then only uses complexity that genuinely reduces error.
+</div>
+
+<h4>2. Dropout</h4>
+<p>During training, Dropout <strong>randomly switches off a fraction of neurons</strong> (e.g. 50%) on each forward pass. Which neurons are dropped changes every step.</p>
+<div class="example">
+<strong>Why this works — the team analogy:</strong> if a group project always relies on the same one genius, the team collapses when that person is absent. But if random members are absent each day, everyone is forced to learn all the skills, making the whole team robust. Dropout forces the network to spread knowledge across many neurons instead of over-relying on a few — so no single neuron becomes a memorization crutch.
+</div>
+<pre><code># In PyTorch, adding dropout is one line inside the model:
+self.dropout = nn.Dropout(p=0.5)   # randomly zero 50% of neurons during training</code></pre>
+<div class="note">
+<strong>Important:</strong> Dropout is <em>only</em> active during training. At evaluation time it's automatically turned off (all neurons used). This is exactly why we call <code>model.train()</code> and <code>model.eval()</code> — they toggle Dropout on and off.
+</div>
+
+<h4>3. Train / Validation / Test split</h4>
+<p>Earlier we split data into just train/test. A better practice uses <strong>three</strong> sets:</p>
+<table>
+  <tr><th>Set</th><th>Purpose</th><th>Analogy</th></tr>
+  <tr><td>Training (~70%)</td><td>The model learns its weights from this</td><td>Study material</td></tr>
+  <tr><td>Validation (~15%)</td><td>Tune settings &amp; detect overfitting <em>during</em> training</td><td>Practice exam</td></tr>
+  <tr><td>Test (~15%)</td><td>Final, one-time honest score on truly unseen data</td><td>The real exam</td></tr>
+</table>
+<p><strong>Why separate validation from test?</strong> If you use your test set to make decisions (like when to stop training), information from it "leaks" into your choices, and your final score becomes optimistic. The validation set absorbs that role, keeping the test set pristine for one honest final measurement.</p>
+
+<h4>4. Early Stopping</h4>
+<p>Simply stop training at the moment validation loss stops improving (the peak of the diagram above), before overfitting sets in. Cheap and remarkably effective.</p>
+
+<h4>5. Getting more data / Data augmentation</h4>
+<p>The best cure for overfitting is more training data — it's much harder to memorize a huge, varied dataset. When you can't get more, <strong>data augmentation</strong> creates variations of existing data (e.g. flipping, rotating, or cropping images) to artificially expand and diversify the training set.</p>
+
+<div class="tip">
+<strong>Quick diagnosis table:</strong>
+<table>
+  <tr><th>Training error</th><th>Test/Val error</th><th>Diagnosis</th><th>Action</th></tr>
+  <tr><td>High</td><td>High</td><td>Underfitting</td><td>Bigger model, train longer, less regularization</td></tr>
+  <tr><td>Low</td><td>Low</td><td>Just right ✓</td><td>Ship it!</td></tr>
+  <tr><td>Low</td><td>High</td><td>Overfitting</td><td>Regularize, dropout, more data, early stopping</td></tr>
+</table>
+</div>
+
+<!-- =================== PART 2 =================== -->
+<h1 class="page-break">Part 2 — PyTorch Basics (line-by-line)</h1>
+
+<p>Now we turn theory into code. <strong>PyTorch = NumPy-style arrays (tensors) + automatic gradients (autograd) + a neural-network toolkit.</strong> Its whole job is to automate the backprop math from Part 1 while giving you fast, GPU-ready array operations.</p>
+
+<h2>2.1 Tensors — the fundamental data structure</h2>
+<p>A <strong>tensor</strong> is PyTorch's version of a NumPy array. <em>Everything</em> — your data, the model's weights, its predictions — is a tensor.</p>
+
+<pre><code>import torch
+
+a = torch.tensor([1, 2, 3])   # build a tensor directly from a Python list
+b = torch.zeros(3, 4)         # a 3-row by 4-column tensor filled entirely with 0.0
+c = torch.ones(2, 2)          # a 2x2 tensor filled with 1.0
+d = torch.rand(3, 3)          # a 3x3 tensor of random values between 0 and 1
+e = torch.arange(0, 10, 2)    # like Python's range: [0, 2, 4, 6, 8]</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>What it does &amp; why</th></tr>
+  <tr><td>import torch</td><td>Loads the PyTorch library so all <code>torch.*</code> functions become available.</td></tr>
+  <tr><td>torch.tensor([1,2,3])</td><td>Creates a 1-D tensor from a list. This is how you manually build small tensors for testing.</td></tr>
+  <tr><td>torch.zeros(3,4)</td><td>Pre-fills a tensor with zeros — commonly used to initialize accumulators or placeholder arrays.</td></tr>
+  <tr><td>torch.rand(3,3)</td><td>Random values — useful for quick experiments and for initializing weights.</td></tr>
+  <tr><td>torch.arange(0,10,2)</td><td>Generates evenly-spaced values (start, stop, step). Handy for creating index ranges.</td></tr>
+</table>
+
+<p><strong>Dimensions explained:</strong> 0-D = a single number (scalar), 1-D = a vector <code>[1,2,3]</code>, 2-D = a matrix / table (rows=samples, cols=features), 3-D+ = e.g. a batch of images (batch, height, width).</p>
+
+<h3>Every tensor has three attributes you'll check constantly</h3>
+<pre><code>x = torch.rand(3, 5)
+print(x.shape)    # torch.Size([3, 5])  → its dimensions (3 rows, 5 columns)
+print(x.dtype)    # torch.float32       → its data type
+print(x.device)   # cpu  (or cuda:0 if on a GPU) → where it physically lives</code></pre>
+<div class="tip">
+<strong>Golden debugging habit:</strong> ~90% of PyTorch bugs are a <strong>shape mismatch</strong> or a <strong>dtype mismatch.</strong> When something breaks, print <code>.shape</code> and <code>.dtype</code> first — it'll usually reveal the problem instantly.
+</div>
+
+<h3>Converting between NumPy and tensors (and the dtype trap)</h3>
+<pre><code>import numpy as np
+
+np_array = np.array([1.0, 2.0, 3.0])
+tensor_from_np = torch.from_numpy(np_array)   # NumPy array → PyTorch tensor
+back_to_np = tensor_from_np.numpy()           # PyTorch tensor → NumPy array</code></pre>
+<p><strong>Why this matters:</strong> your raw data almost always arrives as a pandas DataFrame or NumPy array (from <code>pd.read_csv</code>, sklearn, etc.). A PyTorch model can't eat those directly — you must convert to tensors first.</p>
+<div class="warn">
+<strong>The dtype trap (you WILL hit this):</strong> PyTorch models expect <code>float32</code>, but NumPy/pandas default to <code>float64</code>. Feeding float64 into a float32 model throws a dtype-mismatch error. The fix is to convert first: <code>arr.astype(np.float32)</code>. This is why <code>torch.from_numpy(X.astype(np.float32))</code> appears everywhere.
+</div>
+
+<h3>Basic tensor math &amp; reshaping</h3>
+<pre><code>x = torch.tensor([1.0, 2.0, 3.0])
+y = torch.tensor([4.0, 5.0, 6.0])
+
+x + y                 # element-wise add → [5, 7, 9]
+x * y                 # element-wise multiply → [4, 10, 18]
+x.sum()               # 6.0
+x.mean()              # 2.0
+torch.matmul(x, y)    # dot product (matrix multiplication) → 32.0</code></pre>
+
+<pre><code>x = torch.arange(6)   # tensor([0,1,2,3,4,5]), shape (6,)
+x.view(2, 3)          # reshape into 2 rows × 3 cols
+x.view(-1, 1)         # reshape into (6,1); the -1 means "auto-calculate this dimension"</code></pre>
+<p><strong>Why <code>view(-1, 1)</code> is everywhere:</strong> labels often come as a flat vector of shape <code>(N,)</code>, but loss functions require the labels' shape to match the model's <code>(N, 1)</code> output. <code>view(-1, 1)</code> turns a flat list of N labels into a column of shape <code>(N, 1)</code> without you having to know N. The <code>-1</code> tells PyTorch "figure out this dimension automatically."</p>
+
+<h2>2.2 Autograd — automatic gradient computation</h2>
+<p>This is the single most important PyTorch feature. It automates <em>all</em> the backpropagation math from §1.6.</p>
+
+<pre><code>x = torch.tensor(3.0, requires_grad=True)   # "please track every operation done to x"
+y = x ** 2                                  # y = x², PyTorch secretly records this step
+y.backward()                                # walk backward, compute dy/dx
+print(x.grad)                               # tensor(6.0) → because dy/dx = 2x = 2×3 = 6</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Deep explanation</th></tr>
+  <tr><td>requires_grad=True</td><td>Flags this tensor so PyTorch <em>remembers</em> every operation performed on it, building an invisible "computation graph." Without this flag, no gradient can be computed.</td></tr>
+  <tr><td>y = x ** 2</td><td>As you do math, PyTorch silently records each operation as a node in the graph — a recipe it can later reverse.</td></tr>
+  <tr><td>y.backward()</td><td>Triggers backpropagation: PyTorch walks <em>backward</em> through the recorded graph, applying the chain rule automatically to compute the gradient of <code>y</code> w.r.t. every tensor with <code>requires_grad=True</code>.</td></tr>
+  <tr><td>x.grad</td><td>Where the computed gradient is stored. Here it's 6.0 — exactly the hand-derivative 2x at x=3. In a real model, this is how every weight learns which way to move.</td></tr>
+</table>
+
+<div class="tip">
+<strong>Connecting to Part 1:</strong> in a real model the weights are tensors with <code>requires_grad=True</code> (set up automatically by <code>nn.Linear</code>). When you call <code>loss.backward()</code>, PyTorch computes the gradient of the loss w.r.t. <em>every</em> weight — no matter how deep the network — in one line. That's the "magic" that would be impossible to do by hand.
+</div>
+
+<h3>Why <code>optimizer.zero_grad()</code> is mandatory</h3>
+<pre><code>x = torch.tensor(3.0, requires_grad=True)
+y = x ** 2
+y.backward()
+print(x.grad)     # 6.0
+
+y2 = x ** 2
+y2.backward()
+print(x.grad)     # 12.0 ← NOT 6.0! The new gradient was ADDED to the old one.</code></pre>
+<p><strong>The lesson:</strong> PyTorch <strong>accumulates</strong> (adds up) gradients by default rather than replacing them. This is occasionally useful (e.g. simulating bigger batches), but for normal training it means you <em>must</em> clear the old gradients before each new backward pass — otherwise gradients from previous steps pile up and corrupt training. That's the entire reason <code>optimizer.zero_grad()</code> is called every single iteration.</p>
+
+<h3>Why <code>torch.no_grad()</code> speeds up evaluation</h3>
+<pre><code>with torch.no_grad():
+    predictions = model(X_test_tensor)</code></pre>
+<p>Building the computation graph (for later backprop) costs extra memory and time. During <strong>evaluation</strong> you're not training, so you'll never call <code>.backward()</code> — building the graph is pure waste. Wrapping inference in <code>torch.no_grad()</code> tells PyTorch "don't bother tracking anything here," making it faster and lighter.</p>
+
+<h2>2.3 nn.Module — the standard way to build models</h2>
+<pre><code>import torch.nn as nn
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(in_features=4, out_features=1)
+
+    def forward(self, x):
+        return self.linear(x)</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Deep explanation</th></tr>
+  <tr><td>class MyModel(nn.Module)</td><td>Every PyTorch model <em>inherits</em> from <code>nn.Module</code>, which provides built-in machinery: parameter tracking, <code>.parameters()</code>, GPU transfer, saving/loading, and more.</td></tr>
+  <tr><td>def __init__(self)</td><td>The constructor — this is where you <em>declare which layers your network has</em> (like buying furniture before arranging a room).</td></tr>
+  <tr><td>super().__init__()</td><td><strong>Mandatory.</strong> Runs <code>nn.Module</code>'s own setup, which creates the internal registry that tracks every layer's weights. Skip this and <code>model.parameters()</code> finds nothing — training silently breaks.</td></tr>
+  <tr><td>self.linear = nn.Linear(4, 1)</td><td>Defines a fully-connected layer computing <code>output = X·Wᵀ + b</code>. It takes 4 input features, produces 1 output, and internally holds the trainable weight matrix and bias.</td></tr>
+  <tr><td>def forward(self, x)</td><td>Defines <em>how data flows</em> through the layers (the "forward pass"). PyTorch calls this automatically when you do <code>model(x)</code>.</td></tr>
+</table>
+
+<div class="note">
+<strong>Why split into <code>__init__</code> and <code>forward</code>?</strong> PyTorch needs to know the layers <em>exist</em> (so it can track their weights) <em>before</em> it knows how you'll use them. Declaring them separately also lets you reuse or rearrange layers without rewriting everything.
+</div>
+
+<h3>Common layers</h3>
+<table>
+  <tr><th>Layer</th><th>What it does</th><th>When to use it</th></tr>
+  <tr><td><code>nn.Linear(in,out)</code></td><td>Fully-connected: output = X·Wᵀ + b</td><td>The core building block</td></tr>
+  <tr><td><code>nn.Sigmoid()</code></td><td>Squash to (0,1)</td><td>Binary classification output</td></tr>
+  <tr><td><code>nn.ReLU()</code></td><td>Zero out negatives</td><td>Between hidden layers</td></tr>
+  <tr><td><code>nn.Softmax(dim=1)</code></td><td>Vector → probabilities summing to 1</td><td>Multi-class output</td></tr>
+  <tr><td><code>nn.Dropout(p=0.5)</code></td><td>Randomly zero neurons (regularization)</td><td>Fighting overfitting</td></tr>
+</table>
+
+<h3>Calling the model &amp; inspecting its parameters</h3>
+<pre><code>model = MyModel()
+output = model(some_tensor)   # this secretly calls model.forward(some_tensor)</code></pre>
+<p><strong>Why <code>model(x)</code> and not <code>model.forward(x)</code>?</strong> <code>nn.Module</code> overrides Python's <code>__call__</code>, so <code>model(x)</code> runs <code>forward(x)</code> <em>plus</em> essential internal bookkeeping (hooks, train/eval state). Always use <code>model(x)</code>.</p>
+<pre><code>for name, param in model.named_parameters():
+    print(name, param.shape)
+# linear.weight torch.Size([1, 4])   ← the 4 weights
+# linear.bias   torch.Size([1])      ← the 1 bias</code></pre>
+<p>Every weight declared in <code>__init__</code> is automatically tracked here — and this is exactly what gets handed to the optimizer via <code>model.parameters()</code>.</p>
+
+<h2>2.4 &amp; 2.5 Loss Functions &amp; Optimizers in code</h2>
+<pre><code>loss_fn = nn.BCELoss()          # binary classification (needs sigmoid output)
+loss_fn = nn.CrossEntropyLoss() # multi-class classification
+loss_fn = nn.MSELoss()          # regression
+loss = loss_fn(predictions, true_labels)   # → a single number: the error
+
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)   # simple, transparent
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001) # adaptive, usually faster</code></pre>
+<p><strong>Why pass <code>model.parameters()</code>?</strong> It hands the optimizer the exact list of tensors it's allowed to update — every weight and bias tracked by <code>nn.Module</code>. <strong>Why <code>lr</code> matters</strong> (§1.7): too high → unstable/diverges; too low → painfully slow.</p>
+<div class="warn">
+<strong>BCELoss gotcha:</strong> it expects the output to already be a probability, so your model needs a <code>Sigmoid()</code> at the end. <code>nn.BCEWithLogitsLoss()</code> bundles sigmoid + loss into one numerically-stable step — you'll see both in the wild.
+</div>
+
+<h2>2.6 The 5-Step Training Loop</h2>
+<pre><code>for epoch in range(num_epochs):
+    predictions = model(X_train)          # 1. FORWARD: make predictions
+    loss = loss_fn(predictions, y_train)  # 2. LOSS: measure how wrong
+    optimizer.zero_grad()                 # 3. ZERO: clear old gradients
+    loss.backward()                       # 4. BACKWARD: compute new gradients
+    optimizer.step()                      # 5. STEP: update the weights
+    print(f"Epoch {epoch+1}, Loss: {loss.item()}")</code></pre>
+
+<table class="linebyline">
+  <tr><th>Step</th><th>Plain-English meaning</th></tr>
+  <tr><td>model(X_train)</td><td>"Make your best guess with the current weights."</td></tr>
+  <tr><td>loss_fn(...)</td><td>"How wrong was that guess?" (produces the error number)</td></tr>
+  <tr><td>zero_grad()</td><td>"Forget last round's gradients, start fresh." (prevents accumulation, §2.2)</td></tr>
+  <tr><td>loss.backward()</td><td>"Compute which direction each weight should move." (autograd, §1.6)</td></tr>
+  <tr><td>optimizer.step()</td><td>"Actually nudge every weight." (gradient descent, §1.7)</td></tr>
+</table>
+<p><strong>Why <code>.item()</code>?</strong> <code>loss</code> is a tensor (even though it holds one number). <code>.item()</code> extracts it as a plain Python float for clean printing/logging without dragging tensor metadata along.</p>
+
+<h2>2.7 Complete minimal runnable example</h2>
+<p>Predicting <code>y = 2x + 1</code> from data — every concept combined:</p>
+<pre><code>import torch
+import torch.nn as nn
+
+# 1. DATA — already shaped as (N,1) tensors
+X = torch.tensor([[1.0], [2.0], [3.0], [4.0]])   # inputs
+y = torch.tensor([[3.0], [5.0], [7.0], [9.0]])   # true outputs (y = 2x + 1)
+
+# 2. MODEL — a single linear layer (1 input → 1 output)
+class LinearRegressionModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(1, 1)   # will learn a weight (≈2) and bias (≈1)
+    def forward(self, x):
+        return self.linear(x)
+
+model = LinearRegressionModel()
+
+# 3. LOSS & OPTIMIZER
+loss_fn = nn.MSELoss()                                    # regression → MSE
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01) # simple gradient descent
+
+# 4. TRAINING LOOP — repeat the 5 steps 200 times
+for epoch in range(200):
+    predictions = model(X)               # forward
+    loss = loss_fn(predictions, y)       # loss
+    optimizer.zero_grad()                # clear
+    loss.backward()                      # backward
+    optimizer.step()                     # update
+    if (epoch + 1) % 50 == 0:
+        print(f"Epoch {epoch+1}, Loss: {loss.item():.4f}")
+
+# 5. INSPECT what it learned
+print("Learned weight:", model.linear.weight.item())  # → approaches 2.0
+print("Learned bias:",   model.linear.bias.item())    # → approaches 1.0</code></pre>
+<p><strong>What you'll observe:</strong> the loss shrinks each epoch, and the learned weight/bias converge to ≈2.0 and ≈1.0 — the network <em>discovered the formula y = 2x + 1 purely from data</em>, using nothing but the 5-step loop.</p>
+
+<!-- =================== PART 3 =================== -->
+<h1 class="page-break">Part 3 — Training Pipeline (line-by-line)</h1>
+<p>A real <strong>binary classifier</strong> distinguishing malignant vs. benign breast tumors — the canonical end-to-end workflow.</p>
+
+<h2>Steps 1–3: Imports, loading, cleaning</h2>
+<pre><code>import numpy as np
+import pandas as pd
+import torch
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+df = pd.read_csv('.../data.csv')                 # load the dataset into a table
+df.drop(columns=['id', 'Unnamed: 32'], inplace=True)  # remove useless columns</code></pre>
+<table class="linebyline">
+  <tr><td>pandas / numpy</td><td>Handle data loading and array manipulation (PyTorch does the modeling, not data wrangling).</td></tr>
+  <tr><td>sklearn imports</td><td>Ready-made tools for splitting, scaling, and encoding — no need to write these from scratch.</td></tr>
+  <tr><td>pd.read_csv(...)</td><td>Reads the CSV into a DataFrame. Each row = a patient; each column = a measured feature.</td></tr>
+  <tr><td>df.drop([id, Unnamed:32])</td><td><code>id</code> is a meaningless identifier (the model would try to "memorize" IDs); <code>Unnamed: 32</code> is an empty junk column from a trailing CSV comma. Both would hurt the model.</td></tr>
+</table>
+
+<h2>Step 4: Train/test split</h2>
+<pre><code>X_train, X_test, y_train, y_test = train_test_split(
+    df.iloc[:, 1:],    # X = all feature columns (everything except column 0)
+    df.iloc[:, 0],     # y = the label column (diagnosis)
+    test_size=0.2)     # hold out 20% for testing, train on 80%</code></pre>
+<p><strong>Why split?</strong> Evaluating on data the model trained on lets it "cheat" by memorizing answers, giving a falsely high accuracy. The 20% test set stays unseen until the end to honestly measure generalization (§1.11).</p>
+
+<h2>Step 5: Feature scaling</h2>
+<pre><code>scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)  # learn mean/std from train, then scale it
+X_test  = scaler.transform(X_test)       # apply the SAME mean/std to test</code></pre>
+<p><strong>Why scale?</strong> Features live on wildly different scales (e.g. <code>area</code> in the hundreds vs. <code>smoothness</code> a tiny decimal). Gradient descent struggles when features have vastly different ranges — some weights get pushed far harder than others. <code>StandardScaler</code> rescales every feature to mean 0, standard deviation 1, making training stable.</p>
+<div class="warn">
+<strong>No data leakage:</strong> we call <code>fit_transform</code> on train (learn the statistics there) but only <code>transform</code> on test. Re-fitting on test would leak test information into preprocessing, inflating your score dishonestly.
+</div>
+
+<h2>Step 6: Label encoding</h2>
+<pre><code>encoder = LabelEncoder()
+y_train = encoder.fit_transform(y_train)  # 'B' → 0, 'M' → 1
+y_test  = encoder.transform(y_test)</code></pre>
+<p>Neural networks only understand numbers, but the labels are text (<code>'M'</code>/<code>'B'</code>). <code>LabelEncoder</code> converts them to integers (0/1), turning this into a proper binary classification target.</p>
+
+<h2>Step 7: Convert to tensors</h2>
+<pre><code>X_train_tensor = torch.from_numpy(X_train.astype(np.float32))
+X_test_tensor  = torch.from_numpy(X_test.astype(np.float32))
+y_train_tensor = torch.from_numpy(y_train.astype(np.float32))
+y_test_tensor  = torch.from_numpy(y_test.astype(np.float32))</code></pre>
+<p><code>.astype(np.float32)</code> avoids the float64-vs-float32 dtype trap (§2.1); <code>torch.from_numpy</code> converts the arrays into tensors the model can consume.</p>
+
+<h2>Step 8: Define the model</h2>
+<pre><code>import torch.nn as nn
+
+class MySimpleNN(nn.Module):
+    def __init__(self, num_features):
+        super().__init__()
+        self.linear  = nn.Linear(num_features, 1)  # 30 features → 1 score
+        self.sigmoid = nn.Sigmoid()                # score → probability (0–1)
+    def forward(self, features):
+        out = self.linear(features)   # weighted sum + bias
+        out = self.sigmoid(out)       # squash into a probability
+        return out</code></pre>
+<p>This is <strong>logistic regression</strong> written in the neural-network framework: one linear layer + sigmoid maps 30 features to a single "probability of malignant." It's simple enough to reason about, yet uses the <em>exact same</em> structure that scales to deep networks — you'd just add more <code>nn.Linear</code> layers with ReLU between them.</p>
+
+<h2>Steps 9–11: Hyperparameters, loss &amp; the training loop</h2>
+<pre><code>learning_rate = 0.1
+epochs = 25
+loss_function = nn.BCELoss()   # binary cross-entropy (§1.5)
+
+model = MySimpleNN(X_train_tensor.shape[1])                     # 30 = number of features
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+for epoch in range(epochs):
+    y_pred = model(X_train_tensor)                              # 1. forward
+    loss = loss_function(y_pred, y_train_tensor.view(-1,1))     # 2. loss (shapes match!)
+    optimizer.zero_grad()                                       # 3. clear grads
+    loss.backward()                                             # 4. backprop
+    optimizer.step()                                            # 5. update
+    print(f'Epoch: {epoch+1}, Loss: {loss.item()}')</code></pre>
+<table class="linebyline">
+  <tr><td>learning_rate / epochs</td><td>Hyperparameters <em>you</em> choose (§1.7, §1.10) — not learned by the model.</td></tr>
+  <tr><td>shape[1]</td><td>Number of feature columns (30), telling the model its input size.</td></tr>
+  <tr><td>y_train_tensor.view(-1,1)</td><td>Reshapes labels from <code>(N,)</code> to <code>(N,1)</code> so they match <code>y_pred</code>'s shape — loss functions require matching shapes (§2.1).</td></tr>
+  <tr><td>the 5 lines</td><td>The universal loop from §2.6, now on real data.</td></tr>
+</table>
+
+<h2>Step 12: Evaluation</h2>
+<pre><code>with torch.no_grad():                            # no gradients needed for eval (§2.2)
+    y_pred = model(X_test_tensor)                # probabilities for the test set
+    y_pred = (y_pred > 0.5).float()              # threshold: >0.5 → class 1, else 0
+    accuracy = (y_pred == y_test_tensor.view(-1,1)).float().mean()  # fraction correct
+    print(f'Accuracy: {accuracy.item()}')</code></pre>
+<table class="linebyline">
+  <tr><td>torch.no_grad()</td><td>Disables graph-building for speed/memory during evaluation.</td></tr>
+  <tr><td>(y_pred &gt; 0.5).float()</td><td>Converts probabilities into hard 0/1 decisions using the standard 0.5 threshold.</td></tr>
+  <tr><td>(y_pred == y_test) .float().mean()</td><td>Compares element-wise (True/False), converts to 1.0/0.0, then averages → accuracy (the fraction of correct predictions).</td></tr>
+</table>
+<!-- ============================================================
+     REPLACE Part 4 and Part 5 in your existing HTML with everything below.
+     (Paste between the end of Part 3 and the start of Part 6.)
+     It reuses the same CSS classes already in your file.
+     ============================================================ -->
+
+<!-- =================== PART 4 =================== -->
+<h1 class="page-break">Part 4 — Dataset &amp; DataLoader: The Complete Picture</h1>
+
+<p><strong>Dataset and DataLoader are core abstractions in PyTorch that <u>decouple</u> how you <em>define</em> your data from how you efficiently <em>iterate</em> over it in training loops.</strong> That single sentence is the whole philosophy — let's unpack why that separation is such a big deal.</p>
+
+<h2>4.1 The Core Idea: Two Jobs, Cleanly Separated</h2>
+
+<p>When you train a model you actually have two <em>completely different</em> problems to solve:</p>
+<ol>
+  <li><strong>"How do I access one piece of data?"</strong> — Where does it live (memory? a CSV? a folder of images on disk)? How do I read sample #7 and turn it into tensors? This is the <strong>Dataset's</strong> job.</li>
+  <li><strong>"How do I feed data to the model efficiently?"</strong> — Group samples into batches, shuffle them each epoch, load several in parallel so the GPU never waits. This is the <strong>DataLoader's</strong> job.</li>
+</ol>
+
+<p>By splitting these, the same Dataset works whether you feed it one sample at a time or in batches of 256, shuffled or not, on 1 CPU worker or 8 — you never rewrite your data-reading logic. And the same DataLoader machinery works for <em>any</em> Dataset, whether it holds 10 numbers or a million images.</p>
+
+<div class="ascii">          ┌─────────────┐        ┌──────────────┐        ┌───────────────┐
+ raw data │   Dataset   │ ──────▶│  DataLoader  │ ──────▶│ training loop │
+ (memory, │ (defines 1  │  one   │ (batching,   │ batch  │ (forward,     │
+  CSV,    │  sample at  │ sample │  shuffling,  │ tensor │  loss,        │
+  disk)   │  a time)    │        │  parallelism)│        │  backward)    │
+          └─────────────┘        └──────────────┘        └───────────────┘
+            __len__                batch_size
+            __getitem__            shuffle / sampler
+                                   collate_fn
+                                   num_workers</div>
+
+<h2>4.2 The Dataset Class — a blueprint for your data</h2>
+
+<p>The <code>Dataset</code> class is essentially a <strong>blueprint</strong>. When you create a custom Dataset, you decide <em>how data is loaded and returned</em>. It defines three methods:</p>
+
+<table>
+  <tr><th>Method</th><th>What it does</th></tr>
+  <tr><td><code>__init__</code></td><td>Tells the Dataset how data should be <strong>loaded</strong> (store the tensors, file paths, transforms, etc.).</td></tr>
+  <tr><td><code>__len__</code></td><td>Returns the <strong>total number of samples</strong> in the dataset.</td></tr>
+  <tr><td><code>__getitem__(index)</code></td><td>Returns the <strong>data and label at the given index</strong> — i.e. <em>one</em> sample.</td></tr>
+</table>
+
+<pre><code>from torch.utils.data import Dataset
+
+class CustomDataset(Dataset):
+
+    def __init__(self, features, labels):   # ── blueprint: how to LOAD data
+        self.features = features            # store a reference to the features
+        self.labels = labels                # store a reference to the labels
+
+    def __len__(self):                      # ── how MANY samples exist
+        return self.features.shape[0]       # e.g. 10 rows → returns 10
+
+    def __getitem__(self, index):           # ── how to fetch ONE sample
+        return self.features[index], self.labels[index]   # returns (X_i, y_i)</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Deep explanation</th></tr>
+  <tr><td>class CustomDataset(Dataset)</td><td>We inherit from PyTorch's abstract base class <code>Dataset</code>. "Abstract" means it defines the <em>interface</em> (the method names PyTorch expects) but leaves the actual implementation to you. This is the same inheritance pattern as <code>nn.Module</code> for models.</td></tr>
+  <tr><td>__init__(self, features, labels)</td><td>The constructor. It does <em>no heavy work</em> — it just remembers <em>where</em> the data is. For an image dataset this might instead store a list of file <em>paths</em> (not the images themselves), so you don't load millions of images into RAM up front.</td></tr>
+  <tr><td>self.features = features</td><td>Saves the features tensor as an attribute so <code>__getitem__</code> can reach it later.</td></tr>
+  <tr><td>__len__(self)</td><td>Returns total sample count via <code>shape[0]</code> (the number of rows). This is a Python "dunder" (double-underscore) method — implementing it lets you call <code>len(dataset)</code>, and the DataLoader uses it to know how many samples exist and therefore how many batches to produce.</td></tr>
+  <tr><td>__getitem__(self, index)</td><td>The heart of the Dataset. Given an integer index, it returns exactly one <code>(features, label)</code> pair. Implementing this dunder enables square-bracket indexing (<code>dataset[2]</code>), and — critically — it's the method the DataLoader calls repeatedly, behind the scenes, to pull individual samples that it then assembles into a batch.</td></tr>
+</table>
+
+<div class="tip">
+<strong>Why "abstract class" matters (from your notes):</strong> because <code>Dataset</code> is abstract, PyTorch doesn't care <em>how</em> your data is stored — it only requires that you can answer two questions: "how many samples?" (<code>__len__</code>) and "give me sample #i" (<code>__getitem__</code>). This uniform contract is precisely what lets the <em>same</em> DataLoader machinery work for CSV rows, images, text, or audio without modification.
+</div>
+
+<h2>4.3 The DataLoader Class — batching, shuffling &amp; parallel loading</h2>
+
+<p>The <strong>DataLoader wraps a Dataset and handles batching, shuffling, and parallel loading for you.</strong> You never manually slice or index your data in the training loop — the DataLoader turns your Dataset into a clean Python iterator.</p>
+
+<pre><code>from torch.utils.data import DataLoader
+
+dataloader = DataLoader(
+    dataset,           # the Dataset object to pull samples from
+    batch_size=2,      # group samples into chunks of 2
+    shuffle=True,      # reshuffle order every epoch
+    num_workers=4,     # use 4 parallel subprocesses to load data
+    collate_fn=None,   # how to combine samples into a batch (default stacks them)
+    sampler=None,      # custom strategy for choosing indices (advanced)
+)</code></pre>
+
+<h3>The full DataLoader control flow</h3>
+<p>Here is exactly what happens each epoch (straight from your notes' "DataLoader Control Flow"):</p>
+<ol>
+  <li><strong>At the start of each epoch</strong>, the DataLoader (if <code>shuffle=True</code>) shuffles the indices — internally this is done using a <strong>sampler</strong>.</li>
+  <li>It <strong>divides the indices into chunks</strong> of <code>batch_size</code>.</li>
+  <li>For each index in a chunk, data samples are <strong>fetched from the Dataset object</strong> by calling <code>dataset.__getitem__(i)</code>.</li>
+  <li>The individual samples are then <strong>collected and combined into a batch</strong> — this is where <code>collate_fn</code> does its work.</li>
+  <li>The finished <strong>batch is returned to the main training loop.</strong></li>
+</ol>
+
+<div class="example">
+<strong>Worked example from your notes — 10 samples, batch_size = 2.</strong>
+<pre><code>Original indices:        0  1  2  3  4  5  6  7  8  9
+
+Step 1 — shuffle:        4  6  1  3  7  8  2  0  9  5
+
+Step 2 — chunk into      [4 6] [1 3] [7 8] [2 0] [9 5]
+         batches of 2:      ↓     ↓     ↓     ↓     ↓
+
+Step 3 — __getitem__     fetch samples 4 & 6, then 1 & 3, etc.
+
+Step 4 — collate:        stack each pair → batch tensors
+                         batch 1, batch 2, batch 3, batch 4, batch 5
+
+total batches = total_samples / batch_size = 10 / 2 = 5</code></pre>
+So one epoch yields <strong>5 batches</strong>. With <code>shuffle=True</code>, the shuffled order (<code>4 6 1 3 …</code>) changes every epoch, so the batches contain different groupings each pass.
+</div>
+
+<h2>4.4 <code>collate_fn</code> — how samples become a batch</h2>
+
+<p>This is the piece most beginners never learn, yet it's essential. After the DataLoader fetches individual samples via <code>__getitem__</code>, it needs to <strong>combine</strong> them into a single batched tensor. The function that does this combining is <code>collate_fn</code> ("collate" = collect and combine in order).</p>
+
+<h3>What the default <code>collate_fn</code> does</h3>
+<p>By default, PyTorch's <code>collate_fn</code> simply <strong>stacks</strong> the samples along a new batch dimension. If <code>__getitem__</code> returns a feature vector of shape <code>(2,)</code> and you have <code>batch_size=2</code>, the default collate stacks them into a <code>(2, 2)</code> tensor, and stacks the two labels into a <code>(2,)</code> tensor.</p>
+
+<pre><code># What the DataLoader effectively does internally each batch:
+sample_0 = dataset[4]   # → (tensor([x0a, x0b]), tensor(y0))
+sample_1 = dataset[6]   # → (tensor([x1a, x1b]), tensor(y1))
+
+# default collate_fn stacks matching elements together:
+batch_features = torch.stack([sample_0[0], sample_1[0]])  # shape (2, 2)
+batch_labels   = torch.stack([sample_0[1], sample_1[1]])  # shape (2,)
+
+# this (batch_features, batch_labels) is what your loop receives</code></pre>
+
+<h3>Why you'd need a CUSTOM <code>collate_fn</code></h3>
+<p>The default only works when every sample has the <em>same shape</em> (so they can be stacked). But many real datasets have <strong>variable-length samples</strong> — and then you must write your own <code>collate_fn</code>.</p>
+
+<div class="example">
+<strong>Practical example — sentences of different lengths (NLP).</strong> Suppose each sample is a tokenized sentence:
+<pre><code>sample 0: [5, 12, 7]           (3 tokens)
+sample 1: [8, 2]               (2 tokens)
+sample 2: [1, 9, 4, 6, 3]      (5 tokens)</code></pre>
+These <strong>cannot</strong> be stacked — their lengths differ, so the default <code>collate_fn</code> crashes. A custom one <strong>pads</strong> them all to the longest length in the batch:
+<pre><code>import torch
+from torch.nn.utils.rnn import pad_sequence
+
+def my_collate_fn(batch):
+    # 'batch' is a list of (features, label) tuples the DataLoader collected
+    features = [item[0] for item in batch]     # pull out all feature tensors
+    labels   = [item[1] for item in batch]     # pull out all labels
+
+    # pad every sentence to the length of the longest one in THIS batch
+    features_padded = pad_sequence(features, batch_first=True, padding_value=0)
+
+    labels = torch.stack(labels)               # labels are all scalars → stack fine
+    return features_padded, labels             # hand back the finished batch
+
+dataloader = DataLoader(dataset, batch_size=3, collate_fn=my_collate_fn)</code></pre>
+Result — all padded to length 5:
+<pre><code>[[5, 12, 7, 0, 0],
+ [8,  2, 0, 0, 0],
+ [1,  9, 4, 6, 3]]   ← now a clean (3, 5) tensor the model can process</code></pre>
+</div>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Explanation</th></tr>
+  <tr><td>def my_collate_fn(batch)</td><td>The DataLoader passes a <em>list</em> of samples (each the output of <code>__getitem__</code>) into this function; your job is to return a single batched object.</td></tr>
+  <tr><td>features = [item[0] ...]</td><td>Separate the feature tensors from the labels using a list comprehension.</td></tr>
+  <tr><td>pad_sequence(...)</td><td>PyTorch helper that pads a list of variable-length tensors to equal length so they can be stacked. <code>batch_first=True</code> puts the batch dimension first (shape <code>(batch, seq_len)</code>).</td></tr>
+  <tr><td>torch.stack(labels)</td><td>Labels are uniform (scalars), so the normal stack works.</td></tr>
+  <tr><td>return features_padded, labels</td><td>This tuple is exactly what your training loop receives as <code>(batch_features, batch_labels)</code>.</td></tr>
+</table>
+
+<div class="tip">
+<strong>When do you need <code>collate_fn</code>?</strong> Whenever samples aren't uniformly shaped: variable-length text, audio clips of different durations, images of different sizes, or when you want custom batch-level logic (e.g. sorting by length, building attention masks). For fixed-shape tabular data (like our cancer dataset) the default is perfect and you leave <code>collate_fn=None</code>.
+</div>
+
+<h2>4.5 Samplers — the strategy for <em>choosing</em> indices</h2>
+
+<p>Your notes call this out specifically: <strong>"In PyTorch, the sampler in the DataLoader determines the strategy for selecting samples from the dataset during data loading. It controls how indices of the dataset are drawn for each batch."</strong></p>
+
+<p>Remember control-flow Step 1 — before batching, the DataLoader must decide <em>in what order</em> to visit the samples. That decision is delegated to a <strong>sampler</strong>. The <code>shuffle</code> argument is really just a convenient shortcut that picks a sampler for you.</p>
+
+<h3>Built-in samplers</h3>
+<table>
+  <tr><th>Sampler</th><th>Behavior</th><th>When it's used</th></tr>
+  <tr><td><code>SequentialSampler</code></td><td>Yields indices <strong>in order</strong>: 0, 1, 2, 3, … as they appear in the dataset.</td><td>Default when <code>shuffle=False</code></td></tr>
+  <tr><td><code>RandomSampler</code></td><td>Yields indices <strong>randomly without replacement</strong> (a fresh shuffle each epoch).</td><td>Default when <code>shuffle=True</code></td></tr>
+</table>
+
+<pre><code># These two lines are equivalent:
+DataLoader(dataset, shuffle=True)
+DataLoader(dataset, sampler=RandomSampler(dataset))
+
+# And these two are equivalent:
+DataLoader(dataset, shuffle=False)
+DataLoader(dataset, sampler=SequentialSampler(dataset))</code></pre>
+
+<div class="warn">
+<strong>Rule:</strong> you cannot pass both <code>shuffle=True</code> and a custom <code>sampler</code> — the sampler already dictates the order, so specifying shuffle too is contradictory and raises an error.
+</div>
+
+<h3>Custom samplers — why they matter (from your notes)</h3>
+<p>Your notes highlight two real situations where you'd write a custom sampler instead of plain shuffling:</p>
+
+<h4>1. Imbalanced datasets</h4>
+<div class="example">
+<strong>The problem:</strong> imagine a fraud-detection dataset that is <strong>99% class "0" (legit) and 1% class "1" (fraud)</strong> — written in your notes as <code>1–99%</code> and <code>(0–1)</code>. If you sample uniformly, most batches contain <em>zero</em> fraud examples, so the model can score 99% accuracy by always predicting "legit" — while being useless at its actual job.
+<br><br>
+<strong>The fix:</strong> a <code>WeightedRandomSampler</code> draws minority-class samples <em>more often</em>, so each batch is roughly balanced and the model actually learns to recognize the rare class.
+<pre><code>from torch.utils.data import WeightedRandomSampler
+
+# give rare-class samples higher weight so they're picked more often
+class_counts = [9900, 100]                      # 9900 legit, 100 fraud
+weights = [1.0 / class_counts[label] for label in all_labels]
+sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
+
+dataloader = DataLoader(dataset, batch_size=32, sampler=sampler)</code></pre>
+Now the rare fraud cases show up far more frequently than their natural 1% rate.
+</div>
+
+<h4>2. Time-series data</h4>
+<div class="example">
+<strong>The problem:</strong> for time-series (stock prices, sensor readings), <strong>order matters</strong> — you must not shuffle randomly, because a sample's meaning depends on the samples before it. Random shuffling would destroy the temporal structure and let the model "peek" at the future.
+<br><br>
+<strong>The fix:</strong> a custom sampler that preserves chronological order or draws contiguous windows of time steps, rather than scattering them randomly.
+</div>
+
+<h2>4.6 <code>num_workers</code> — parallel data loading</h2>
+
+<p>By default, the DataLoader prepares batches in the <em>same</em> process as training — meaning the GPU sits <strong>idle</strong> while the CPU reads and processes the next batch. <code>num_workers</code> fixes this by spawning multiple subprocesses that prepare batches <strong>in parallel, ahead of time.</strong></p>
+
+<p>Your notes walk through a detailed scenario. Let's follow it exactly:</p>
+
+<div class="example">
+<strong>Setup (from your notes):</strong>
+<ul>
+  <li>Total samples: <strong>10,000</strong></li>
+  <li>Batch size: <strong>32</strong></li>
+  <li>Workers (<code>num_workers</code>): <strong>4</strong></li>
+  <li>Batches per epoch ≈ 10,000 / 32 = <strong>312</strong></li>
+</ul>
+
+<strong>The workflow:</strong>
+<ol>
+  <li><strong>Sampler &amp; batch creation (main process):</strong> before the epoch starts, the sampler generates a shuffled list of all 10,000 indices, grouped into 312 batches of 32. All batches are queued, ready to be fetched by workers.</li>
+  <li><strong>Parallel loading (workers):</strong> as your training loop starts iterating, the DataLoader dispatches the first four batches of indices to the four workers:
+    <pre><code>Worker #1 loads batch 1 (indices [batch_1_indices])
+Worker #2 loads batch 2 (indices [batch_2_indices])
+Worker #3 loads batch 3 (indices [batch_3_indices])
+Worker #4 loads batch 4 (indices [batch_4_indices])</code></pre>
+    Each worker calls <code>__getitem__</code> for every index in its batch, applies any transforms, and runs <code>collate_fn</code> to form a single batch tensor.</li>
+  <li><strong>First batch returned:</strong> whichever worker finishes first (say batch 1) hands it back to the main process. As soon as the main process has this batch, it yields it to your training loop.</li>
+  <li><strong>Model training (main process):</strong> while the main process does the forward pass, loss, and backprop on batch 1, the other three workers are <em>still preparing</em> their batches. By the time you finish updating weights on batch 1, batch 2 (and maybe 3 and 4) are already ready.</li>
+  <li><strong>Continuous processing:</strong> as soon as a worker finishes its batch, it immediately starts on the <em>next</em> batch of indices from the queue. Worker #1, having finished batch 1, now starts batch 5; Worker #2 starts batch 6; and so on. This creates a <strong>pipeline</strong>: at any moment up to 4 batches are being prepared concurrently.</li>
+  <li><strong>The loop's view:</strong> your training loop simply does:
+    <pre><code>for batch_data, batch_labels in dataloader:
+    # forward pass
+    # loss computation
+    # backward pass
+    # optimizer step</code></pre>
+    Each iteration it gets a fresh, ready-to-use batch <em>without waiting</em> for I/O, because the workers pre-loaded it in parallel.</li>
+  <li><strong>End of epoch:</strong> after 312 iterations all batches are consumed. The DataLoader has no more to yield, the epoch ends, and (if <code>shuffle=True</code>) the sampler reshuffles for the next epoch and the whole parallel process repeats.</li>
+</ol>
+</div>
+
+<div class="ascii">Without workers (num_workers=0):
+  GPU: [train b1]......idle......[train b2]......idle......[train b3]
+  CPU: ...load b1...            ...load b2...            ...load b3...
+       ▲ GPU waits for CPU every batch — slow!
+
+With 4 workers (pipelined):
+  GPU: [train b1][train b2][train b3][train b4][train b5]...
+  CPU: load b1 ┐ load b2 ┐ load b3 ┐ load b4 ┐  (4 workers always prepping ahead)
+       ▲ GPU never waits — batches are ready in advance — fast!</div>
+
+<div class="tip">
+<strong>Practical guidance:</strong> a common starting point is <code>num_workers = number of CPU cores</code> (or 4). Too many workers can actually slow things down (process overhead, memory). <code>num_workers=0</code> means "load in the main process" — simplest, but no parallelism. Also note: on Windows/Jupyter you often must guard the training code under <code>if __name__ == '__main__':</code> for multiprocessing workers to spawn correctly.
+</div>
+
+<h2>4.7 Data Transformations</h2>
+
+<p>Your notes flag transformations as a key Dataset responsibility. A <strong>transform</strong> is a function applied to each sample inside <code>__getitem__</code>, right before it's returned — used to preprocess or augment data on the fly.</p>
+
+<table>
+  <tr><th>Data type</th><th>Common transforms (from your notes)</th></tr>
+  <tr><td><strong>Images</strong></td><td>resize, black-and-white (grayscale), data augmentation (flips, rotations, crops)</td></tr>
+  <tr><td><strong>Text</strong></td><td>lowercase, remove stopwords, stemming</td></tr>
+</table>
+
+<p><strong>The key idea:</strong> transforms are applied <em>lazily</em> — one sample at a time, only when that sample is actually requested by <code>__getitem__</code>. This means you never need to hold a fully-transformed copy of a giant dataset in memory, and (for random augmentations like flips) each epoch can see a slightly different version of every image, which itself acts as regularization (§1.11).</p>
+
+<pre><code>class ImageDataset(Dataset):
+    def __init__(self, image_paths, labels, transform=None):
+        self.image_paths = image_paths       # store PATHS, not the images (memory-friendly)
+        self.labels = labels
+        self.transform = transform            # a transform function/pipeline, or None
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, index):
+        image = load_image(self.image_paths[index])   # read one image from disk NOW
+        if self.transform:
+            image = self.transform(image)             # resize/grayscale/augment on the fly
+        return image, self.labels[index]</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Explanation</th></tr>
+  <tr><td>self.image_paths = image_paths</td><td>We store file <em>paths</em>, not decoded images — so a dataset of a million images doesn't blow up RAM. Images are read only when needed.</td></tr>
+  <tr><td>self.transform = transform</td><td>Holds the transform pipeline (e.g. resize → grayscale → to-tensor). Passing it in makes the same Dataset reusable with different preprocessing.</td></tr>
+  <tr><td>load_image(...)</td><td>The actual disk read happens inside <code>__getitem__</code>, i.e. lazily, one sample at a time — this is the whole point of storing paths.</td></tr>
+  <tr><td>if self.transform: image = self.transform(image)</td><td>Applies preprocessing/augmentation to this single sample right before returning it. Random augmentations here differ each epoch, adding helpful variety.</td></tr>
+</table>
+
+<div class="example">
+<strong>A typical torchvision transform pipeline:</strong>
+<pre><code>from torchvision import transforms
+
+transform = transforms.Compose([          # chain several transforms in order
+    transforms.Resize((128, 128)),        # 1. resize every image to 128×128
+    transforms.Grayscale(),               # 2. convert to black-and-white
+    transforms.RandomHorizontalFlip(),    # 3. randomly flip (augmentation)
+    transforms.ToTensor(),                # 4. convert to a PyTorch tensor
+])
+dataset = ImageDataset(paths, labels, transform=transform)</code></pre>
+<code>Compose</code> simply runs each transform in sequence on every sample as it's fetched.
+</div>
+
+<h2>4.8 Putting the Full Pipeline Together</h2>
+
+<p>Now every piece from your notes — Dataset, transforms, sampler, collate_fn, num_workers — assembled into one complete data pipeline:</p>
+
+<pre><code>from torch.utils.data import Dataset, DataLoader
+
+# 1. DATASET — defines how to fetch & transform ONE sample
+class CustomDataset(Dataset):
+    def __init__(self, features, labels, transform=None):
+        self.features = features
+        self.labels = labels
+        self.transform = transform
+    def __len__(self):
+        return self.features.shape[0]
+    def __getitem__(self, index):
+        x, y = self.features[index], self.labels[index]
+        if self.transform:
+            x = self.transform(x)        # apply transform lazily, per-sample
+        return x, y
+
+# 2. DATALOADER — batching + shuffling(sampler) + collate + parallelism
+dataset = CustomDataset(X, y, transform=my_transform)
+
+dataloader = DataLoader(
+    dataset,
+    batch_size=32,          # 32 samples per batch
+    shuffle=True,           # uses RandomSampler under the hood
+    num_workers=4,          # 4 parallel workers pre-load batches
+    collate_fn=None,        # default stacking (custom only if variable-length)
+)
+
+# 3. TRAINING LOOP — clean, never touches indexing or batching itself
+for epoch in range(epochs):
+    for batch_features, batch_labels in dataloader:   # workers feed batches in parallel
+        y_pred = model(batch_features)
+        loss = loss_fn(y_pred, batch_labels)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()</code></pre>
+
+<div class="tip">
+<strong>The payoff of decoupling:</strong> notice the training loop is dead simple — it just asks the DataLoader for the next batch. All the complexity (which order? how to combine? load in parallel? apply transforms?) is hidden inside the Dataset and DataLoader. That's the power of separating <em>"what the data is"</em> from <em>"how to serve it."</em> This exact structure scales unchanged from 10 rows of numbers to millions of images streamed from disk.
+</div>
+
+<h2>4.9 Dataset &amp; DataLoader — Complete Attribute Reference</h2>
+
+<h4>Dataset methods</h4>
+<table>
+  <tr><th>Method</th><th>Required?</th><th>Purpose</th></tr>
+  <tr><td><code>__init__</code></td><td>Yes</td><td>Set up how data is loaded; store data/paths/transforms</td></tr>
+  <tr><td><code>__len__</code></td><td>Yes</td><td>Return total number of samples</td></tr>
+  <tr><td><code>__getitem__</code></td><td>Yes</td><td>Return one (features, label) sample by index; apply transforms</td></tr>
+</table>
+
+<h4>Key DataLoader arguments</h4>
+<table>
+  <tr><th>Argument</th><th>Default</th><th>What it controls</th></tr>
+  <tr><td><code>dataset</code></td><td>—</td><td>The Dataset object to pull from (required)</td></tr>
+  <tr><td><code>batch_size</code></td><td>1</td><td>How many samples per batch</td></tr>
+  <tr><td><code>shuffle</code></td><td>False</td><td>Reshuffle order each epoch (shortcut for RandomSampler)</td></tr>
+  <tr><td><code>sampler</code></td><td>None</td><td>Custom index-selection strategy (imbalanced, time-series). Mutually exclusive with <code>shuffle</code></td></tr>
+  <tr><td><code>collate_fn</code></td><td>default stack</td><td>How to combine samples into a batch (custom for variable-length data)</td></tr>
+  <tr><td><code>num_workers</code></td><td>0</td><td>Parallel subprocesses for loading (0 = main process only)</td></tr>
+  <tr><td><code>drop_last</code></td><td>False</td><td>Drop the final smaller batch if samples don't divide evenly</td></tr>
+  <tr><td><code>pin_memory</code></td><td>False</td><td>Speeds up CPU→GPU transfer when using CUDA</td></tr>
+</table>
+
+<h4>The four samplers</h4>
+<table>
+  <tr><th>Sampler</th><th>Use case</th></tr>
+  <tr><td><code>SequentialSampler</code></td><td>In-order iteration (shuffle=False)</td></tr>
+  <tr><td><code>RandomSampler</code></td><td>Shuffled iteration (shuffle=True)</td></tr>
+  <tr><td><code>WeightedRandomSampler</code></td><td>Imbalanced data — oversample rare classes</td></tr>
+  <tr><td>Custom <code>Sampler</code></td><td>Time-series windows, or any bespoke ordering</td></tr>
+</table>
+<!-- ============================================================
+     PART 5A — OPTIMIZATION TECHNIQUES IN ANN PIPELINE
+     ============================================================ -->
+
+<div class="page-break"></div>
+<h1>Part 5A — Optimization Techniques in ANN Pipeline</h1>
+
+<p><strong>Goal:</strong> Once your model architecture, data pipeline, and training loop are working, the next challenge is <strong>making them work better</strong> — getting lower validation loss, higher accuracy, and faster convergence. This section covers the practical techniques used by practitioners to squeeze every percent of performance out of a neural network.</p>
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ul>
+    <li>5A.1 — Normalization techniques (Batch Norm, Layer Norm, etc.)</li>
+    <li>5A.2 — Regularization (L1/L2, Dropout, Early Stopping)</li>
+    <li>5A.3 — Learning rate scheduling and warm-up</li>
+    <li>5A.4 — Gradient clipping and explosion/vanishing gradients</li>
+    <li>5A.5 — Model ensembling</li>
+    <li>5A.6 — Data augmentation and mixup</li>
+    <li>5A.7 — Optimization checklist: what to try and in what order</li>
+  </ul>
+</div>
+
+<h2>5A.1 Normalization Techniques — Making training stable and fast</h2>
+
+<p><strong>The core problem:</strong> neural networks train faster and more stably when inputs to each layer have consistent statistics (mean ≈ 0, std ≈ 1). But as gradients flow backward, activations in intermediate layers drift to extreme values, causing <em>internal covariate shift</em> — the distribution of inputs to later layers changes unpredictably, making those layers work harder and learn slower.</p>
+
+<h3>Batch Normalization (BatchNorm)</h3>
+
+<p><strong>Idea:</strong> before each activation function, normalize the activations of that layer to mean=0, std=1 <em>within each batch</em>. This keeps the input to the next layer stable.</p>
+
+<pre><code>import torch
+import torch.nn as nn
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear1 = nn.Linear(30, 64)
+        self.bn1 = nn.BatchNorm1d(64)           # ← normalize across batch
+        self.relu1 = nn.ReLU()
+        
+        self.linear2 = nn.Linear(64, 32)
+        self.bn2 = nn.BatchNorm1d(32)
+        self.relu2 = nn.ReLU()
+        
+        self.linear3 = nn.Linear(32, 1)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.linear1(x)
+        x = self.bn1(x)                         # normalize before activation
+        x = self.relu1(x)
+        
+        x = self.linear2(x)
+        x = self.bn2(x)
+        x = self.relu2(x)
+        
+        x = self.linear3(x)
+        x = self.sigmoid(x)
+        return x</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Explanation</th></tr>
+  <tr><td>nn.BatchNorm1d(64)</td><td>BatchNorm layer that normalizes 64 features. (Use <code>BatchNorm1d</code> for fully-connected layers, <code>BatchNorm2d</code> for CNNs.)</td></tr>
+  <tr><td>x = self.bn1(x)</td><td>Applies BatchNorm: computes mean &amp; std of the current batch, subtracts mean, divides by std, scales &amp; shifts by learnable parameters (γ, β).</td></tr>
+</table>
+
+<p><strong>What BatchNorm does mathematically:</strong></p>
+<div class="ascii">
+Raw activations from layer:     [-5, 20, 100, -300, 50, ...]
+                                 mean=8.3, std=142
+
+After BatchNorm1d:              [-0.1, 0.08, 0.65, -2.1, 0.3, ...]
+                                 mean≈0, std≈1
+                                 (then learn to scale/shift by γ, β)
+</div>
+
+<p><strong>Effects:</strong></p>
+<ul>
+  <li>✓ Stabilizes activations across layers → training converges much faster</li>
+  <li>✓ Allows higher learning rates without divergence</li>
+  <li>✓ Acts as a weak regularizer (the randomness of batch statistics adds noise)</li>
+  <li>⚠ Adds compute overhead; behavior differs slightly at train vs. test time (uses running statistics at test)</li>
+  <li>⚠ Can hurt performance on small batches (statistics become noisy)</li>
+</ul>
+
+<h3>Layer Normalization (LayerNorm)</h3>
+
+<p><strong>Key difference:</strong> instead of normalizing <em>across the batch</em>, LayerNorm normalizes <em>across features</em> for each sample independently. This makes it independent of batch size and is preferred in Transformers.</p>
+
+<pre><code>self.ln1 = nn.LayerNorm(64)      # normalize the 64 features for each sample
+
+x = self.linear1(x)
+x = self.ln1(x)                  # norm over feature dimension, not batch
+x = self.relu1(x)</code></pre>
+
+<table>
+  <tr><th>Aspect</th><th>BatchNorm</th><th>LayerNorm</th></tr>
+  <tr><td>Normalizes across</td><td>Batch dimension (all samples)</td><td>Feature dimension (each sample)</td></tr>
+  <tr><td>Batch-size sensitivity</td><td>High — statistics change with batch size</td><td>None — independent of batch</td></tr>
+  <tr><td>Used in</td><td>CNNs, traditional deep learning</td><td><strong>Transformers</strong>, modern architectures</td></tr>
+  <tr><td>Train vs. test</td><td>Different behavior (uses running stats at test)</td><td>Same behavior (no running stats)</td></tr>
+</table>
+
+<h3>Other normalization techniques</h3>
+
+<table>
+  <tr><th>Technique</th><th>What it normalizes</th><th>When to use</th></tr>
+  <tr><td><strong>GroupNorm</strong></td><td>Divides channels into groups, normalizes within each group</td><td>Small batches where BatchNorm becomes unreliable</td></tr>
+  <tr><td><strong>InstanceNorm</strong></td><td>Normalizes each channel of each sample independently</td><td>Style transfer, image-to-image tasks</td></tr>
+  <tr><td><strong>Weight Normalization</strong></td><td>Normalizes the weight matrices of layers</td><td>RNNs, sometimes helps with gradient flow</td></tr>
+</table>
+
+<div class="tip">
+<strong>Rule of thumb:</strong>
+<ul>
+  <li><strong>CNNs, image classification:</strong> use BatchNorm</li>
+  <li><strong>Transformers, NLP, attention-based:</strong> use LayerNorm</li>
+  <li><strong>Very small batches:</strong> use LayerNorm or GroupNorm instead of BatchNorm</li>
+  <li><strong>Recurrent networks (RNNs):</strong> LayerNorm often more stable than BatchNorm</li>
+</ul>
+</div>
+
+<h2>5A.2 Regularization — Preventing overfitting</h2>
+
+<p><strong>The problem:</strong> a network trained on a finite dataset can "memorize" training examples, learning spurious patterns that don't generalize to new data. This is <strong>overfitting</strong>. Regularization techniques penalize or constrain the model to prefer simpler, more generalizable solutions.</p>
+
+<h3>L1 and L2 Regularization (Weight decay)</h3>
+
+<p><strong>Idea:</strong> add a penalty term to the loss that discourages large weights.</p>
+
+<pre><code># L2 Regularization (most common)
+L = loss + λ * Σ(w²)          # penalize squared magnitude of weights
+
+# L1 Regularization
+L = loss + λ * Σ|w|           # penalize absolute magnitude (encourages sparsity)</code></pre>
+
+<p><strong>Effect:</strong></p>
+<ul>
+  <li><strong>L2 (weight decay):</strong> keeps weights small but nonzero; typically better for neural nets</li>
+  <li><strong>L1:</strong> can push some weights exactly to zero (feature selection); leads to sparse models</li>
+</ul>
+
+<p><strong>Implementation in PyTorch:</strong></p>
+
+<pre><code># L2 regularization is built into most optimizers via weight_decay
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
+# weight_decay=1e-5 applies L2 penalty proportional to 1e-5
+
+# Or manually add to loss:
+l2_lambda = 1e-5
+l2_loss = l2_lambda * sum(torch.norm(p) for p in model.parameters())
+total_loss = loss + l2_loss</code></pre>
+
+<p><strong>Tuning λ (lambda):</strong> typical values are 1e-5 to 1e-3. Too high → model underfits (too much penalty); too low → little effect.</p>
+
+<h3>Dropout</h3>
+
+<p><strong>Idea:</strong> during training, randomly set a fraction of activations to zero. This forces the network to learn redundant, robust features instead of co-adapting to specific neurons.</p>
+
+<pre><code>class MyModel(nn.Module):
+    def __init__(self, dropout_rate=0.5):
+        super().__init__()
+        self.linear1 = nn.Linear(30, 64)
+        self.relu1 = nn.ReLU()
+        self.dropout1 = nn.Dropout(p=dropout_rate)     # p = probability of zeroing
+        
+        self.linear2 = nn.Linear(64, 32)
+        self.relu2 = nn.ReLU()
+        self.dropout2 = nn.Dropout(p=dropout_rate)
+        
+        self.linear3 = nn.Linear(32, 1)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.linear1(x)
+        x = self.relu1(x)
+        x = self.dropout1(x)                            # ← zeros out ~50% during training
+        
+        x = self.linear2(x)
+        x = self.relu2(x)
+        x = self.dropout2(x)
+        
+        x = self.linear3(x)
+        x = self.sigmoid(x)
+        return x</code></pre>
+
+<div class="ascii">Without dropout:          With dropout (p=0.5):
+neurons: ●─ ●─ ●─ ●      neurons: ●─ ○─ ●─ ○  (○ = zeroed out)
+         ├─────────┤               ├─────────┤
+         co-adapted              forced to learn
+         features                redundant paths
+</div>
+
+<p><strong>Important:</strong> Dropout is <em>only active during training</em>. During evaluation/testing, it's disabled (all neurons active). PyTorch handles this automatically if you call <code>model.eval()</code>:</p>
+
+<pre><code># Training
+model.train()                    # enables Dropout
+for batch in dataloader:
+    y_pred = model(batch)
+    # ...
+
+# Evaluation
+model.eval()                     # disables Dropout and BatchNorm updates
+with torch.no_grad():
+    y_pred = model(test_batch)
+    accuracy = (y_pred > 0.5).float().mean()</code></pre>
+
+<p><strong>Typical dropout rates:</strong> 0.2–0.5 (drop 20–50% of neurons). Higher dropout = stronger regularization. Too high → model can't learn anything.</p>
+
+<h3>Early Stopping</h3>
+
+<p><strong>Idea:</strong> monitor validation loss during training. If it stops improving for N epochs, stop training immediately. This prevents the model from overfitting to the training set.</p>
+
+<pre><code>best_val_loss = float('inf')
+patience = 10                           # stop if no improvement for 10 epochs
+patience_counter = 0
+
+for epoch in range(max_epochs):
+    # Training
+    train_loss = train_one_epoch()
+    
+    # Validation
+    val_loss = evaluate()
+    
+    if val_loss < best_val_loss:
+        best_val_loss = val_loss
+        patience_counter = 0
+        torch.save(model.state_dict(), 'best_model.pt')  # save best weights
+    else:
+        patience_counter += 1
+        if patience_counter >= patience:
+            print(f"Early stopping at epoch {epoch}")
+            break                       # stop training
+
+# Load the best model
+model.load_state_dict(torch.load('best_model.pt'))</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Explanation</th></tr>
+  <tr><td>best_val_loss = float('inf')</td><td>Initialize to infinity so first epoch always improves.</td></tr>
+  <tr><td>patience = 10</td><td>Wait 10 epochs without improvement before stopping. Adjust based on dataset size.</td></tr>
+  <tr><td>if val_loss < best_val_loss</td><td>If validation improves, reset patience counter and save the model.</td></tr>
+  <tr><td>else: patience_counter += 1</td><td>If no improvement, increment counter. When it hits <code>patience</code>, stop.</td></tr>
+  <tr><td>torch.save(...)</td><td>Save the best weights so you can load them later (the model at the best validation point, not the final epoch).</td></tr>
+</table>
+
+<p><strong>Effect:</strong> typically reduces training time by 30–50% and improves generalization significantly.</p>
+
+<h2>5A.3 Learning rate scheduling</h2>
+
+<p><strong>Problem:</strong> a fixed learning rate works poorly across an entire training run. Early on, large steps are fine (far from minimum). Late in training, large steps overshoot the minimum. The solution: <strong>start high, gradually decrease.</strong></p>
+
+<h3>Common schedules</h3>
+
+<table>
+  <tr><th>Schedule</th><th>Formula</th><th>Use case</th></tr>
+  <tr><td><strong>Step Decay</strong></td><td>lr = lr * gamma every N epochs</td><td>Simple, works well empirically</td></tr>
+  <tr><td><strong>Exponential Decay</strong></td><td>lr = lr_0 * exp(-decay * epoch)</td><td>Smooth, continuous decay</td></tr>
+  <tr><td><strong>Cosine Annealing</strong></td><td>lr = lr_min + 0.5*(lr_max - lr_min)*(1 + cos(πt/T))</td><td>Modern choice, works great with SGD</td></tr>
+  <tr><td><strong>Warm-up then decay</strong></td><td>lr increases for first few epochs, then decays</td><td><strong>Transformers, large models</strong></td></tr>
+</table>
+
+<h3>Step Decay Example</h3>
+
+<pre><code>import torch.optim.lr_scheduler as lr_scheduler
+
+optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+# Every 10 epochs, multiply lr by 0.1
+
+for epoch in range(100):
+    train_loss = train_one_epoch()
+    scheduler.step()                    # ← update learning rate
+    print(f"Epoch {epoch}, LR: {optimizer.param_groups[0]['lr']:.6f}")</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>Epoch 0, LR: 0.100000
+Epoch 9, LR: 0.100000
+Epoch 10, LR: 0.010000  ← dropped by 10x
+Epoch 19, LR: 0.010000
+Epoch 20, LR: 0.001000  ← dropped by 10x again
+...</code></pre>
+
+<h3>Cosine Annealing Example (modern, recommended)</h3>
+
+<pre><code>scheduler = lr_scheduler.CosineAnnealingLR(
+    optimizer, 
+    T_max=50,              # period (epochs)
+    eta_min=1e-6           # minimum lr
+)
+
+for epoch in range(100):
+    train_loss = train_one_epoch()
+    scheduler.step()</code></pre>
+
+<div class="ascii">
+Step Decay:              Cosine Annealing:
+lr ▲                     lr ▲
+   │     ─╲              │  ╱╲      ╱╲
+   │       ╲            │ ╱  ╲    ╱  ╲
+   │        ╲          │╱     ╲╱     ╲╱
+   └────────────────▶  └────────────────▶
+   epoch               epoch
+</div>
+
+<h3>Warm-up + decay (for Transformers)</h3>
+
+<pre><code>def get_linear_warmup_scheduler(optimizer, warmup_steps, total_steps):
+    """Linear warmup for first warmup_steps, then linear decay."""
+    def lr_lambda(current_step):
+        if current_step < warmup_steps:
+            return float(current_step) / float(max(1, warmup_steps))
+        return max(0.0, float(total_steps - current_step) / 
+                         float(max(1, total_steps - warmup_steps)))
+    return lr_scheduler.LambdaLR(optimizer, lr_lambda)
+
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+scheduler = get_linear_warmup_scheduler(optimizer, warmup_steps=1000, total_steps=10000)
+
+for step in range(10000):
+    train_step()
+    scheduler.step()</code></pre>
+
+<div class="tip">
+<strong>When to use learning rate scheduling:</strong>
+<ul>
+  <li><strong>Always</strong> in modern deep learning; it's considered standard practice</li>
+  <li><strong>Without it:</strong> model often gets stuck or diverges late in training</li>
+  <li><strong>Default choice:</strong> Cosine annealing or step decay, both are robust</li>
+  <li><strong>For Transformers:</strong> warm-up + decay is almost universal</li>
+</ul>
+</div>
+
+<h2>5A.4 Gradient clipping and exploding/vanishing gradients</h2>
+
+<h3>The Vanishing Gradient Problem (revisited)</h3>
+
+<p>In very deep networks (especially RNNs), gradients during backprop get multiplied by many activation derivatives, each < 1, causing gradients to shrink to near-zero in early layers. Early layers stop learning.</p>
+
+<p><strong>Solutions:</strong></p>
+<ul>
+  <li>Use ReLU activation (derivative = 1 for z > 0) instead of sigmoid/tanh</li>
+  <li>Use residual connections (skip connections): x → f(x) + x</li>
+  <li>Use normalization (BatchNorm, LayerNorm)</li>
+  <li>Use LSTM/GRU cells (designed to preserve gradient flow)</li>
+</ul>
+
+<h3>The Exploding Gradient Problem</h3>
+
+<p>In some situations (especially RNNs with long sequences), gradients multiply to very large values → weights update huge amounts → model becomes unstable/diverges.</p>
+
+<p><strong>Solution: Gradient Clipping</strong></p>
+
+<pre><code>for batch in dataloader:
+    y_pred = model(batch)
+    loss = loss_fn(y_pred, batch_labels)
+    optimizer.zero_grad()
+    loss.backward()
+    
+    # ← Clip gradients before stepping
+    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    
+    optimizer.step()</code></pre>
+
+<p><strong>What it does:</strong> if the global gradient norm (combined magnitude of all gradients) exceeds <code>max_norm</code>, scale all gradients down proportionally so the norm equals <code>max_norm</code>. This preserves direction but limits magnitude.</p>
+
+<pre><code>Example:
+Before clipping: gradients = [10.5, -8.2, 3.1, ...]  norm = 15.0
+max_norm = 1.0
+After clipping:  gradients = [0.7, -0.55, 0.21, ...] norm = 1.0
+(all scaled by 1.0/15.0 ≈ 0.067)</code></pre>
+
+<p><strong>Typical max_norm values:</strong> 1.0 for RNNs, sometimes 5.0 for CNNs. Usually set once and left alone.</p>
+
+<h2>5A.5 Model Ensembling</h2>
+
+<p><strong>Idea:</strong> train multiple independent models, then average their predictions. Ensembles almost always outperform single models.</p>
+
+<h3>Simple ensembling</h3>
+
+<pre><code># Train 5 models independently (on same or slightly different data)
+models = [MyModel() for _ in range(5)]
+
+for i, model in enumerate(models):
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    for epoch in range(epochs):
+        for batch_data, batch_labels in dataloader:
+            y_pred = model(batch_data)
+            loss = loss_fn(y_pred, batch_labels)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+    torch.save(model.state_dict(), f'model_{i}.pt')
+
+# Evaluate: average predictions
+with torch.no_grad():
+    predictions = []
+    for i, model in enumerate(models):
+        model.load_state_dict(torch.load(f'model_{i}.pt'))
+        model.eval()
+        preds = model(X_test)
+        predictions.append(preds)
+    
+    ensemble_pred = torch.stack(predictions).mean(dim=0)  # average across models
+    accuracy = (ensemble_pred > 0.5).float().mean()</code></pre>
+
+<p><strong>Why it works:</strong> each model makes different mistakes. Averaging "cancels out" some errors, leaving a more robust prediction. Requires independence: train on different random seeds, different data subsets, or different architectures.</p>
+
+<p><strong>Cost:</strong> requires training & storing N models. Inference is N times slower. Used in competitions (Kaggle, etc.) where accuracy matters more than speed.</p>
+
+<h2>5A.6 Data augmentation and Mixup</h2>
+
+<h3>Data Augmentation</h3>
+
+<p><strong>Idea:</strong> create synthetic training examples by applying random transformations (flips, rotations, crops, color jitter). This artificially enlarges your dataset and teaches invariance.</p>
+
+<pre><code">from torchvision import transforms
+
+# For images
+train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(p=0.5),    # flip left-right with 50% chance
+    transforms.RandomRotation(15),             # random rotation ±15°
+    transforms.ColorJitter(brightness=0.2, contrast=0.2),  # random color shifts
+    transforms.RandomCrop(32, padding=4),      # crop to 32×32 with padding
+    transforms.ToTensor(),
+])
+
+test_transform = transforms.Compose([
+    transforms.ToTensor(),
+])
+
+train_dataset = MyImageDataset(paths, labels, transform=train_transform)
+test_dataset = MyImageDataset(paths, labels, transform=test_transform)
+
+# Key point: train_transform applies random augmentations; each epoch
+# the model sees a slightly different version of each image.</code></pre>
+
+<p><strong>Effect:</strong> acts as regularization (prevents overfitting to exact pixel values); can improve accuracy by 2–5% on image tasks.</p>
+
+<h3>Mixup</h3>
+
+<p><strong>Idea:</strong> create virtual training examples by <em>blending</em> two images and their labels:</p>
+
+<pre><code>x̃ = λ·x_i + (1-λ)·x_j
+ỹ = λ·y_i + (1-λ)·y_j
+
+where λ ∈ [0,1] from Beta(α, α) distribution</code></pre>
+
+<pre><code>class MixupDataLoader:
+    def __init__(self, dataloader, alpha=1.0):
+        self.dataloader = dataloader
+        self.alpha = alpha
+    
+    def __iter__(self):
+        for batch_data, batch_labels in self.dataloader:
+            # Sample λ from Beta distribution
+            lam = np.random.beta(self.alpha, self.alpha)
+            
+            # Shuffle batch indices to get pairs
+            batch_size = batch_data.shape[0]
+            index = torch.randperm(batch_size)
+            
+            # Mix
+            mixed_data = lam * batch_data + (1 - lam) * batch_data[index]
+            mixed_labels = lam * batch_labels + (1 - lam) * batch_labels[index]
+            
+            yield mixed_data, mixed_labels
+
+# Usage
+dataloader = DataLoader(dataset, batch_size=32)
+mixup_loader = MixupDataLoader(dataloader, alpha=1.0)
+
+for mixed_data, mixed_labels in mixup_loader:
+    y_pred = model(mixed_data)
+    loss = loss_fn(y_pred, mixed_labels)
+    # ...</code></pre>
+
+<p><strong>Effect:</strong> teaches the model to interpolate smoothly between classes; improves robustness and generalization, especially on image classification.</p>
+
+<h2>5A.7 Optimization Checklist — what to try and in what order</h2>
+
+<p>When your model isn't performing well, here's a structured approach to optimization:</p>
+
+<table>
+  <tr><th>Priority</th><th>Technique</th><th>Expected Gain</th><th>When to try</th></tr>
+  <tr><td><strong>1 (Essential)</strong></td><td>Feature scaling (StandardScaler)</td><td>2–5%</td><td>Always first; breaks training without it</td></tr>
+  <tr><td><strong>1 (Essential)</strong></td><td>Proper train/val/test split</td><td>N/A</td><td>Before anything else; essential for honest evaluation</td></tr>
+  <tr><td><strong>2 (High impact)</strong></td><td>Batch Normalization / LayerNorm</td><td>5–10%</td><td>Almost always; enables higher learning rates, faster convergence</td></tr>
+  <tr><td><strong>2 (High impact)</strong></td><td>Learning rate scheduling (Cosine/Step)</td><td>3–8%</td><td>Nearly always; standard practice in modern DL</td></tr>
+  <tr><td><strong>2 (High impact)</strong></td><td>Early stopping</td><td>2–6%</td><td>Prevents overfitting; saves compute</td></tr>
+  <tr><td><strong>3 (Medium)</strong></td><td>Dropout</td><td>1–4%</td><td>When validation loss plateaus while train loss still decreases (overfitting)</td></tr>
+  <tr><td><strong>3 (Medium)</strong></td><td>L2 regularization (weight decay)</td><td>1–3%</td><td>When model is overfit; start with 1e-5</td></tr>
+  <tr><td><strong>3 (Medium)</strong></td><td>Data augmentation (images)</td><td>2–5%</td><td>Limited data; image classification</td></tr>
+  <tr><td><strong>4 (Tuning)</strong></td><td>Gradient clipping</td><td>Stability</td><td>RNNs, LSTMs; models showing NaN loss</td></tr>
+  <tr><td><strong>4 (Tuning)</strong></td><td>Ensemble methods</td><td>2–4%</td><td>When accuracy matters more than speed (competitions)</td></tr>
+  <tr><td><strong>4 (Tuning)</strong></td><td>Mixup / advanced augmentation</td><td>1–3%</td><td>After basics are dialed in; for final accuracy squeeze</td></tr>
+</table>
+
+<h3>Typical workflow</h3>
+
+<pre><code>1. Baseline (Feature scaling + train/val/test split)
+   ↓
+2. Add Batch Norm + Learning rate scheduler
+   ↓
+3. Train and observe:
+   - If train loss decreases but val loss plateaus → add Dropout
+   - If loss is unstable/diverges → add Gradient clipping or lower LR
+   - If model is slow to converge → check LR schedule or increase batch norm
+   ↓
+4. If overfitting persists → add L2 regularization
+   ↓
+5. If data limited → add Data augmentation (images) or Mixup
+   ↓
+6. Final push → try Ensemble, Mixup, or tuning individual hyperparams with Optuna</code></pre>
+
+<div class="example">
+<strong>Real scenario:</strong> training a CNN on 5000 images.
+<pre><code>Step 1: Add BatchNorm after each conv layer
+Result: Training time halves, accuracy +4%
+
+Step 2: Add learning rate schedule (Cosine)
+Result: Accuracy +2%
+
+Step 3: Observe train loss → 0.01, val loss → 0.15 (overfitting!)
+Solution: Add Dropout(0.3) after each layer
+Result: Val accuracy +1.5%
+
+Step 4: Still overfitting, add L2 (weight_decay=1e-5)
+Result: Val accuracy +0.8%
+
+Step 5: Limited data, add augmentation (flips, rotations, crops)
+Result: Val accuracy +2%
+
+Total improvement: ~10% from baseline!</code></pre>
+</div>
+
+<h2>5A.8 Summary table — common hyperparameters and ranges</h2>
+
+<table>
+  <tr><th>Hyperparameter</th><th>Typical Range</th><th>Impact</th><th>Tuning difficulty</th></tr>
+  <tr><td><strong>Learning Rate</strong></td><td>1e-4 to 1e-1</td><td>Critical</td><td>Easy (try 10 values)</td></tr>
+  <tr><td><strong>Batch Size</strong></td><td>16, 32, 64, 128, 256</td><td>High</td><td>Medium (trade-off: memory vs. gradient noise)</td></tr>
+  <tr><td><strong>Dropout Rate</strong></td><td>0.1 to 0.5</td><td>Medium</td><td>Easy</td></tr>
+  <tr><td><strong>L2 Weight Decay</strong></td><td>1e-5 to 1e-2</td><td>Low-medium</td><td>Easy</td></tr>
+  <tr><td><strong>LR Schedule gamma</strong></td><td>0.1 to 0.9</td><td>Low</td><td>Easy (not sensitive)</td></tr>
+  <tr><td><strong>Patience (early stopping)</strong></td><td>5 to 20</td><td>Low</td><td>Easy (depends on dataset)</td></tr>
+  <tr><td><strong>Model width (hidden units)</strong></td><td>depends on data</td><td>High</td><td>Hard (exponential combos)</td></tr>
+  <tr><td><strong>Model depth (layers)</strong></td><td>3 to 100+</td><td>High</td><td>Hard</td></tr>
+</table>
+
+<div class="tip">
+<strong>Golden rule:</strong> always baseline with the simplest reasonable setup first (no fancy techniques), then add complexity incrementally and measure the effect of each addition. Most gain comes from the first 3–4 techniques; diminishing returns after that.
+</div>
+
+</div>
+
+<!-- ============================================================
+     PAGE BREAK AND SECTION 2
+     ============================================================ -->
+
+<div class="page-break"></div>
+
+<!-- ============================================================
+     PART 5B — HYPERPARAMETER OPTIMIZATION WITH OPTUNA
+     ============================================================ -->
+
+<h1>Part 5B — Hyperparameter Optimization with Optuna</h1>
+
+<p><strong>Goal:</strong> manually trying different hyperparameters is tedious, slow, and often suboptimal. <strong>Optuna</strong> is a Bayesian optimization framework that <em>automatically</em> searches for the best hyperparameters, learning from each trial to make informed decisions about which parameters to try next. This section covers the full pipeline: from setup, through objective functions, to multi-trial studies and analysis.</p>
+
+<div class="toc">
+  <h3>Contents</h3>
+  <ul>
+    <li>5B.1 — What is Optuna and why use it?</li>
+    <li>5B.2 — Installation and basic concepts</li>
+    <li>5B.3 — Building an objective function for a neural network</li>
+    <li>5B.4 — Running a study and collecting trials</li>
+    <li>5B.5 — Pruning: early stopping of poor trials</li>
+    <li>5B.6 — Analyzing results and visualizing the search</li>
+    <li>5B.7 — Advanced: custom samplers and constraints</li>
+    <li>5B.8 — Complete end-to-end example with cancer classifier</li>
+  </ul>
+</div>
+
+<h2>5B.1 What is Optuna and why use it?</h2>
+
+<h3>The problem with manual tuning</h3>
+
+<pre><code># Manual approach: try learning rates one by one
+best_acc = 0
+for lr in [1e-4, 5e-4, 1e-3, 5e-3, 1e-2]:
+    for batch_size in [16, 32, 64, 128]:
+        for dropout in [0.0, 0.2, 0.5]:
+            # train model
+            if accuracy > best_acc:
+                best_acc = accuracy
+                best_params = {'lr': lr, 'batch_size': batch_size, 'dropout': dropout}
+
+# This is 5 × 4 × 3 = 60 combinations
+# With 20 epochs per training run: 60 × 20 = 1200 epochs of compute
+# No guarantee we pick the right hyperparams!
+</code></pre>
+
+<p><strong>Problems:</strong></p>
+<ul>
+  <li>Grid search (trying all combos) is exponentially expensive</li>
+  <li>Random search is better but still wasteful — doesn't learn from results</li>
+  <li>Manual tuning is slow and subject to human bias</li>
+</ul>
+
+<h3>Optuna's approach: Bayesian Optimization</h3>
+
+<p><strong>Optuna uses a probabilistic model (TPE — Tree-structured Parzen Estimator by default) to build a mental map of which hyperparameters work well.** After each trial (training run), it updates this model and uses it to <em>intelligently</em> propose the next set of hyperparameters to try — focusing on promising regions of the search space.</p>
+
+<div class="ascii">
+Manual Grid Search:        Optuna (Bayesian Opt):
+●  ●  ●                   ●  ✓  ✓
+●  ●  ●                   ✓  ✗  ✓
+●  ●  ●                   ✓  ✗  ✗
+(try all 9)               (try ~5, focus on good ones)</div>
+
+<p><strong>Result:</strong> Optuna typically finds comparable or better hyperparameters in ~20–40% of the time manual grid search would take.</p>
+
+<h2>5B.2 Installation and basic concepts</h2>
+
+<pre><code>pip install optuna optuna[visualization]</code></pre>
+
+<h3>Core concepts</h3>
+
+<table>
+  <tr><th>Term</th><th>Meaning</th><th>Analogy</th></tr>
+  <tr><td><strong>Trial</strong></td><td>One training run with a specific set of hyperparameters</td><td>One experiment</td></tr>
+  <tr><td><strong>Study</strong></td><td>A series of trials, all optimizing the same objective</td><td>A research project with many experiments</td></tr>
+  <tr><td><strong>Objective function</strong></td><td>The function Optuna calls for each trial; returns a score (e.g., validation accuracy)</td><td>Your experiment protocol</td></tr>
+  <tr><td><strong>Sampler</strong></td><td>Algorithm that proposes hyperparameters (TPE is default; also RandomSampler, GridSampler)</td><td>Strategy for choosing what to test</td></tr>
+  <tr><td><strong>Pruner</strong></td><td>Stops unpromising trials early to save compute</td><td>Giving up on a bad experiment mid-way</td></tr>
+</table>
+
+<h3>Minimal example</h3>
+
+<pre><code>import optuna
+
+def objective(trial):
+    """The function Optuna calls for each trial."""
+    # Suggest hyperparameters
+    lr = trial.suggest_float('lr', 1e-5, 1e-1, log=True)
+    batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
+    dropout = trial.suggest_float('dropout', 0.0, 0.5)
+    
+    # Train model with these hyperparameters
+    model = MyModel(dropout=dropout)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    
+    for epoch in range(10):
+        for batch_data, batch_labels in DataLoader(dataset, batch_size=batch_size):
+            y_pred = model(batch_data)
+            loss = loss_fn(y_pred, batch_labels)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+    
+    # Evaluate and return validation accuracy (what Optuna optimizes)
+    val_accuracy = evaluate(model, val_dataset)
+    return val_accuracy
+
+# Create a study and optimize
+study = optuna.create_study(direction='maximize')  # maximize accuracy
+study.optimize(objective, n_trials=50)             # run 50 trials
+
+# Get the best trial
+best_trial = study.best_trial
+print(f"Best accuracy: {best_trial.value}")
+print(f"Best hyperparameters: {best_trial.params}")</code></pre>
+
+<div class="example">
+<strong>Output:</strong>
+<pre><code>Best accuracy: 0.9247
+Best hyperparameters: {'lr': 0.003421, 'batch_size': 32, 'dropout': 0.124}</code></pre>
+</div>
+
+<p><strong>That's it!</strong> Optuna handled the search strategy; you just defined what to optimize.</p>
+
+<h2>5B.3 Building a robust objective function</h2>
+
+<p>The objective function is the heart of Optuna. Let's build a production-quality one for the cancer classifier.</p>
+
+<pre><code>import optuna
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
+def objective(trial):
+    """Objective function for cancer classifier hyperparameter search."""
+    
+    # ════════════════════════════════════════════════════════════════
+    # STEP 1: Suggest hyperparameters
+    # ════════════════════════════════════════════════════════════════
+    
+    lr = trial.suggest_float('lr', 1e-5, 1e-1, log=True)
+    batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
+    dropout_rate = trial.suggest_float('dropout', 0.0, 0.5, step=0.1)
+    weight_decay = trial.suggest_float('weight_decay', 1e-6, 1e-2, log=True)
+    
+    # Model architecture hyperparameters
+    hidden1 = trial.suggest_int('hidden1', 32, 256, step=32)
+    hidden2 = trial.suggest_int('hidden2', 16, 128, step=16)
+    
+    # ════════════════════════════════════════════════════════════════
+    # STEP 2: Build model
+    # ════════════════════════════════════════════════════════════════
+    
+    class CancerClassifier(nn.Module):
+        def __init__(self, input_size, hidden1, hidden2, dropout_rate):
+            super().__init__()
+            self.linear1 = nn.Linear(input_size, hidden1)
+            self.bn1 = nn.BatchNorm1d(hidden1)
+            self.relu1 = nn.ReLU()
+            self.dropout1 = nn.Dropout(p=dropout_rate)
+            
+            self.linear2 = nn.Linear(hidden1, hidden2)
+            self.bn2 = nn.BatchNorm1d(hidden2)
+            self.relu2 = nn.ReLU()
+            self.dropout2 = nn.Dropout(p=dropout_rate)
+            
+            self.linear3 = nn.Linear(hidden2, 1)
+            self.sigmoid = nn.Sigmoid()
+        
+        def forward(self, x):
+            x = self.linear1(x)
+            x = self.bn1(x)
+            x = self.relu1(x)
+            x = self.dropout1(x)
+            
+            x = self.linear2(x)
+            x = self.bn2(x)
+            x = self.relu2(x)
+            x = self.dropout2(x)
+            
+            x = self.linear3(x)
+            x = self.sigmoid(x)
+            return x
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = CancerClassifier(
+        input_size=X_train_tensor.shape[1],
+        hidden1=hidden1,
+        hidden2=hidden2,
+        dropout_rate=dropout_rate
+    ).to(device)
+    
+    # ════════════════════════════════════════════════════════════════
+    # STEP 3: Setup training
+    # ════════════════════════════════════════════════════════════════
+    
+    optimizer = torch.optim.Adam(
+        model.parameters(),
+        lr=lr,
+        weight_decay=weight_decay
+    )
+    
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=50,
+        eta_min=1e-6
+    )
+    
+    loss_fn = nn.BCELoss()
+    
+    train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    
+    val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    
+    # ════════════════════════════════════════════════════════════════
+    # STEP 4: Train for a few epochs
+    # ════════════════════════════════════════════════════════════════
+    
+    best_val_accuracy = 0.0
+    patience = 5
+    patience_counter = 0
+    
+    for epoch in range(50):
+        # Training
+        model.train()
+        for batch_features, batch_labels in train_loader:
+            batch_features = batch_features.to(device)
+            batch_labels = batch_labels.to(device).view(-1, 1)
+            
+            y_pred = model(batch_features)
+            loss = loss_fn(y_pred, batch_labels)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+        
+        scheduler.step()
+        
+        # Validation
+        model.eval()
+        val_correct = 0
+        val_total = 0
+        with torch.no_grad():
+            for batch_features, batch_labels in val_loader:
+                batch_features = batch_features.to(device)
+                batch_labels = batch_labels.to(device)
+                
+                y_pred = model(batch_features)
+                y_pred_binary = (y_pred > 0.5).float()
+                
+                val_correct += (y_pred_binary.squeeze() == batch_labels).sum().item()
+                val_total += batch_labels.size(0)
+        
+        val_accuracy = val_correct / val_total
+        
+        # ════════════════════════════════════════════════════════════════
+        # STEP 5: Prune (optional but recommended)
+        # ════════════════════════════════════════════════════════════════
+        
+        trial.report(val_accuracy, epoch)
+        if trial.should_prune():
+            print(f"Trial {trial.number} pruned at epoch {epoch}")
+            raise optuna.TrialPruned()
+        
+        # Early stopping
+        if val_accuracy > best_val_accuracy:
+            best_val_accuracy = val_accuracy
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                break
+    
+    return best_val_accuracy
+
+if __name__ == '__main__':
+    study = optuna.create_study(direction='maximize')
+    study.optimize(objective, n_trials=50)
+    
+    print(f"\nBest trial: {study.best_trial.number}")
+    print(f"Best accuracy: {study.best_trial.value:.4f}")
+    print(f"Best hyperparameters:\n{study.best_trial.params}")</code></pre>
+
+<table class="linebyline">
+  <tr><th>Line</th><th>Explanation</th></tr>
+  <tr><td>trial.suggest_float('lr', 1e-5, 1e-1, log=True)</td><td>Suggest a learning rate between 1e-5 and 1e-1, on log scale (so 1e-3 is as likely as 1e-4, reflecting equal multiplicative distance).</td></tr>
+  <tr><td>trial.suggest_categorical('batch_size', [16, 32, 64, 128])</td><td>Choose from a discrete list of options.</td></tr>
+  <tr><td>trial.suggest_int('hidden1', 32, 256, step=32)</td><td>Suggest an integer between 32 and 256, in steps of 32 (32, 64, 96, ...).</td></tr>
+  <tr><td>trial.report(val_accuracy, epoch)</td><td>Report intermediate values during training (used by pruner to decide early stopping).</td></tr>
+  <tr><td>trial.should_prune()</td><td>Check if Optuna thinks this trial is unpromising and should be stopped.</td></tr>
+  <tr><td>raise optuna.TrialPruned()</td><td>Stop this trial early.</td></tr>
+  <tr><td>study.optimize(objective, n_trials=50)</td><td>Run 50 trials of the objective function, letting Optuna choose hyperparams.</td></tr>
+</table>
+
+<div class="tip">
+<strong>Key design patterns in the objective function:</strong>
+<ul>
+  <li><strong>Always use validation loss/accuracy, never test.</strong> Test should only be seen once, at the very end.</li>
+  <li><strong>Report intermediate values</strong> so pruning can work effectively.</li>
+  <li><strong>Include early stopping</strong> to save compute within each trial.</li>
+  <li><strong>Set reasonable hyperparameter ranges</strong> based on domain knowledge (e.g., learning rate 1e-5 to 1e-1, not 1e-10 to 1e10).</li>
+  <li><strong>Use log scale</strong> for continuous hyperparams spanning multiple orders of magnitude (learning rate, weight decay).</li>
+</ul>
+</div>
+
+<h2>5B.4 Running a study: creating, optimizing, and inspecting</h2>
+
+<h3>Create a study</h3>
+
+<pre><code">import optuna
+
+# Maximize validation accuracy
+study = optuna.create_study(
+    direction='maximize',           # or 'minimize' for loss
+    sampler=optuna.samplers.TPESampler(),  # default; alternatives: RandomSampler, GridSampler
+    pruner=optuna.pruners.MedianPruner(),   # prune trials worse than median
+)
+
+# Run optimization
+study.optimize(
+    objective,
+    n_trials=100,                   # run 100 trials
+    show_progress_bar=True,
+    callbacks=[optuna.logging.set_verbosity(optuna.logging.WARNING)]
+)</code></pre>
+
+<h3>Inspect results</h3>
+
+<pre><code"># Get the best trial
+best_trial = study.best_trial
+print(f"Number of finished trials: {len(study.trials)}")
+print(f"Number of pruned trials: {len([t for t in study.trials if t.state == optuna.TrialState.PRUNED])}")
+print(f"\nBest trial:")
+print(f"  Value (accuracy): {best_trial.value:.4f}")
+print(f"  Hyperparameters:")
+for key, value in best_trial.params.items():
+    print(f"    {key}: {value}")
+
+# Get top N trials
+top_3 = sorted(study.trials, key=lambda t: t.value, reverse=True)[:3]
+print(f"\nTop 3 trials:")
+for i, trial in enumerate(top_3):
+    print(f"  Trial {trial.number}: accuracy={trial.value:.4f}")
+
+# Dataframe of all trials (useful for analysis)
+df = study.trials_dataframe()
+print(df[['number', 'value', 'state']].head(10))</code></pre>
+
+<p><strong>Output example:</strong></p>
+<pre><code>Number of finished trials: 87
+Number of pruned trials: 13
+
+Best trial:
+  Value (accuracy): 0.9512
+  Hyperparameters:
+    lr: 0.002847
+    batch_size: 32
+    dropout: 0.2
+    weight_decay: 1.2e-05
+    hidden1: 128
+    hidden2: 64
+
+Top 3 trials:
+  Trial 42: accuracy=0.9512
+  Trial 67: accuracy=0.9489
+  Trial 15: accuracy=0.9471</code></pre>
+
+<h3>Persist studies across sessions</h3>
+
+<pre><code"># Save study to disk (SQLite database)
+study.optimize(objective, n_trials=50)
+study.trials_dataframe().to_csv('optuna_trials.csv')
+
+# Or save the study object itself
+import pickle
+with open('study.pkl', 'wb') as f:
+    pickle.dump(study, f)
+
+# Later, load and continue optimization
+with open('study.pkl', 'rb') as f:
+    study = pickle.load(f)
+study.optimize(objective, n_trials=50)  # run 50 more trials</code></pre>
+
+<h2>5B.5 Pruning: early stopping of poor trials</h2>
+
+<p><strong>Motivation:</strong> some hyperparameter combinations are clearly bad by epoch 5–10. Why waste compute running them to epoch 50? <strong>Pruning</strong> automatically stops unpromising trials early, saving massive compute.</p>
+
+<h3>How pruning works</h3>
+
+<pre><code">def objective(trial):
+    # ... setup ...
+    
+    for epoch in range(50):
+        # ... training ...
+        val_accuracy = evaluate()
+        
+        # Report intermediate value
+        trial.report(val_accuracy, epoch)
+        
+        # Optuna checks: is this trial hopeless compared to others at this epoch?
+        if trial.should_prune():
+            raise optuna.TrialPruned()  # stop this trial
+    
+    return best_val_accuracy
+
+# Create study WITH a pruner
+study = optuna.create_study(
+    direction='maximize',
+    pruner=optuna.pruners.MedianPruner(n_warmup_steps=5)  # warm up for 5 epochs
+)
+study.optimize(objective, n_trials=100)</code></pre>
+
+<p><strong>What MedianPruner does:</strong></p>
+<ul>
+  <li>After a warmup period, it watches trials' validation accuracy at each epoch.</li>
+  <li>If a trial's accuracy is worse than the <em>median</em> of all trials at that epoch, it's pruned (stopped).</li>
+  <li>This aggressively cuts bad trials but keeps promising ones running.</li>
+</ul>
+
+<div class="example">
+<strong>Example: 5 trials, epoch 10</strong>
+<pre><code>Trial 0: val_acc = 0.85 ← below median, pruned
+Trial 1: val_acc = 0.90 ← at median, keep going
+Trial 2: val_acc = 0.92 ← above median, keep going
+Trial 3: val_acc = 0.88 ← below median, pruned
+Trial 4: val_acc = 0.93 ← above median, keep going
+
+Median = 0.90
+Result: 2 trials pruned early, 3 continue to epoch 50</code></pre>
+</div>
+
+<p><strong>Types of pruners:</strong></p>
+<table>
+  <tr><th>Pruner</th><th>Strategy</th><th>When to use</th></tr>
+  <tr><td><code>MedianPruner</code></td><td>Prune if worse than median at epoch</td><td>Default; works well most cases</td></tr>
+  <tr><td><code>SuccessiveHalvingPruner</code></td><td>Aggressively prune worst half, run winners longer</td><td>Very large search spaces</td></tr>
+  <tr><td><code>HyperbandPruner</code></td><td>Adaptively adjust pruning as trials progress</td><td>Complex objectives</td></tr>
+  <tr><td><code>NopPruner</code></td><td>Never prune (for debugging)</td><td>Testing / small searches</td></tr>
+</table>
+
+<div class="tip">
+<strong>Pruning best practices:</strong>
+<ul>
+  <li>Set <code>n_warmup_steps</code> high enough that early trials have time to show their potential (typically 5–10 epochs)</li>
+  <li>Always report values regularly (every epoch)</li>
+  <li>Pruning can be disabled if the objective is very fast (< few seconds per trial)</li>
+  <li>Combine with early stopping inside each trial for maximum efficiency</li>
+</ul>
+</div>
+
+<h2>5B.6 Analyzing results and visualizing the search</h2>
+
+<h3>Visualization functions</h3>
+
+<pre><code">import optuna.visualization as vis
+
+# Optimization history: how the best value improves over trials
+vis.plot_optimization_history(study).show()
+
+# Parameter importance: which hyperparameters matter most?
+vis.plot_param_importances(study).show()
+
+# Parallel coordinates: see how different params relate to accuracy
+vis.plot_parallel_coordinate(study).show()
+
+# Slice plot: 1D view of each hyperparameter's effect
+vis.plot_slice(study).show()
+
+# EDF (empirical distribution function): cumulative distribution of trial values
+vis.plot_edf(study).show()</code></pre>
+
+<h3>Custom analysis</h3>
+
+<pre><code">import pandas as pd
+import matplotlib.pyplot as plt
+
+# Get trials as DataFrame
+df = study.trials_dataframe()
+
+# Plot: learning rate vs. accuracy
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.scatter(df['params_lr'], df['value'], alpha=0.6)
+ax.set_xlabel('Learning Rate')
+ax.set_ylabel('Validation Accuracy')
+ax.set_xscale('log')
+ax.set_title('Learning Rate vs. Accuracy')
+plt.show()
+
+# Plot: batch size vs. accuracy (with different colors for trial state)
+colors = {'COMPLETE': 'blue', 'PRUNED': 'red', 'FAIL': 'black'}
+for state in df['state'].unique():
+    subset = df[df['state'] == state]
+    ax.scatter(subset['params_batch_size'], subset['value'], 
+               label=state, color=colors.get(state, 'gray'), alpha=0.6)
+ax.legend()
+ax.set_xlabel('Batch Size')
+ax.set_ylabel('Validation Accuracy')
+plt.show()
+
+# Summary statistics
+print(df.groupby('state')['value'].describe())</code></pre>
+
+<h2>5B.7 Advanced: custom samplers and constraints</h2>
+
+<h3>Using different samplers</h3>
+
+<pre><code">import optuna
+
+# Grid Sampler: exhaustive search over specified grid
+study = optuna.create_study(
+    sampler=optuna.samplers.GridSampler({
+        'lr': [1e-4, 1e-3, 1e-2],
+        'batch_size': [32, 64, 128],
+    })
+)
+study.optimize(objective, n_trials=9)  # exactly 3×3 = 9 combinations
+
+# Random Sampler: random search (no learning)
+study = optuna.create_study(
+    sampler=optuna.samplers.RandomSampler(seed=42)
+)
+
+# TPE Sampler (default): Bayesian optimization
+study = optuna.create_study(
+    sampler=optuna.samplers.TPESampler(
+        n_startup_trials=10,          # random trials before learning starts
+        n_ei_candidates=24,           # parallelism (advanced)
+    )
+)</code></pre>
+
+<h3>Custom distributions and constraints</h3>
+
+<pre><code">def objective(trial):
+    # Suggest parameters with custom distributions
+    
+    # Suggestion: lr should depend on batch_size (constraint)
+    batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
+    
+    if batch_size >= 64:
+        lr = trial.suggest_float('lr', 1e-3, 1e-1, log=True)  # larger LR for large batches
+    else:
+        lr = trial.suggest_float('lr', 1e-5, 1e-2, log=True)  # smaller LR for small batches
+    
+    # Constraint: hidden2 should be smaller than hidden1
+    hidden1 = trial.suggest_int('hidden1', 64, 256, step=32)
+    hidden2 = trial.suggest_int('hidden2', 16, hidden1-1, step=16)  # max is hidden1-1
+    
+    # Constraint: if using high dropout, use strong L2
+    dropout = trial.suggest_float('dropout', 0.0, 0.5)
+    if dropout > 0.3:
+        weight_decay = trial.suggest_float('weight_decay', 1e-4, 1e-2, log=True)
+    else:
+        weight_decay = trial.suggest_float('weight_decay', 1e-6, 1e-4, log=True)
+    
+    # ... train and return accuracy ...
+    return val_accuracy</code></pre>
+
+<p><strong>Why constraints matter:</strong> sometimes hyperparameter combinations are nonsensical or inefficient. Encoding constraints reduces wasted trials and guides the search toward promising regions.</p>
+
+<h2>5B.8 Complete end-to-end example: cancer classifier</h2>
+
+<p>Here is a complete, runnable example applying Optuna to the cancer classification task from Part 3.</p>
+
+<pre><code">#!/usr/bin/env python3
+"""
+Complete end-to-end cancer classifier hyperparameter optimization with Optuna.
+"""
+
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import optuna
+from optuna.pruners import MedianPruner
+from optuna.samplers import TPESampler
+
+# ════════════════════════════════════════════════════════════════
+# DATA LOADING AND PREPROCESSING
+# ════════════════════════════════════════════════════════════════
+
+# Load data
+df = pd.read_csv('https://raw.githubusercontent.com/uciml/breast-cancer-wisconsin/master/data.csv')
+df.drop(columns=['id', 'Unnamed: 32'], inplace=True)
+
+# Split
+X_train, X_test, y_train, y_test = train_test_split(
+    df.iloc[:, 1:], df.iloc[:, 0], test_size=0.2, random_state=42
+)
+
+# Further split training into train/val
+X_train, X_val, y_train, y_val = train_test_split(
+    X_train, y_train, test_size=0.2, random_state=42
+)
+
+# Scale
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_val = scaler.transform(X_val)
+X_test = scaler.transform(X_test)
+
+# Encode labels
+encoder = LabelEncoder()
+y_train = encoder.fit_transform(y_train)
+y_val = encoder.transform(y_val)
+y_test = encoder.transform(y_test)
+
+# Convert to tensors
+X_train_tensor = torch.from_numpy(X_train.astype(np.float32))
+X_val_tensor = torch.from_numpy(X_val.astype(np.float32))
+X_test_tensor = torch.from_numpy(X_test.astype(np.float32))
+
+y_train_tensor = torch.from_numpy(y_train.astype(np.float32))
+y_val_tensor = torch.from_numpy(y_val.astype(np.float32))
+y_test_tensor = torch.from_numpy(y_test.astype(np.float32))
+
+# ════════════════════════════════════════════════════════════════
+# MODEL CLASS
+# ════════════════════════════════════════════════════════════════
+
+class CancerClassifier(nn.Module):
+    def __init__(self, input_size, hidden1, hidden2, dropout_rate):
+        super().__init__()
+        self.linear1 = nn.Linear(input_size, hidden1)
+        self.bn1 = nn.BatchNorm1d(hidden1)
+        self.relu1 = nn.ReLU()
+        self.dropout1 = nn.Dropout(p=dropout_rate)
+        
+        self.linear2 = nn.Linear(hidden1, hidden2)
+        self.bn2 = nn.BatchNorm1d(hidden2)
+        self.relu2 = nn.ReLU()
+        self.dropout2 = nn.Dropout(p=dropout_rate)
+        
+        self.linear3 = nn.Linear(hidden2, 1)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.linear1(x)
+        x = self.bn1(x)
+        x = self.relu1(x)
+        x = self.dropout1(x)
+        
+        x = self.linear2(x)
+        x = self.bn2(x)
+        x = self.relu2(x)
+        x = self.dropout2(x)
+        
+        x = self.linear3(x)
+        x = self.sigmoid(x)
+        return x
+
+# ════════════════════════════════════════════════════════════════
+# OBJECTIVE FUNCTION
+# ════════════════════════════════════════════════════════════════
+
+def objective(trial):
+    # Suggest hyperparameters
+    lr = trial.suggest_float('lr', 1e-5, 1e-1, log=True)
+    batch_size = trial.suggest_categorical('batch_size', [16, 32, 64, 128])
+    dropout_rate = trial.suggest_float('dropout', 0.0, 0.5, step=0.1)
+    weight_decay = trial.suggest_float('weight_decay', 1e-6, 1e-2, log=True)
+    hidden1 = trial.suggest_int('hidden1', 32, 256, step=32)
+    hidden2 = trial.suggest_int('hidden2', 16, min(128, hidden1-1), step=16)
+    
+    # Device
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    # Create model
+    model = CancerClassifier(
+        input_size=X_train_tensor.shape[1],
+        hidden1=hidden1,
+        hidden2=hidden2,
+        dropout_rate=dropout_rate
+    ).to(device)
+    
+    # Optimizer and scheduler
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50, eta_min=1e-6)
+    loss_fn = nn.BCELoss()
+    
+    # Data loaders
+    train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    
+    val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    
+    # Training loop
+    best_val_accuracy = 0.0
+    patience = 5
+    patience_counter = 0
+    
+    for epoch in range(50):
+        # Train
+        model.train()
+        for batch_features, batch_labels in train_loader:
+            batch_features = batch_features.to(device)
+            batch_labels = batch_labels.to(device).view(-1, 1)
+            
+            y_pred = model(batch_features)
+            loss = loss_fn(y_pred, batch_labels)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+        
+        scheduler.step()
+        
+        # Validate
+        model.eval()
+        val_correct = 0
+        val_total = 0
+        with torch.no_grad():
+            for batch_features, batch_labels in val_loader:
+                batch_features = batch_features.to(device)
+                batch_labels = batch_labels.to(device)
+                
+                y_pred = model(batch_features)
+                y_pred_binary = (y_pred > 0.5).float()
+                
+                val_correct += (y_pred_binary.squeeze() == batch_labels).sum().item()
+                val_total += batch_labels.size(0)
+        
+        val_accuracy = val_correct / val_total
+        
+        # Report for pruning
+        trial.report(val_accuracy, epoch)
+        if trial.should_prune():
+            raise optuna.TrialPruned()
+        
+        # Early stopping
+        if val_accuracy > best_val_accuracy:
+            best_val_accuracy = val_accuracy
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                break
+    
+    return best_val_accuracy
+
+# ════════════════════════════════════════════════════════════════
+# RUN OPTIMIZATION
+# ════════════════════════════════════════════════════════════════
+
+if __name__ == '__main__':
+    # Create study
+    sampler = TPESampler(n_startup_trials=10, seed=42)
+    pruner = MedianPruner(n_warmup_steps=5)
+    
+    study = optuna.create_study(
+        direction='maximize',
+        sampler=sampler,
+        pruner=pruner
+    )
+    
+    # Optimize
+    print("Starting hyperparameter optimization...")
+    study.optimize(objective, n_trials=100, show_progress_bar=True)
+    
+    # Print results
+    print("\n" + "="*60)
+    print("OPTIMIZATION COMPLETE")
+    print("="*60)
+    
+    best_trial = study.best_trial
+    print(f"\nBest Trial: #{best_trial.number}")
+    print(f"Best Validation Accuracy: {best_trial.value:.4f}")
+    print(f"\nBest Hyperparameters:")
+    for key, value in best_trial.params.items():
+        if isinstance(value, float):
+            print(f"  {key}: {value:.6f}")
+        else:
+            print(f"  {key}: {value}")
+    
+    # Summary
+    df_trials = study.trials_dataframe()
+    print(f"\nTrials Summary:")
+    print(f"  Total trials: {len(study.trials)}")
+    print(f"  Completed: {len([t for t in study.trials if t.state == optuna.TrialState.COMPLETE])}")
+    print(f"  Pruned: {len([t for t in study.trials if t.state == optuna.TrialState.PRUNED])}")
+    print(f"  Failed: {len([t for t in study.trials if t.state == optuna.TrialState.FAIL])}")
+    
+    # Visualizations (if optuna[visualization] is installed)
+    try:
+        import optuna.visualization as vis
+        
+        # Plot optimization history
+        fig = vis.plot_optimization_history(study).show()
+        fig = vis.plot_param_importances(study).show()
+        
+    except:
+        print("\nTo see visualizations, install: pip install optuna[visualization]")
+    
+    # ════════════════════════════════════════════════════════════════
+    # FINAL EVALUATION ON TEST SET
+    # ════════════════════════════════════════════════════════════════
+    
+    print("\n" + "="*60)
+    print("FINAL EVALUATION")
+    print("="*60)
+    
+    # Train final model with best hyperparameters
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    best_params = best_trial.params
+    
+    final_model = CancerClassifier(
+        input_size=X_train_tensor.shape[1],
+        hidden1=int(best_params['hidden1']),
+        hidden2=int(best_params['hidden2']),
+        dropout_rate=best_params['dropout']
+    ).to(device)
+    
+    optimizer = torch.optim.Adam(
+        final_model.parameters(),
+        lr=best_params['lr'],
+        weight_decay=best_params['weight_decay']
+    )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100, eta_min=1e-6)
+    loss_fn = nn.BCELoss()
+    
+    # Train on train+val combined
+    X_combined = torch.cat([X_train_tensor, X_val_tensor])
+    y_combined = torch.cat([y_train_tensor, y_val_tensor])
+    
+    train_dataset = TensorDataset(X_combined, y_combined)
+    train_loader = DataLoader(train_dataset, batch_size=int(best_params['batch_size']), shuffle=True)
+    
+    print(f"\nTraining final model with best hyperparameters...")
+    for epoch in range(100):
+        final_model.train()
+        for batch_features, batch_labels in train_loader:
+            batch_features = batch_features.to(device)
+            batch_labels = batch_labels.to(device).view(-1, 1)
+            
+            y_pred = final_model(batch_features)
+            loss = loss_fn(y_pred, batch_labels)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        
+        scheduler.step()
+    
+    # Evaluate on test set
+    final_model.eval()
+    with torch.no_grad():
+        X_test_device = X_test_tensor.to(device)
+        y_test_device = y_test_tensor.to(device)
+        
+        y_pred = final_model(X_test_device)
+        y_pred_binary = (y_pred > 0.5).float()
+        
+        test_accuracy = (y_pred_binary.squeeze() == y_test_device).float().mean().item()
+    
+    print(f"\nTest Set Accuracy: {test_accuracy:.4f}")
+    print("="*60)</code></pre>
+
+<h2>5B.9 Summary: Optuna best practices</h2>
+
+<table>
+  <tr><th>Aspect</th><th>Best practice</th></tr>
+  <tr><td><strong>Hyperparameter ranges</strong></td><td>Use domain knowledge to set reasonable bounds; log scale for parameters spanning orders of magnitude (lr, weight_decay)</td></tr>
+  <tr><td><strong>Objective function</strong></td><td>Validate on validation set, never on test. Report intermediate values. Include early stopping. Handle edge cases (NaN, inf)</td></tr>
+  <tr><td><strong>Number of trials</strong></td><td>Start with ~50–100; more for large search spaces or complex objectives. Check convergence via optimization history</td></tr>
+  <tr><td><strong>Pruning</strong></td><td>Use MedianPruner or SuccessiveHalvingPruner. Set warmup steps to 5–10% of total epochs</td></tr>
+  <tr><td><strong>Sampler</strong></td><td>Default TPESampler works well. Use GridSampler only when you know the exact grid. RandomSampler for baseline</td></tr>
+  <tr><td><strong>Reproducibility</strong></td><td>Set random seeds (torch, numpy, optuna) and device consistently</td></tr>
+  <tr><td><strong>Visualization</strong></td><td>Plot optimization history, parameter importance, and slice plots to understand the search</td></tr>
+  <tr><td><strong>Final evaluation</strong></td><td>Retrain best model on train+val combined, evaluate once on held-out test set</td></tr>
+</table>
+
+<div class="tip">
+<strong>When to use Optuna:</strong>
+<ul>
+  <li>✓ When you have a well-defined training pipeline and want to find good hyperparameters</li>
+  <li>✓ When you have compute budget and want to spend it efficiently</li>
+  <li>✓ When you want to understand which hyperparameters matter most (importances)</li>
+  <li>✗ When your objective function is very fast (< few seconds) — overhead of Optuna may not be worth it</li>
+  <li>✗ When you only have a few hyperparameters to tune — manual search may be faster</li>
+</ul>
+</div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- =================== PART 6 =================== -->
+<h1 class="page-break">Part 6 — Capstone: Full Pipeline with DataLoader</h1>
+<p>Everything combined — the cancer classifier refactored to train in mini-batches. This is the structure used in virtually all real PyTorch code.</p>
+
+<pre><code>import numpy as np, pandas as pd, torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+# ---------- 1. DATA PREP ----------
+df = pd.read_csv('.../data.csv')
+df.drop(columns=['id', 'Unnamed: 32'], inplace=True)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    df.iloc[:, 1:], df.iloc[:, 0], test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)   # fit on train only (no leakage)
+X_test  = scaler.transform(X_test)
+
+encoder = LabelEncoder()
+y_train = encoder.fit_transform(y_train)
+y_test  = encoder.transform(y_test)
+
+# ---------- 2. DATASET & DATALOADER ----------
+class CancerDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = torch.from_numpy(X.astype(np.float32))          # features → float32
+        self.y = torch.from_numpy(y.astype(np.float32)).view(-1, 1)  # labels → (N,1)
+    def __len__(self):
+        return self.X.shape[0]
+    def __getitem__(self, i):
+        return self.X[i], self.y[i]
+
+train_ds = CancerDataset(X_train, y_train)
+test_ds  = CancerDataset(X_test,  y_test)
+
+train_loader = DataLoader(train_ds, batch_size=32, shuffle=True)  # shuffle for training
+test_loader  = DataLoader(test_ds,  batch_size=32, shuffle=False) # no need to shuffle test
+
+# ---------- 3. MODEL ----------
+class MySimpleNN(nn.Module):
+    def __init__(self, num_features):
+        super().__init__()
+        self.linear  = nn.Linear(num_features, 1)
+        self.sigmoid = nn.Sigmoid()
+    def forward(self, x):
+        return self.sigmoid(self.linear(x))
+
+model = MySimpleNN(X_train.shape[1])
+loss_fn = nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)  # Adam (§1.9)
+
+# ---------- 4. TRAINING LOOP (mini-batch) ----------
+for epoch in range(25):                       # 25 epochs (§1.10)
+    model.train()                             # training mode (enables Dropout etc.)
+    running_loss = 0.0
+    for batch_X, batch_y in train_loader:     # inner loop = one batch per iteration
+        y_pred = model(batch_X)               # forward on THIS batch
+        loss = loss_fn(y_pred, batch_y)       # loss on this batch
+        optimizer.zero_grad()                 # clear
+        loss.backward()                       # backward
+        optimizer.step()                      # update
+        running_loss += loss.item()           # accumulate for reporting
+    avg = running_loss / len(train_loader)    # average loss across all batches
+    print(f"Epoch {epoch+1}, Avg Loss: {avg:.4f}")
+
+# ---------- 5. EVALUATION ----------
+model.eval()                                  # eval mode (disables Dropout)
+correct = total = 0
+with torch.no_grad():
+    for batch_X, batch_y in test_loader:
+        preds = (model(batch_X) > 0.5).float()
+        correct += (preds == batch_y).sum().item()
+        total   += batch_y.size(0)
+print(f"Test Accuracy: {correct / total:.4f}")</code></pre>
+
+<div class="tip">
+<strong>The key change vs. Part 3:</strong> instead of one giant forward pass over all data, there's now an <em>inner loop</em> over <code>train_loader</code>, so each weight update uses just a 32-sample batch (mini-batch SGD, §1.9). <code>model.train()</code> / <code>model.eval()</code> toggle training-only layers like Dropout (§1.11). This exact skeleton scales unchanged from 10 rows to millions of images.
+</div>
+
+<!-- =================== PART 7 =================== -->
+<h1 class="page-break">Part 7 — Glossary &amp; Cheat Sheets</h1>
+
+<h2>Core Concepts Glossary</h2>
+<table>
+  <tr><th>Concept</th><th>One-line definition</th></tr>
+  <tr><td>Neuron</td><td>Multiply inputs by weights, add bias, apply activation → output</td></tr>
+  <tr><td>Weight</td><td>Importance/volume-knob of an input</td></tr>
+  <tr><td>Bias</td><td>The neuron's baseline tendency to fire</td></tr>
+  <tr><td>Activation function</td><td>Non-linear rule that lets networks learn curves</td></tr>
+  <tr><td>Forward propagation</td><td>Push inputs through layers to get a prediction</td></tr>
+  <tr><td>Loss function</td><td>Measures how wrong a prediction is</td></tr>
+  <tr><td>Backpropagation</td><td>Assigns "blame" to each weight via the chain rule</td></tr>
+  <tr><td>Gradient</td><td>How much the loss changes if a weight changes slightly</td></tr>
+  <tr><td>Gradient descent</td><td>Update weights opposite to the gradient to reduce loss</td></tr>
+  <tr><td>Learning rate (η)</td><td>Step size of each weight update</td></tr>
+  <tr><td>Vanishing gradient</td><td>Gradients shrink to ~0 in deep Sigmoid/Tanh nets</td></tr>
+  <tr><td>Optimizer</td><td>Algorithm deciding how to apply gradients (SGD, Adam, AdamW…)</td></tr>
+  <tr><td>Epoch</td><td>One full pass over the entire training dataset</td></tr>
+  <tr><td>Batch</td><td>Samples processed before one weight update</td></tr>
+  <tr><td>Iteration</td><td>One weight update = one batch processed</td></tr>
+  <tr><td>Underfitting</td><td>Too simple; bad on train AND test</td></tr>
+  <tr><td>Overfitting</td><td>Memorized training data; good on train, bad on test</td></tr>
+  <tr><td>Regularization</td><td>Techniques (L2, Dropout, early stopping) that reduce overfitting</td></tr>
+  <tr><td>Tensor</td><td>PyTorch's array; holds data, weights, predictions</td></tr>
+  <tr><td>Autograd</td><td>PyTorch's automatic gradient engine</td></tr>
+  <tr><td>nn.Module</td><td>Base class for all PyTorch models</td></tr>
+</table>
+
+<h2>PyTorch API Cheat Sheet</h2>
+<table>
+  <tr><th>Task</th><th>Code</th></tr>
+  <tr><td>Create tensor</td><td><code>torch.tensor(...)</code>, <code>torch.zeros/ones/rand</code></td></tr>
+  <tr><td>NumPy → tensor</td><td><code>torch.from_numpy(arr.astype(np.float32))</code></td></tr>
+  <tr><td>Reshape labels</td><td><code>y.view(-1, 1)</code></td></tr>
+  <tr><td>Track gradients</td><td><code>requires_grad=True</code></td></tr>
+  <tr><td>Backprop</td><td><code>loss.backward()</code></td></tr>
+  <tr><td>Clear gradients</td><td><code>optimizer.zero_grad()</code></td></tr>
+  <tr><td>Update weights</td><td><code>optimizer.step()</code></td></tr>
+  <tr><td>Disable grad (eval)</td><td><code>with torch.no_grad():</code></td></tr>
+  <tr><td>Train / eval mode</td><td><code>model.train()</code> / <code>model.eval()</code></td></tr>
+  <tr><td>Define model</td><td><code>class M(nn.Module)</code> + <code>__init__</code>/<code>forward</code></td></tr>
+  <tr><td>Get parameters</td><td><code>model.parameters()</code></td></tr>
+  <tr><td>Batch data</td><td><code>DataLoader(dataset, batch_size, shuffle)</code></td></tr>
+</table>
+
+<h2>The Universal Training Loop</h2>
+<div class="ascii">for epoch in range(epochs):
+    for batch_X, batch_y in dataloader:
+        pred = model(batch_X)          # 1. forward  — make a guess
+        loss = loss_fn(pred, batch_y)  # 2. loss     — measure error
+        optimizer.zero_grad()          # 3. clear    — reset old gradients
+        loss.backward()                # 4. backward — compute new gradients
+        optimizer.step()               # 5. step     — update the weights</div>
+
+<hr>
+<p style="text-align:center;color:var(--muted);margin-top:3em;">
+<strong>The big takeaway:</strong> Every neural network — from one-line regression to GPT — is built from the same ingredients: <em>weights &amp; bias, activation functions, a loss, backpropagation, gradient descent, and the training loop.</em> The architecture changes; this fundamental learning process never does. Master this skeleton and you can read and write almost any deep learning code.
+</p>
+
+</div>
+</body>
+</html>

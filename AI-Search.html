@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building RAG Applications with Azure AI Search — A Complete Guide</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --azure-blue:   #0078d4;
+      --azure-dark:   #004578;
+      --azure-light:  #eff6fc;
+      --accent:       #50e6ff;
+      --text:         #1b1b1b;
+      --muted:        #555e68;
+      --border:       #dde1e6;
+      --code-bg:      #1e1e2e;
+      --code-text:    #cdd6f4;
+      --tag-bg:       #e1f0fa;
+      --tag-text:     #005a9e;
+      --success:      #107c10;
+      --warn-bg:      #fff4ce;
+      --warn-border:  #f5c518;
+      --info-bg:      #eff6fc;
+      --info-border:  #0078d4;
+      --radius:       10px;
+      --shadow:       0 4px 24px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 16px; line-height: 1.75;
+      color: var(--text);
+      background: #f5f7fa;
+    }
+
+    /* ── Layout ── */
+    .page-wrapper { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--azure-dark) 0%, var(--azure-blue) 60%, #1a9be6 100%);
+      color: #fff;
+      padding: 64px 48px 56px;
+      border-radius: 0 0 var(--radius) var(--radius);
+      margin-bottom: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(26px, 4vw, 42px);
+      font-weight: 700; line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 17px; opacity: 0.88;
+      max-width: 680px; margin-bottom: 28px;
+    }
+    .hero-meta { display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; opacity: 0.8; }
+    .hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* ── Table of Contents ── */
+    .toc {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--azure-blue);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 48px;
+      box-shadow: var(--shadow);
+    }
+    .toc h2 { font-size: 15px; font-weight: 700; color: var(--azure-dark); margin-bottom: 16px; text-transform: uppercase; letter-spacing: .5px; }
+    .toc ol { padding-left: 20px; }
+    .toc ol li { margin-bottom: 6px; }
+    .toc a { color: var(--azure-blue); text-decoration: none; font-size: 14px; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; }
+    .toc ol ol { margin-top: 6px; padding-left: 18px; }
+    .toc ol ol li { margin-bottom: 4px; }
+
+    /* ── Section ── */
+    .section {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 40px 44px;
+      margin-bottom: 36px;
+      box-shadow: var(--shadow);
+    }
+    .section-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: var(--azure-blue); color: #fff;
+      border-radius: 50%; font-size: 13px; font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .section h2 {
+      font-size: 24px; font-weight: 700;
+      color: var(--azure-dark);
+      margin-bottom: 8px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--azure-light);
+    }
+    .section h3 {
+      font-size: 18px; font-weight: 600;
+      color: var(--azure-dark);
+      margin: 28px 0 12px;
+    }
+    .section h4 {
+      font-size: 15px; font-weight: 600;
+      color: var(--muted);
+      margin: 20px 0 8px;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .section p { margin-bottom: 14px; color: #2c2c2c; }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-block;
+      background: var(--tag-bg); color: var(--tag-text);
+      border-radius: 4px; padding: 2px 9px;
+      font-size: 12px; font-weight: 600;
+      margin: 2px;
+    }
+    .tag.green  { background: #dff6dd; color: var(--success); }
+    .tag.orange { background: #fff4ce; color: #7a5200; }
+    .tag.red    { background: #fde7e9; color: #a4262c; }
+
+    /* ── Code Blocks ── */
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13.5px; line-height: 1.65;
+      margin: 18px 0;
+      position: relative;
+    }
+    pre .comment   { color: #6c7086; font-style: italic; }
+    pre .keyword   { color: #cba6f7; }
+    pre .string    { color: #a6e3a1; }
+    pre .number    { color: #fab387; }
+    pre .function  { color: #89b4fa; }
+    pre .variable  { color: #f38ba8; }
+    pre .type      { color: #89dceb; }
+    code:not(pre code) {
+      background: #eef1f5; color: #c7254e;
+      padding: 2px 6px; border-radius: 4px;
+      font-family: 'Cascadia Code', monospace; font-size: 13px;
+    }
+
+    /* ── Callout Boxes ── */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 20px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .callout-body { flex: 1; }
+    .callout-body strong { display: block; margin-bottom: 4px; font-size: 14px; }
+    .callout-body p { margin: 0; font-size: 14px; }
+    .callout.info  { background: var(--info-bg);  border-left: 4px solid var(--info-border);  }
+    .callout.warn  { background: var(--warn-bg);  border-left: 4px solid var(--warn-border);  }
+    .callout.tip   { background: #f0fff4;          border-left: 4px solid #22c55e;             }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 20px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead th {
+      background: var(--azure-dark); color: #fff;
+      padding: 12px 16px; text-align: left; font-weight: 600;
+    }
+    tbody tr:nth-child(even) { background: var(--azure-light); }
+    tbody td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:hover { background: #e8f3fd; }
+
+    /* ── Architecture Diagram ── */
+    .arch-diagram {
+      background: linear-gradient(135deg, #f8fbff 0%, var(--azure-light) 100%);
+      border: 1px solid #c5dff8;
+      border-radius: var(--radius);
+      padding: 32px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .arch-flow {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 0;
+    }
+    .arch-box {
+      background: #fff; border: 2px solid var(--azure-blue);
+      border-radius: 8px; padding: 12px 18px;
+      font-size: 13px; font-weight: 600; color: var(--azure-dark);
+      text-align: center; min-width: 110px;
+    }
+    .arch-box small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .arch-arrow {
+      font-size: 20px; color: var(--azure-blue);
+      padding: 0 8px; font-weight: bold;
+    }
+
+    /* ── Step List ── */
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px; align-items: flex-start;
+      margin-bottom: 18px;
+    }
+    .steps li::before {
+      content: counter(step);
+      display: flex; align-items: center; justify-content: center;
+      min-width: 30px; height: 30px;
+      background: var(--azure-blue); color: #fff;
+      border-radius: 50%; font-size: 13px; font-weight: 700;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* ── Pill list ── */
+    .pill-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+    .pill {
+      background: var(--azure-light); border: 1px solid #b3d4f0;
+      color: var(--azure-dark); border-radius: 20px;
+      padding: 6px 16px; font-size: 13px; font-weight: 500;
+    }
+
+    /* ── Comparison cards ── */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; }
+    .card {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; background: #fafbfd;
+    }
+    .card h4 { color: var(--azure-blue); margin-bottom: 8px; font-size: 15px; }
+    .card p  { font-size: 13px; color: var(--muted); margin: 0; }
+    .card .badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 40px 24px 20px;
+      font-size: 13px; color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    footer a { color: var(--azure-blue); text-decoration: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .hero { padding: 36px 24px 32px; }
+      .section { padding: 28px 20px; }
+      .toc { padding: 20px; }
+      .arch-flow { flex-direction: column; }
+      .arch-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="page-wrapper" style="padding-top:0;padding-bottom:0;">
+    <span class="hero-badge">📘 Complete Guide · 2026</span>
+    <h1>Building RAG Applications<br>with Azure AI Search</h1>
+    <p>
+      A developer's end-to-end guide to creating indexes, defining metadata schemas,
+      chunking &amp; embedding documents, saving vectors, and querying — everything
+      you need to build a production-grade Retrieval-Augmented Generation (RAG) pipeline
+      on Azure.
+    </p>
+    <div class="hero-meta">
+      <span>⏱ 25 min read</span>
+      <span>📅 April 28, 2026</span>
+      <span>🏷 Azure AI Search · OpenAI · RAG · Python</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+<!-- ═══════════════════════════════════════════════════
+     TABLE OF CONTENTS
+════════════════════════════════════════════════════ -->
+<nav class="toc">
+  <h2>📋 Table of Contents</h2>
+  <ol>
+    <li><a href="#s1">What is RAG and Why Azure AI Search?</a></li>
+    <li><a href="#s2">RAG Architecture on Azure — Big Picture</a></li>
+    <li><a href="#s3">Setting Up Azure AI Search Service</a></li>
+    <li><a href="#s4">Creating an Index — Fields, Metadata &amp; Types</a>
+      <ol>
+        <li><a href="#s4-1">Core Field Types</a></li>
+        <li><a href="#s4-2">Metadata Fields You Must Define</a></li>
+        <li><a href="#s4-3">Vector Field Configuration</a></li>
+        <li><a href="#s4-4">Full Index Schema Example (Python SDK)</a></li>
+      </ol>
+    </li>
+    <li><a href="#s5">Document Chunking Strategies</a></li>
+    <li><a href="#s6">Generating Embeddings with Azure OpenAI</a></li>
+    <li><a href="#s7">Saving Chunks to the Search Index</a></li>
+    <li><a href="#s8">Querying the Search Index</a>
+      <ol>
+        <li><a href="#s8-1">Keyword Search (BM25)</a></li>
+        <li><a href="#s8-2">Pure Vector Search</a></li>
+        <li><a href="#s8-3">Hybrid Search + Semantic Reranking</a></li>
+        <li><a href="#s8-4">Filtering with Metadata</a></li>
+      </ol>
+    </li>
+    <li><a href="#s9">Connecting Search Results to an LLM (The RAG Step)</a></li>
+    <li><a href="#s10">Indexers, Skillsets &amp; Integrated Vectorisation</a></li>
+    <li><a href="#s11">Security, RBAC &amp; Managed Identities</a></li>
+    <li><a href="#s12">Scoring Profiles &amp; Relevance Tuning</a></li>
+    <li><a href="#s13">Monitoring, Troubleshooting &amp; Cost Optimisation</a></li>
+    <li><a href="#s14">End-to-End RAG Pipeline — Complete Code</a></li>
+    <li><a href="#s15">Key Takeaways &amp; Next Steps</a></li>
+  </ol>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1 — WHAT IS RAG?
+════════════════════════════════════════════════════ -->
+<section class="section" id="s1">
+  <div class="section-number">1</div>
+  <h2>What is RAG and Why Azure AI Search?</h2>
+
+  <p>
+    <strong>Retrieval-Augmented Generation (RAG)</strong> is a design pattern that grounds an
+    LLM's response in up-to-date, private, or domain-specific knowledge by <em>retrieving</em>
+    relevant chunks of text from a knowledge base and injecting them into the prompt before
+    generation. This eliminates hallucinations on facts the LLM was never trained on.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🧠 Pure LLM</h4>
+      <p>Only knows training data. Cannot answer about your internal documents, recent events, or private data.</p>
+      <span class="tag red">❌ No grounding</span>
+    </div>
+    <div class="card">
+      <h4>🔍 RAG + LLM</h4>
+      <p>Searches your knowledge base first, then feeds relevant passages to the LLM alongside the question.</p>
+      <span class="tag green">✅ Grounded answers</span>
+    </div>
+    <div class="card">
+      <h4>☁️ Azure AI Search</h4>
+      <p>Managed cloud search with BM25 keyword, vector (HNSW), hybrid search, and semantic reranking built-in.</p>
+      <span class="tag">Enterprise-grade</span>
+    </div>
+  </div>
+
+  <h3>Why Choose Azure AI Search for RAG?</h3>
+  <div class="pill-list">
+    <span class="pill">🔗 Native Azure OpenAI integration</span>
+    <span class="pill">📐 HNSW vector index (ANN)</span>
+    <span class="pill">🎯 Semantic reranking (L2)</span>
+    <span class="pill">🔀 Hybrid BM25 + vector search</span>
+    <span class="pill">🔒 Private endpoints &amp; RBAC</span>
+    <span class="pill">📦 Integrated vectorisation via Skillsets</span>
+    <span class="pill">⚡ Sub-second query latency at scale</span>
+    <span class="pill">🌍 99.9% SLA</span>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2 — ARCHITECTURE
+════════════════════════════════════════════════════ -->
+<section class="section" id="s2">
+  <div class="section-number">2</div>
+  <h2>RAG Architecture on Azure — Big Picture</h2>
+
+  <h3>Ingestion Pipeline</h3>
+  <div class="arch-diagram">
+    <div class="arch-flow">
+      <div class="arch-box">📄 Source Docs<small>Blob, SharePoint, SQL…</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">✂️ Chunker<small>Fixed / Semantic</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">🔢 Embedder<small>Azure OpenAI</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">💾 AI Search Index<small>Vectors + Metadata</small></div>
+    </div>
+  </div>
+
+  <h3>Query Pipeline</h3>
+  <div class="arch-diagram">
+    <div class="arch-flow">
+      <div class="arch-box">👤 User Query</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">🔢 Embed Query<small>Azure OpenAI</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">🔍 Hybrid Search<small>AI Search</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">📋 Top-K Chunks</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">🤖 LLM (GPT-4o)<small>Prompt + Context</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box">💬 Grounded Answer</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3 — SETUP
+════════════════════════════════════════════════════ -->
+<section class="section" id="s3">
+  <div class="section-number">3</div>
+  <h2>Setting Up Azure AI Search Service</h2>
+
+  <h3>Prerequisites</h3>
+  <ul class="steps">
+    <li>An active Azure subscription.</li>
+    <li>Azure AI Search resource created (portal or CLI). Choose <strong>Standard S1</strong> or above for vector search.</li>
+    <li>Azure OpenAI resource with <code>text-embedding-3-large</code> or <code>text-embedding-ada-002</code> deployed.</li>
+    <li>Python 3.10+ and the following packages installed.</li>
+  </ul>
+
+<pre><span class="comment"># Install required packages</span>
+pip install azure-search-documents==11.6.0b4 \
+            azure-identity \
+            openai \
+            tiktoken \
+            python-dotenv</pre>
+
+  <h3>Environment Variables</h3>
+<pre><span class="comment"># .env file</span>
+AZURE_SEARCH_ENDPOINT=<span class="string">"https://&lt;your-service-name&gt;.search.windows.net"</span>
+AZURE_SEARCH_KEY=<span class="string">"&lt;your-admin-key&gt;"</span>
+AZURE_SEARCH_INDEX_NAME=<span class="string">"rag-knowledge-base"</span>
+
+AZURE_OPENAI_ENDPOINT=<span class="string">"https://&lt;your-oai-resource&gt;.openai.azure.com/"</span>
+AZURE_OPENAI_API_KEY=<span class="string">"&lt;your-oai-key&gt;"</span>
+AZURE_OPENAI_EMBED_DEPLOYMENT=<span class="string">"text-embedding-3-large"</span>
+AZURE_OPENAI_CHAT_DEPLOYMENT=<span class="string">"gpt-4o"</span></pre>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <strong>Tier Selection Matters</strong>
+      <p>Free (F) and Basic tiers do <em>not</em> support vector search or semantic reranking.
+         You need <strong>Standard S1</strong> or higher for RAG workloads.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4 — INDEX CREATION
+════════════════════════════════════════════════════ -->
+<section class="section" id="s4">
+  <div class="section-number">4</div>
+  <h2>Creating an Index — Fields, Metadata &amp; Types</h2>
+
+  <p>
+    An <strong>Azure AI Search Index</strong> is like a strongly-typed database table. Every field
+    you store must be declared with its <em>type</em> and a set of <em>attributes</em> that control
+    how it can be searched, filtered, sorted, and retrieved.
+  </p>
+
+  <!-- 4.1 Field Types -->
+  <h3 id="s4-1">4.1 Core Field Data Types</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>EDM Type</th>
+          <th>Python / SDK Alias</th>
+          <th>Use For</th>
+          <th>Example Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Edm.String</code></td><td><code>SearchFieldDataType.String</code></td><td>Text content, IDs, URLs, categories</td><td><code>"The contract states…"</code></td></tr>
+        <tr><td><code>Edm.Int32</code></td><td><code>SearchFieldDataType.Int32</code></td><td>Page numbers, counts, rankings</td><td><code>14</code></td></tr>
+        <tr><td><code>Edm.Int64</code></td><td><code>SearchFieldDataType.Int64</code></td><td>Large integers, file sizes</td><td><code>1048576</code></td></tr>
+        <tr><td><code>Edm.Double</code></td><td><code>SearchFieldDataType.Double</code></td><td>Confidence scores, prices</td><td><code>0.9823</code></td></tr>
+        <tr><td><code>Edm.Boolean</code></td><td><code>SearchFieldDataType.Boolean</code></td><td>Flags (is_published, is_confidential)</td><td><code>true</code></td></tr>
+        <tr><td><code>Edm.DateTimeOffset</code></td><td><code>SearchFieldDataType.DateTimeOffset</code></td><td>Created/modified timestamps</td><td><code>"2026-04-28T10:00:00Z"</code></td></tr>
+        <tr><td><code>Collection(Edm.String)</code></td><td><code>SearchFieldDataType.collection(String)</code></td><td>Tags, categories, authors (multi-value)</td><td><code>["AI", "Azure"]</code></td></tr>
+        <tr><td><code>Collection(Edm.Single)</code></td><td><code>SearchFieldDataType.collection(Single)</code></td><td>Embedding vectors</td><td><code>[0.123, -0.045, …]</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4.2 Field Attributes -->
+  <h3 id="s4-2">4.2 Metadata Fields You MUST Define for RAG</h3>
+  <p>
+    Every field carries boolean <strong>attributes</strong> that determine its behaviour.
+    Choosing wrong attributes is the #1 mistake beginners make.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Attribute</th>
+          <th>Meaning</th>
+          <th>Applies To</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>key=True</code></td><td>Unique document identifier (exactly one per index)</td><td>One <code>String</code> field</td></tr>
+        <tr><td><code>searchable=True</code></td><td>Full-text (BM25) analysed. Inverted index is built.</td><td>String fields</td></tr>
+        <tr><td><code>filterable=True</code></td><td>Can be used in <code>$filter</code> OData expressions</td><td>Any non-vector</td></tr>
+        <tr><td><code>sortable=True</code></td><td>Can be used in <code>$orderby</code></td><td>Scalar fields</td></tr>
+        <tr><td><code>facetable=True</code></td><td>Can generate aggregation buckets (facets)</td><td>Low-cardinality fields</td></tr>
+        <tr><td><code>retrievable=True</code></td><td>Returned in query results. Set <code>False</code> for vectors to save bandwidth.</td><td>Any field</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Recommended Metadata Schema for RAG</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Field Name</th>
+          <th>Type</th>
+          <th>Attributes</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>String</td>
+          <td>key, retrievable</td>
+          <td>Unique chunk ID (e.g., <code>doc_001_chunk_03</code>)</td>
+        </tr>
+        <tr>
+          <td><code>content</code></td>
+          <td>String</td>
+          <td>searchable, retrievable</td>
+          <td>The actual text chunk — this is what the LLM will read</td>
+        </tr>
+        <tr>
+          <td><code>content_vector</code></td>
+          <td>Collection(Single)</td>
+          <td>searchable (vector config)</td>
+          <td>Embedding of <code>content</code> for semantic/vector search</td>
+        </tr>
+        <tr>
+          <td><code>source_file</code></td>
+          <td>String</td>
+          <td>filterable, retrievable</td>
+          <td>Original file path or blob URL for citation</td>
+        </tr>
+        <tr>
+          <td><code>source_url</code></td>
+          <td>String</td>
+          <td>retrievable</td>
+          <td>Direct link to show users the source</td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>String</td>
+          <td>searchable, filterable, retrievable</td>
+          <td>Document title for display and filtering</td>
+        </tr>
+        <tr>
+          <td><code>section</code></td>
+          <td>String</td>
+          <td>filterable, retrievable</td>
+          <td>Document section/heading the chunk belongs to</td>
+        </tr>
+        <tr>
+          <td><code>page_number</code></td>
+          <td>Int32</td>
+          <td>filterable, sortable, retrievable</td>
+          <td>Page number for citation (PDFs, Word docs)</td>
+        </tr>
+        <tr>
+          <td><code>chunk_index</code></td>
+          <td>Int32</td>
+          <td>filterable, sortable, retrievable</td>
+          <td>Position of this chunk within the document</td>
+        </tr>
+        <tr>
+          <td><code>category</code></td>
+          <td>String</td>
+          <td>filterable, facetable, retrievable</td>
+          <td>Document type: "policy", "technical", "legal"</td>
+        </tr>
+        <tr>
+          <td><code>tags</code></td>
+          <td>Collection(String)</td>
+          <td>filterable, facetable, retrievable</td>
+          <td>Multi-value tags for fine-grained filtering</td>
+        </tr>
+        <tr>
+          <td><code>language</code></td>
+          <td>String</td>
+          <td>filterable, retrievable</td>
+          <td>ISO 639-1 language code: "en", "fr", "de"</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td>DateTimeOffset</td>
+          <td>filterable, sortable, retrievable</td>
+          <td>Document creation date (for freshness filtering)</td>
+        </tr>
+        <tr>
+          <td><code>last_modified</code></td>
+          <td>DateTimeOffset</td>
+          <td>filterable, sortable, retrievable</td>
+          <td>Last update date</td>
+        </tr>
+        <tr>
+          <td><code>author</code></td>
+          <td>String</td>
+          <td>filterable, facetable, retrievable</td>
+          <td>Document author for filtering by person/team</td>
+        </tr>
+        <tr>
+          <td><code>department</code></td>
+          <td>String</td>
+          <td>filterable, facetable, retrievable</td>
+          <td>Organisational unit (for RBAC-level filtering)</td>
+        </tr>
+        <tr>
+          <td><code>token_count</code></td>
+          <td>Int32</td>
+          <td>retrievable</td>
+          <td>Number of tokens in chunk (for prompt budget management)</td>
+        </tr>
+        <tr>
+          <td><code>confidence_score</code></td>
+          <td>Double</td>
+          <td>filterable, sortable, retrievable</td>
+          <td>OCR or extraction confidence (0.0 – 1.0)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4.3 Vector Config -->
+  <h3 id="s4-3">4.3 Vector Field Configuration</h3>
+  <p>
+    Vector fields need a <strong>VectorSearchConfiguration</strong> that specifies the algorithm
+    and its parameters. Azure AI Search uses <strong>HNSW</strong> (Hierarchical Navigable Small
+    World) for Approximate Nearest Neighbour search.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Description</th><th>Recommended Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>dimensions</code></td><td>Vector size. Must match your embedding model output.</td><td>3072 (text-embedding-3-large), 1536 (ada-002)</td></tr>
+        <tr><td><code>m</code></td><td>HNSW: max connections per node. Higher = better recall, more memory.</td><td>4 (default) → 16 for high-recall use cases</td></tr>
+        <tr><td><code>ef_construction</code></td><td>Build-time candidate list size. Higher = slower indexing, better quality.</td><td>400 (default) → 800 for high quality</td></tr>
+        <tr><td><code>ef_search</code></td><td>Query-time candidate list size. Higher = better recall, slower query.</td><td>500 (default)</td></tr>
+        <tr><td><code>metric</code></td><td>Distance metric for similarity.</td><td><code>cosine</code> (default, best for normalised embeddings)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4.4 Full Schema Code -->
+  <h3 id="s4-4">4.4 Full Index Schema — Python SDK</h3>
+
+<pre><span class="keyword">from</span> azure.search.documents.indexes <span class="keyword">import</span> SearchIndexClient
+<span class="keyword">from</span> azure.search.documents.indexes.models <span class="keyword">import</span> (
+    SearchIndex, SearchField, SearchFieldDataType,
+    SimpleField, SearchableField,
+    VectorSearch, HnswAlgorithmConfiguration, HnswParameters,
+    VectorSearchProfile, SemanticConfiguration,
+    SemanticSearch, SemanticPrioritizedFields, SemanticField
+)
+<span class="keyword">from</span> azure.core.credentials <span class="keyword">import</span> AzureKeyCredential
+<span class="keyword">import</span> os
+
+<span class="comment"># ── Initialise client ──────────────────────────────────</span>
+endpoint = os.getenv(<span class="string">"AZURE_SEARCH_ENDPOINT"</span>)
+key      = os.getenv(<span class="string">"AZURE_SEARCH_KEY"</span>)
+index_name = os.getenv(<span class="string">"AZURE_SEARCH_INDEX_NAME"</span>, <span class="string">"rag-knowledge-base"</span>)
+
+index_client = SearchIndexClient(endpoint, AzureKeyCredential(key))
+
+<span class="comment"># ── Vector search configuration ────────────────────────</span>
+vector_search = VectorSearch(
+    algorithms=[
+        HnswAlgorithmConfiguration(
+            name=<span class="string">"hnsw-config"</span>,
+            parameters=HnswParameters(
+                m=<span class="number">16</span>,
+                ef_construction=<span class="number">800</span>,
+                ef_search=<span class="number">500</span>,
+                metric=<span class="string">"cosine"</span>
+            )
+        )
+    ],
+    profiles=[
+        VectorSearchProfile(
+            name=<span class="string">"hnsw-profile"</span>,
+            algorithm_configuration_name=<span class="string">"hnsw-config"</span>
+        )
+    ]
+)
+
+<span class="comment"># ── Semantic search configuration ──────────────────────</span>
+semantic_search = SemanticSearch(
+    configurations=[
+        SemanticConfiguration(
+            name=<span class="string">"semantic-config"</span>,
+            prioritized_fields=SemanticPrioritizedFields(
+                title_field=SemanticField(field_name=<span class="string">"title"</span>),
+                content_fields=[SemanticField(field_name=<span class="string">"content"</span>)],
+                keywords_fields=[SemanticField(field_name=<span class="string">"tags"</span>)]
+            )
+        )
+    ]
+)
+
+<span class="comment"># ── Field definitions ──────────────────────────────────</span>
+fields = [
+    <span class="comment"># --- Identity & Content ---</span>
+    SimpleField(name=<span class="string">"id"</span>,             type=SearchFieldDataType.String, key=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SearchableField(name=<span class="string">"content"</span>,    type=SearchFieldDataType.String,           retrievable=<span class="keyword">True</span>, analyzer_name=<span class="string">"en.microsoft"</span>),
+    SearchableField(name=<span class="string">"title"</span>,      type=SearchFieldDataType.String,           retrievable=<span class="keyword">True</span>, filterable=<span class="keyword">True</span>),
+    
+    <span class="comment"># --- Vector Field ---</span>
+    SearchField(
+        name=<span class="string">"content_vector"</span>,
+        type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+        searchable=<span class="keyword">True</span>,
+        retrievable=<span class="keyword">False</span>,          <span class="comment"># saves bandwidth — we don't need raw vectors in results</span>
+        vector_search_dimensions=<span class="number">3072</span>, <span class="comment"># text-embedding-3-large</span>
+        vector_search_profile_name=<span class="string">"hnsw-profile"</span>
+    ),
+    
+    <span class="comment"># --- Source & Provenance ---</span>
+    SimpleField(name=<span class="string">"source_file"</span>,  type=SearchFieldDataType.String, filterable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"source_url"</span>,   type=SearchFieldDataType.String,               retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"section"</span>,      type=SearchFieldDataType.String, filterable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"page_number"</span>,  type=SearchFieldDataType.Int32,  filterable=<span class="keyword">True</span>,  sortable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"chunk_index"</span>,  type=SearchFieldDataType.Int32,  filterable=<span class="keyword">True</span>,  sortable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"token_count"</span>,  type=SearchFieldDataType.Int32,               retrievable=<span class="keyword">True</span>),
+    
+    <span class="comment"># --- Classification & Filtering ---</span>
+    SimpleField(name=<span class="string">"category"</span>,     type=SearchFieldDataType.String, filterable=<span class="keyword">True</span>,  facetable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"department"</span>,   type=SearchFieldDataType.String, filterable=<span class="keyword">True</span>,  facetable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"language"</span>,     type=SearchFieldDataType.String, filterable=<span class="keyword">True</span>,               retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"author"</span>,       type=SearchFieldDataType.String, filterable=<span class="keyword">True</span>,  facetable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+    SearchField( name=<span class="string">"tags"</span>,        type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                 filterable=<span class="keyword">True</span>, facetable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+    
+    <span class="comment"># --- Timestamps ---</span>
+    SimpleField(name=<span class="string">"created_at"</span>,   type=SearchFieldDataType.DateTimeOffset, filterable=<span class="keyword">True</span>, sortable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+    SimpleField(name=<span class="string">"last_modified"</span>,type=SearchFieldDataType.DateTimeOffset, filterable=<span class="keyword">True</span>, sortable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+    
+    <span class="comment"># --- Quality ---</span>
+    SimpleField(name=<span class="string">"confidence_score"</span>, type=SearchFieldDataType.Double, filterable=<span class="keyword">True</span>, sortable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+]
+
+<span class="comment"># ── Create the index ───────────────────────────────────</span>
+index = SearchIndex(
+    name=index_name,
+    fields=fields,
+    vector_search=vector_search,
+    semantic_search=semantic_search
+)
+
+result = index_client.create_or_update_index(index)
+<span class="function">print</span>(<span class="string">f"✅ Index '{result.name}' created/updated successfully."</span>)</pre>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      <strong>Analyzer Tips</strong>
+      <p>Use <code>en.microsoft</code> for English text — it handles stemming, lemmatisation, and synonyms better than the default <code>standard.lucene</code>. For multilingual corpora, set <code>analyzer_name</code> per field or use language-specific analyzers like <code>fr.microsoft</code>.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5 — CHUNKING
+════════════════════════════════════════════════════ -->
+<section class="section" id="s5">
+  <div class="section-number">5</div>
+  <h2>Document Chunking Strategies</h2>
+
+  <p>
+    Chunking determines the granularity of your search. Chunks that are too large overwhelm the LLM's
+    context window. Chunks that are too small lose context. Finding the sweet spot is critical.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>Fixed-Size Chunking</h4>
+      <p>Split every N tokens with an M-token overlap. Simple, predictable. Best for uniform documents.</p>
+      <span class="tag">Overlap: 10–15%</span>
+    </div>
+    <div class="card">
+      <h4>Sentence / Paragraph</h4>
+      <p>Split on natural language boundaries. Preserves semantic coherence within each chunk.</p>
+      <span class="tag green">Recommended default</span>
+    </div>
+    <div class="card">
+      <h4>Semantic Chunking</h4>
+      <p>Split where the embedding distance between consecutive sentences spikes — topic change detection.</p>
+      <span class="tag orange">Higher compute cost</span>
+    </div>
+    <div class="card">
+      <h4>Hierarchical</h4>
+      <p>Store both parent (section) and child (sentence) chunks. Retrieve child, send parent to LLM.</p>
+      <span class="tag">Best recall + context</span>
+    </div>
+  </div>
+
+  <h3>Fixed-Size Chunking with Overlap (Python)</h3>
+<pre><span class="keyword">import</span> tiktoken
+
+<span class="keyword">def</span> <span class="function">chunk_text</span>(text: <span class="type">str</span>, chunk_size: <span class="type">int</span> = <span class="number">512</span>, overlap: <span class="type">int</span> = <span class="number">64</span>, model: <span class="type">str</span> = <span class="string">"cl100k_base"</span>) -> <span class="type">list[str]</span>:
+    <span class="string">"""Split text into token-aware chunks with overlap."""</span>
+    enc    = tiktoken.get_encoding(model)
+    tokens = enc.encode(text)
+    chunks = []
+    start  = <span class="number">0</span>
+
+    <span class="keyword">while</span> start < len(tokens):
+        end        = min(start + chunk_size, len(tokens))
+        chunk_toks = tokens[start:end]
+        chunks.append(enc.decode(chunk_toks))
+        <span class="keyword">if</span> end == len(tokens):
+            <span class="keyword">break</span>
+        start += chunk_size - overlap  <span class="comment"># slide window with overlap</span>
+
+    <span class="keyword">return</span> chunks
+
+<span class="comment"># Usage</span>
+text   = <span class="string">"Your long document text goes here..."</span>
+chunks = chunk_text(text, chunk_size=<span class="number">512</span>, overlap=<span class="number">64</span>)
+<span class="function">print</span>(<span class="string">f"Created {len(chunks)} chunks"</span>)</pre>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>Golden Rule of Chunking</strong>
+      <p>Your chunk size should be significantly smaller than the LLM's context window. With GPT-4o (128K tokens) and top-K=5, keep chunks ≤ 1024 tokens each to leave room for the system prompt and conversation history.</p>
+    </div>
+  </div>
+
+  <h3>Recommended Chunk Sizes by Use Case</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Use Case</th><th>Chunk Size (tokens)</th><th>Overlap</th><th>Top-K</th></tr></thead>
+      <tbody>
+        <tr><td>FAQ / Customer Support</td><td>256 – 512</td><td>50 tokens</td><td>3 – 5</td></tr>
+        <tr><td>Technical Documentation</td><td>512 – 1024</td><td>64 – 128 tokens</td><td>5 – 8</td></tr>
+        <tr><td>Legal / Contracts</td><td>1024</td><td>128 tokens</td><td>3 – 5</td></tr>
+        <tr><td>Research Papers</td><td>512 (abstract + sections)</td><td>64 tokens</td><td>5</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6 — EMBEDDINGS
+════════════════════════════════════════════════════ -->
+<section class="section" id="s6">
+  <div class="section-number">6</div>
+  <h2>Generating Embeddings with Azure OpenAI</h2>
+
+  <p>
+    Embeddings convert text into high-dimensional vectors (floats) that capture semantic meaning.
+    Similar content will have vectors close together in the embedding space.
+  </p>
+
+  <h3>Supported Embedding Models</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Model</th><th>Dimensions</th><th>Max Input Tokens</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>text-embedding-3-large</code></td><td>3072 (or custom)</td><td>8191</td><td>Best quality — recommended for production</td></tr>
+        <tr><td><code>text-embedding-3-small</code></td><td>1536 (or custom)</td><td>8191</td><td>Faster, cheaper, nearly as good</td></tr>
+        <tr><td><code>text-embedding-ada-002</code></td><td>1536</td><td>8191</td><td>Legacy — use v3 models for new projects</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<pre><span class="keyword">from</span> openai <span class="keyword">import</span> AzureOpenAI
+<span class="keyword">import</span> os, time
+
+oai_client = AzureOpenAI(
+    api_key=os.getenv(<span class="string">"AZURE_OPENAI_API_KEY"</span>),
+    api_version=<span class="string">"2024-02-01"</span>,
+    azure_endpoint=os.getenv(<span class="string">"AZURE_OPENAI_ENDPOINT"</span>)
+)
+
+<span class="keyword">def</span> <span class="function">get_embedding</span>(text: <span class="type">str</span>, model: <span class="type">str</span> = <span class="string">"text-embedding-3-large"</span>) -> <span class="type">list[float]</span>:
+    <span class="string">"""Generate an embedding vector for a text string."""</span>
+    text = text.replace(<span class="string">"\n"</span>, <span class="string">" "</span>).strip()
+    <span class="keyword">if not</span> text:
+        <span class="keyword">raise</span> <span class="type">ValueError</span>(<span class="string">"Cannot embed empty text."</span>)
+    response = oai_client.embeddings.create(input=[text], model=model)
+    <span class="keyword">return</span> response.data[<span class="number">0</span>].embedding
+
+
+<span class="keyword">def</span> <span class="function">get_embeddings_batch</span>(texts: <span class="type">list[str]</span>, model: <span class="type">str</span> = <span class="string">"text-embedding-3-large"</span>, batch_size: <span class="type">int</span> = <span class="number">16</span>) -> <span class="type">list[list[float]]</span>:
+    <span class="string">"""Embed a list of texts in batches (respects API rate limits)."""</span>
+    all_embeddings = []
+    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(texts), batch_size):
+        batch = texts[i : i + batch_size]
+        resp  = oai_client.embeddings.create(input=batch, model=model)
+        all_embeddings.extend([item.embedding <span class="keyword">for</span> item <span class="keyword">in</span> resp.data])
+        time.sleep(<span class="number">0.1</span>)  <span class="comment"># avoid throttling</span>
+    <span class="keyword">return</span> all_embeddings</pre>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <strong>Dimension Reduction</strong>
+      <p><code>text-embedding-3-large</code> supports custom dimensions. You can request fewer dimensions
+         (e.g., 1024 or 512) with no API change — just set <code>dimensions=1024</code> in the call.
+         Fewer dimensions = smaller index, faster queries, slightly lower recall.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7 — SAVING CHUNKS
+════════════════════════════════════════════════════ -->
+<section class="section" id="s7">
+  <div class="section-number">7</div>
+  <h2>Saving Chunks to the Search Index</h2>
+
+  <p>
+    With chunked text and their embeddings ready, you upload them to Azure AI Search as
+    <strong>documents</strong> using the <code>upload_documents</code> (or <code>merge_or_upload_documents</code>)
+    action. Azure supports batch uploads of up to <strong>1,000 documents per batch</strong>
+    (max 16 MB per request).
+  </p>
+
+<pre><span class="keyword">from</span> azure.search.documents <span class="keyword">import</span> SearchClient
+<span class="keyword">from</span> azure.core.credentials <span class="keyword">import</span> AzureKeyCredential
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timezone
+<span class="keyword">import</span> hashlib, os
+
+search_client = SearchClient(
+    endpoint=os.getenv(<span class="string">"AZURE_SEARCH_ENDPOINT"</span>),
+    index_name=os.getenv(<span class="string">"AZURE_SEARCH_INDEX_NAME"</span>),
+    credential=AzureKeyCredential(os.getenv(<span class="string">"AZURE_SEARCH_KEY"</span>))
+)
+
+<span class="keyword">def</span> <span class="function">make_chunk_id</span>(source_file: <span class="type">str</span>, chunk_index: <span class="type">int</span>) -> <span class="type">str</span>:
+    <span class="string">"""Deterministic ID so re-indexing is idempotent."""</span>
+    raw = <span class="string">f"{source_file}_{chunk_index}"</span>
+    <span class="keyword">return</span> hashlib.md5(raw.encode()).hexdigest()
+
+<span class="keyword">def</span> <span class="function">index_document_chunks</span>(
+    chunks: <span class="type">list[str]</span>,
+    embeddings: <span class="type">list[list[float]]</span>,
+    source_file: <span class="type">str</span>,
+    title: <span class="type">str</span>,
+    category: <span class="type">str</span> = <span class="string">"general"</span>,
+    tags: <span class="type">list[str]</span> = <span class="keyword">None</span>,
+    author: <span class="type">str</span> = <span class="string">""</span>,
+    department: <span class="type">str</span> = <span class="string">""</span>,
+    language: <span class="type">str</span> = <span class="string">"en"</span>,
+    batch_size: <span class="type">int</span> = <span class="number">100</span>
+):
+    <span class="string">"""Build document dicts and upload to Azure AI Search."""</span>
+    now = datetime.now(timezone.utc).isoformat()
+    documents = []
+
+    <span class="keyword">for</span> i, (chunk, vector) <span class="keyword">in</span> enumerate(zip(chunks, embeddings)):
+        doc = {
+            <span class="string">"id"</span>:               make_chunk_id(source_file, i),
+            <span class="string">"content"</span>:         chunk,
+            <span class="string">"content_vector"</span>:  vector,
+            <span class="string">"title"</span>:           title,
+            <span class="string">"source_file"</span>:     source_file,
+            <span class="string">"source_url"</span>:      <span class="string">f"https://yourstorage.blob.core.windows.net/docs/{source_file}"</span>,
+            <span class="string">"section"</span>:         <span class="string">""</span>,        <span class="comment"># populate if you parsed headings</span>
+            <span class="string">"page_number"</span>:     <span class="number">0</span>,         <span class="comment"># populate from PDF parser</span>
+            <span class="string">"chunk_index"</span>:     i,
+            <span class="string">"token_count"</span>:     len(chunk.split()),  <span class="comment"># approximate; use tiktoken for exact</span>
+            <span class="string">"category"</span>:        category,
+            <span class="string">"tags"</span>:            tags <span class="keyword">or</span> [],
+            <span class="string">"language"</span>:        language,
+            <span class="string">"author"</span>:          author,
+            <span class="string">"department"</span>:      department,
+            <span class="string">"created_at"</span>:      now,
+            <span class="string">"last_modified"</span>:   now,
+            <span class="string">"confidence_score"</span>: <span class="number">1.0</span>
+        }
+        documents.append(doc)
+
+    <span class="comment"># Upload in batches</span>
+    total_uploaded = <span class="number">0</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(documents), batch_size):
+        batch   = documents[i : i + batch_size]
+        results = search_client.merge_or_upload_documents(documents=batch)
+        succeeded = <span class="function">sum</span>(<span class="number">1</span> <span class="keyword">for</span> r <span class="keyword">in</span> results <span class="keyword">if</span> r.succeeded)
+        total_uploaded += succeeded
+        <span class="function">print</span>(<span class="string">f"  Batch {i//batch_size + 1}: {succeeded}/{len(batch)} documents uploaded."</span>)
+
+    <span class="function">print</span>(<span class="string">f"✅ Total: {total_uploaded}/{len(documents)} chunks indexed."</span>)
+    <span class="keyword">return</span> total_uploaded
+
+
+<span class="comment"># ── Full ingestion workflow ────────────────────────────</span>
+raw_text   = open(<span class="string">"my_document.txt"</span>).read()
+chunks     = chunk_text(raw_text, chunk_size=<span class="number">512</span>, overlap=<span class="number">64</span>)
+embeddings = get_embeddings_batch(chunks)
+
+index_document_chunks(
+    chunks=chunks,
+    embeddings=embeddings,
+    source_file=<span class="string">"my_document.txt"</span>,
+    title=<span class="string">"My Technical Document"</span>,
+    category=<span class="string">"technical"</span>,
+    tags=[<span class="string">"azure"</span>, <span class="string">"ai"</span>, <span class="string">"search"</span>],
+    author=<span class="string">"Engineering Team"</span>,
+    department=<span class="string">"R&D"</span>
+)</pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8 — QUERYING
+════════════════════════════════════════════════════ -->
+<section class="section" id="s8">
+  <div class="section-number">8</div>
+  <h2>Querying the Search Index</h2>
+
+  <p>
+    Azure AI Search supports four search modes. For RAG, <strong>Hybrid Search with Semantic Reranking</strong>
+    is the gold standard — it combines the literal precision of BM25 with the semantic understanding
+    of vector search, then reranks with a cross-encoder model.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>How It Works</th><th>Best For</th><th>RAG Suitability</th></tr></thead>
+      <tbody>
+        <tr><td>Keyword (BM25)</td><td>TF-IDF based inverted index</td><td>Exact term matching</td><td><span class="tag orange">⚠️ Partial</span></td></tr>
+        <tr><td>Vector (ANN)</td><td>Cosine similarity in embedding space</td><td>Semantic similarity</td><td><span class="tag">✅ Good</span></td></tr>
+        <tr><td>Hybrid (BM25 + Vector)</td><td>RRF fusion of both scores</td><td>Best coverage</td><td><span class="tag green">✅✅ Very Good</span></td></tr>
+        <tr><td>Hybrid + Semantic Reranking</td><td>Hybrid + L2 cross-encoder reranker</td><td>Highest precision</td><td><span class="tag green">✅✅✅ Best</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 8.1 -->
+  <h3 id="s8-1">8.1 Keyword Search (BM25)</h3>
+<pre>results = search_client.search(
+    search_text=<span class="string">"What is the refund policy?"</span>,
+    select=[<span class="string">"id"</span>, <span class="string">"content"</span>, <span class="string">"title"</span>, <span class="string">"source_file"</span>],
+    top=<span class="number">5</span>
+)
+<span class="keyword">for</span> r <span class="keyword">in</span> results:
+    <span class="function">print</span>(r[<span class="string">"content"</span>])</pre>
+
+  <!-- 8.2 -->
+  <h3 id="s8-2">8.2 Pure Vector Search</h3>
+<pre><span class="keyword">from</span> azure.search.documents.models <span class="keyword">import</span> VectorizedQuery
+
+query_vector = get_embedding(<span class="string">"What is the refund policy?"</span>)
+
+results = search_client.search(
+    search_text=<span class="keyword">None</span>,              <span class="comment"># no keyword search</span>
+    vector_queries=[
+        VectorizedQuery(
+            vector=query_vector,
+            k_nearest_neighbors=<span class="number">5</span>,
+            fields=<span class="string">"content_vector"</span>
+        )
+    ],
+    select=[<span class="string">"id"</span>, <span class="string">"content"</span>, <span class="string">"title"</span>, <span class="string">"source_file"</span>],
+    top=<span class="number">5</span>
+)</pre>
+
+  <!-- 8.3 -->
+  <h3 id="s8-3">8.3 Hybrid Search + Semantic Reranking (Recommended)</h3>
+<pre><span class="keyword">from</span> azure.search.documents.models <span class="keyword">import</span> VectorizedQuery, QueryType, QueryCaptionType, QueryAnswerType
+
+<span class="keyword">def</span> <span class="function">hybrid_search</span>(query: <span class="type">str</span>, top_k: <span class="type">int</span> = <span class="number">5</span>, filter_expr: <span class="type">str</span> = <span class="keyword">None</span>) -> <span class="type">list[dict]</span>:
+    <span class="string">"""
+    Perform hybrid search (BM25 + vector) with semantic reranking.
+    Returns the top-k most relevant chunks.
+    """</span>
+    query_vector = get_embedding(query)
+
+    results = search_client.search(
+        search_text=query,                       <span class="comment"># BM25 keyword search</span>
+        vector_queries=[
+            VectorizedQuery(
+                vector=query_vector,             <span class="comment"># vector search</span>
+                k_nearest_neighbors=<span class="number">50</span>,         <span class="comment"># fetch more candidates for reranker</span>
+                fields=<span class="string">"content_vector"</span>
+            )
+        ],
+        query_type=QueryType.SEMANTIC,           <span class="comment"># enable semantic reranking</span>
+        semantic_configuration_name=<span class="string">"semantic-config"</span>,
+        query_caption=QueryCaptionType.EXTRACTIVE,
+        query_answer=QueryAnswerType.EXTRACTIVE,
+        filter=filter_expr,                      <span class="comment"># optional OData filter</span>
+        select=[<span class="string">"id"</span>, <span class="string">"content"</span>, <span class="string">"title"</span>, <span class="string">"source_file"</span>, <span class="string">"source_url"</span>,
+                <span class="string">"page_number"</span>, <span class="string">"chunk_index"</span>, <span class="string">"category"</span>],
+        top=top_k
+    )
+
+    chunks = []
+    <span class="keyword">for</span> r <span class="keyword">in</span> results:
+        chunks.append({
+            <span class="string">"id"</span>:          r[<span class="string">"id"</span>],
+            <span class="string">"content"</span>:     r[<span class="string">"content"</span>],
+            <span class="string">"title"</span>:       r.get(<span class="string">"title"</span>, <span class="string">""</span>),
+            <span class="string">"source_file"</span>: r.get(<span class="string">"source_file"</span>, <span class="string">""</span>),
+            <span class="string">"source_url"</span>:  r.get(<span class="string">"source_url"</span>, <span class="string">""</span>),
+            <span class="string">"page_number"</span>: r.get(<span class="string">"page_number"</span>, <span class="number">0</span>),
+            <span class="string">"score"</span>:       r[<span class="string">"@search.reranker_score"</span>]  <span class="comment"># semantic reranker score (0-4)</span>
+        })
+    <span class="keyword">return</span> chunks</pre>
+
+  <!-- 8.4 -->
+  <h3 id="s8-4">8.4 Filtering with Metadata</h3>
+  <p>Use OData filter expressions to restrict search to specific subsets of your index:</p>
+<pre><span class="comment"># Only search within the "legal" category, English documents, after 2025</span>
+filter_expr = <span class="string">"category eq 'legal' and language eq 'en' and created_at ge 2025-01-01T00:00:00Z"</span>
+chunks = hybrid_search(<span class="string">"What are the termination clauses?"</span>, filter_expr=filter_expr)
+
+<span class="comment"># Filter by department + tag</span>
+filter_expr = <span class="string">"department eq 'HR' and tags/any(t: t eq 'onboarding')"</span>
+chunks = hybrid_search(<span class="string">"What is the new employee process?"</span>, filter_expr=filter_expr)
+
+<span class="comment"># Filter by confidence score (exclude low-quality OCR results)</span>
+filter_expr = <span class="string">"confidence_score ge 0.85"</span>
+chunks = hybrid_search(<span class="string">"Show me extraction results"</span>, filter_expr=filter_expr)</pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9 — RAG STEP (LLM)
+════════════════════════════════════════════════════ -->
+<section class="section" id="s9">
+  <div class="section-number">9</div>
+  <h2>Connecting Search Results to an LLM (The RAG Step)</h2>
+
+  <p>
+    Retrieved chunks become the <em>context</em> injected into the system prompt. The LLM is
+    instructed to answer only from that context, enabling grounded, citation-rich responses.
+  </p>
+
+<pre><span class="keyword">def</span> <span class="function">build_rag_prompt</span>(question: <span class="type">str</span>, chunks: <span class="type">list[dict]</span>) -> <span class="type">list[dict]</span>:
+    <span class="string">"""Build the messages array for an OpenAI chat completion."""</span>
+    context_parts = []
+    <span class="keyword">for</span> i, chunk <span class="keyword">in</span> enumerate(chunks, <span class="number">1</span>):
+        context_parts.append(
+            <span class="string">f"[Source {i}: {chunk['title']} | {chunk['source_file']} | Page {chunk['page_number']}]\n"</span>
+            <span class="string">f"{chunk['content']}"</span>
+        )
+    context = <span class="string">"\n\n---\n\n"</span>.join(context_parts)
+
+    system_prompt = <span class="string">f"""You are a helpful assistant that answers questions based ONLY on the provided context.
+If the answer is not in the context, say "I don't have enough information to answer this question."
+Always cite the source number (e.g., [Source 1]) when referencing information.
+
+Context:
+{context}"""</span>
+
+    <span class="keyword">return</span> [
+        {<span class="string">"role"</span>: <span class="string">"system"</span>, <span class="string">"content"</span>: system_prompt},
+        {<span class="string">"role"</span>: <span class="string">"user"</span>,   <span class="string">"content"</span>: question}
+    ]
+
+
+<span class="keyword">def</span> <span class="function">rag_answer</span>(question: <span class="type">str</span>, filter_expr: <span class="type">str</span> = <span class="keyword">None</span>, top_k: <span class="type">int</span> = <span class="number">5</span>) -> <span class="type">dict</span>:
+    <span class="string">"""Full RAG pipeline: search → prompt → LLM answer."""</span>
+    <span class="comment"># Step 1: Retrieve</span>
+    chunks   = hybrid_search(question, top_k=top_k, filter_expr=filter_expr)
+    <span class="keyword">if not</span> chunks:
+        <span class="keyword">return</span> {<span class="string">"answer"</span>: <span class="string">"No relevant documents found."</span>, <span class="string">"sources"</span>: []}
+
+    <span class="comment"># Step 2: Augment</span>
+    messages = build_rag_prompt(question, chunks)
+
+    <span class="comment"># Step 3: Generate</span>
+    response = oai_client.chat.completions.create(
+        model=os.getenv(<span class="string">"AZURE_OPENAI_CHAT_DEPLOYMENT"</span>),
+        messages=messages,
+        temperature=<span class="number">0.1</span>,   <span class="comment"># low temperature for factual RAG</span>
+        max_tokens=<span class="number">1024</span>
+    )
+
+    <span class="keyword">return</span> {
+        <span class="string">"answer"</span>:  response.choices[<span class="number">0</span>].message.content,
+        <span class="string">"sources"</span>: [{<span class="string">"title"</span>: c[<span class="string">"title"</span>], <span class="string">"url"</span>: c[<span class="string">"source_url"</span>], <span class="string">"page"</span>: c[<span class="string">"page_number"</span>]} <span class="keyword">for</span> c <span class="keyword">in</span> chunks]
+    }
+
+<span class="comment"># Test it</span>
+result = rag_answer(<span class="string">"What is the company's remote work policy?"</span>, filter_expr=<span class="string">"category eq 'HR'"</span>)
+<span class="function">print</span>(result[<span class="string">"answer"</span>])
+<span class="function">print</span>(<span class="string">"Sources:"</span>, result[<span class="string">"sources"</span>])</pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 10 — INDEXERS & SKILLSETS
+════════════════════════════════════════════════════ -->
+<section class="section" id="s10">
+  <div class="section-number">10</div>
+  <h2>Indexers, Skillsets &amp; Integrated Vectorisation</h2>
+
+  <p>
+    For production pipelines, Azure AI Search can automate the entire ingestion flow using
+    <strong>Indexers</strong> (data connectors), <strong>Skillsets</strong> (AI enrichment pipeline),
+    and <strong>Integrated Vectorisation</strong> (built-in embedding via Azure OpenAI).
+  </p>
+
+  <h3>Supported Data Sources</h3>
+  <div class="pill-list">
+    <span class="pill">☁️ Azure Blob Storage</span>
+    <span class="pill">🗄️ Azure SQL Database</span>
+    <span class="pill">🍃 Cosmos DB</span>
+    <span class="pill">📂 SharePoint Online</span>
+    <span class="pill">🗃️ Azure Table Storage</span>
+    <span class="pill">🔌 ADLS Gen2</span>
+  </div>
+
+  <h3>Built-in Cognitive Skills</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Skill</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td>Document Cracking</td><td>Extracts text from PDF, Word, Excel, PowerPoint, HTML</td></tr>
+        <tr><td>Text Split Skill</td><td>Built-in chunking by pages or sentences</td></tr>
+        <tr><td>Azure OpenAI Embedding Skill</td><td>Calls your deployed embedding model automatically</td></tr>
+        <tr><td>Language Detection Skill</td><td>Detects document language and populates a field</td></tr>
+        <tr><td>Entity Recognition Skill</td><td>Extracts people, places, organisations from text</td></tr>
+        <tr><td>Key Phrase Extraction</td><td>Identifies main topics for <code>tags</code> field</td></tr>
+        <tr><td>OCR Skill</td><td>Extracts text from images in documents</td></tr>
+        <tr><td>Sentiment Skill</td><td>Classifies document sentiment</td></tr>
+        <tr><td>Custom Web API Skill</td><td>Calls any HTTP endpoint for custom processing</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      <strong>Integrated Vectorisation</strong>
+      <p>As of 2024+, Azure AI Search supports <strong>Integrated Vectorisation</strong> — define a
+         vectoriser in your index that points to your Azure OpenAI deployment, and the service automatically
+         embeds query strings at query time too. No need to embed queries manually in your application code.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 11 — SECURITY
+════════════════════════════════════════════════════ -->
+<section class="section" id="s11">
+  <div class="section-number">11</div>
+  <h2>Security, RBAC &amp; Managed Identities</h2>
+
+  <h3>Authentication Options</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Method</th><th>Use Case</th><th>Recommendation</th></tr></thead>
+      <tbody>
+        <tr><td>API Key (Admin / Query)</td><td>Development, scripts</td><td><span class="tag orange">Dev only</span></td></tr>
+        <tr><td>Azure AD + RBAC</td><td>Production applications</td><td><span class="tag green">✅ Preferred</span></td></tr>
+        <tr><td>Managed Identity</td><td>Azure-hosted services (App Service, AKS, Functions)</td><td><span class="tag green">✅ Best</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>RBAC Roles</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Role</th><th>Permissions</th></tr></thead>
+      <tbody>
+        <tr><td><code>Search Service Contributor</code></td><td>Manage indexes, indexers, data sources. Cannot read/write data.</td></tr>
+        <tr><td><code>Search Index Data Contributor</code></td><td>Read + write documents in indexes.</td></tr>
+        <tr><td><code>Search Index Data Reader</code></td><td>Query documents only. Use for app service / frontend.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<pre><span class="keyword">from</span> azure.identity <span class="keyword">import</span> DefaultAzureCredential
+<span class="keyword">from</span> azure.search.documents <span class="keyword">import</span> SearchClient
+
+<span class="comment"># No API keys — uses Managed Identity / Azure CLI login in prod</span>
+credential    = DefaultAzureCredential()
+search_client = SearchClient(
+    endpoint=<span class="string">"https://&lt;your-service&gt;.search.windows.net"</span>,
+    index_name=<span class="string">"rag-knowledge-base"</span>,
+    credential=credential   <span class="comment"># TokenCredential, not AzureKeyCredential</span>
+)</pre>
+
+  <h3>Document-Level Security (Row-Level Filtering)</h3>
+  <p>
+    Azure AI Search does not support native row-level security out of the box, but you can implement it
+    by storing a <code>permitted_groups</code> field (Collection of strings) and filtering queries
+    based on the authenticated user's group memberships:
+  </p>
+<pre><span class="comment"># During indexing, store who can access this document</span>
+doc[<span class="string">"permitted_groups"</span>] = [<span class="string">"engineers"</span>, <span class="string">"admins"</span>]
+
+<span class="comment"># During querying, filter to user's groups (fetched from Azure AD)</span>
+user_groups   = [<span class="string">"engineers"</span>]   <span class="comment"># from Microsoft Graph API</span>
+group_filter  = <span class="string">" or "</span>.join([<span class="string">f"permitted_groups/any(g: g eq '{g}')"</span> <span class="keyword">for</span> g <span class="keyword">in</span> user_groups])
+results       = search_client.search(search_text=query, filter=group_filter, top=<span class="number">5</span>)</pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 12 — SCORING PROFILES
+════════════════════════════════════════════════════ -->
+<section class="section" id="s12">
+  <div class="section-number">12</div>
+  <h2>Scoring Profiles &amp; Relevance Tuning</h2>
+
+  <p>
+    Scoring profiles let you boost results based on field values or document freshness — separate
+    from semantic reranking. This is applied at the BM25/keyword stage.
+  </p>
+
+<pre><span class="keyword">from</span> azure.search.documents.indexes.models <span class="keyword">import</span> (
+    ScoringProfile, TextWeights, FreshnessScoringFunction,
+    FreshnessScoringParameters, ScoringFunctionInterpolation
+)
+
+scoring_profile = ScoringProfile(
+    name=<span class="string">"freshness-boost"</span>,
+    text_weights=TextWeights(weights={
+        <span class="string">"title"</span>:   <span class="number">3.0</span>,   <span class="comment"># title matches count 3x more</span>
+        <span class="string">"content"</span>: <span class="number">1.0</span>,
+        <span class="string">"tags"</span>:    <span class="number">2.0</span>    <span class="comment"># tag matches count 2x more</span>
+    }),
+    functions=[
+        FreshnessScoringFunction(
+            field_name=<span class="string">"last_modified"</span>,
+            boost=<span class="number">2.0</span>,
+            parameters=FreshnessScoringParameters(boosting_duration=<span class="string">"P30D"</span>),  <span class="comment"># boost last 30 days</span>
+            interpolation=ScoringFunctionInterpolation.LINEAR
+        )
+    ]
+)</pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 13 — MONITORING
+════════════════════════════════════════════════════ -->
+<section class="section" id="s13">
+  <div class="section-number">13</div>
+  <h2>Monitoring, Troubleshooting &amp; Cost Optimisation</h2>
+
+  <h3>Key Metrics to Monitor</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>Where</th><th>Alert Threshold</th></tr></thead>
+      <tbody>
+        <tr><td>Search Latency (P99)</td><td>Azure Monitor / Metrics</td><td>&gt; 500ms</td></tr>
+        <tr><td>Throttled Queries (429s)</td><td>Diagnostics logs</td><td>&gt; 0 in 5 min</td></tr>
+        <tr><td>Indexing Document Count</td><td>Azure Portal → Search Explorer</td><td>Monitor for drops</td></tr>
+        <tr><td>Storage Used</td><td>Azure Monitor</td><td>&gt; 80% of tier limit</td></tr>
+        <tr><td>Semantic Ranking Quota</td><td>Portal → Semantic Search</td><td>Near monthly limit</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Cost Optimisation Tips</h3>
+  <ul class="steps">
+    <li>Set <code>retrievable=False</code> on vector fields — you never need raw floats in results.</li>
+    <li>Use <code>text-embedding-3-small</code> with <code>dimensions=512</code> for non-critical corpora — 5× cheaper than large.</li>
+    <li>Enable <strong>Incremental enrichment cache</strong> in Skillsets to avoid re-processing unchanged documents.</li>
+    <li>Use <strong>query-only keys</strong> (or Search Index Data Reader role) for application queries.</li>
+    <li>Compress old/archived indexes using <code>quantization</code> (scalar quantization, available in newer API versions).</li>
+  </ul>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>Semantic Reranking has a monthly quota</strong>
+      <p>On Standard S1, you get 1,000 free semantic calls/month, then pay per use.
+         Only apply semantic reranking at the final user-facing query layer, not in internal enrichment pipelines.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 14 — COMPLETE CODE
+════════════════════════════════════════════════════ -->
+<section class="section" id="s14">
+  <div class="section-number">14</div>
+  <h2>End-to-End RAG Pipeline — Complete Runnable Script</h2>
+  <p>Below is a single, self-contained Python script that wires together everything covered in this article.</p>
+
+<pre><span class="comment">"""
+rag_pipeline.py — End-to-End RAG with Azure AI Search + Azure OpenAI
+Run: python rag_pipeline.py
+"""</span>
+<span class="keyword">import</span> os, hashlib, time
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timezone
+<span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv
+<span class="keyword">import</span> tiktoken
+<span class="keyword">from</span> openai <span class="keyword">import</span> AzureOpenAI
+<span class="keyword">from</span> azure.core.credentials <span class="keyword">import</span> AzureKeyCredential
+<span class="keyword">from</span> azure.search.documents <span class="keyword">import</span> SearchClient
+<span class="keyword">from</span> azure.search.documents.indexes <span class="keyword">import</span> SearchIndexClient
+<span class="keyword">from</span> azure.search.documents.indexes.models <span class="keyword">import</span> (
+    SearchIndex, SearchField, SimpleField, SearchableField,
+    SearchFieldDataType, VectorSearch, HnswAlgorithmConfiguration,
+    HnswParameters, VectorSearchProfile, SemanticConfiguration,
+    SemanticSearch, SemanticPrioritizedFields, SemanticField
+)
+<span class="keyword">from</span> azure.search.documents.models <span class="keyword">import</span> VectorizedQuery, QueryType
+
+load_dotenv()
+
+<span class="comment"># ══ Clients ══════════════════════════════════════════</span>
+oai = AzureOpenAI(
+    api_key=os.getenv(<span class="string">"AZURE_OPENAI_API_KEY"</span>),
+    api_version=<span class="string">"2024-02-01"</span>,
+    azure_endpoint=os.getenv(<span class="string">"AZURE_OPENAI_ENDPOINT"</span>)
+)
+cred         = AzureKeyCredential(os.getenv(<span class="string">"AZURE_SEARCH_KEY"</span>))
+idx_client   = SearchIndexClient(os.getenv(<span class="string">"AZURE_SEARCH_ENDPOINT"</span>), cred)
+srch_client  = SearchClient(os.getenv(<span class="string">"AZURE_SEARCH_ENDPOINT"</span>),
+                             os.getenv(<span class="string">"AZURE_SEARCH_INDEX_NAME"</span>), cred)
+EMBED_MODEL  = os.getenv(<span class="string">"AZURE_OPENAI_EMBED_DEPLOYMENT"</span>, <span class="string">"text-embedding-3-large"</span>)
+CHAT_MODEL   = os.getenv(<span class="string">"AZURE_OPENAI_CHAT_DEPLOYMENT"</span>,  <span class="string">"gpt-4o"</span>)
+INDEX_NAME   = os.getenv(<span class="string">"AZURE_SEARCH_INDEX_NAME"</span>,       <span class="string">"rag-knowledge-base"</span>)
+
+<span class="comment"># ══ 1. Create Index ═══════════════════════════════════</span>
+<span class="keyword">def</span> <span class="function">create_index</span>():
+    index = SearchIndex(
+        name=INDEX_NAME,
+        fields=[
+            SimpleField(   name=<span class="string">"id"</span>,             type=SearchFieldDataType.String,  key=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+            SearchableField(name=<span class="string">"content"</span>,       type=SearchFieldDataType.String,          retrievable=<span class="keyword">True</span>, analyzer_name=<span class="string">"en.microsoft"</span>),
+            SearchableField(name=<span class="string">"title"</span>,         type=SearchFieldDataType.String,          retrievable=<span class="keyword">True</span>, filterable=<span class="keyword">True</span>),
+            SearchField(   name=<span class="string">"content_vector"</span>, type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                           searchable=<span class="keyword">True</span>, retrievable=<span class="keyword">False</span>,
+                           vector_search_dimensions=<span class="number">3072</span>, vector_search_profile_name=<span class="string">"hnsw-profile"</span>),
+            SimpleField(   name=<span class="string">"source_file"</span>,   type=SearchFieldDataType.String,  filterable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+            SimpleField(   name=<span class="string">"source_url"</span>,    type=SearchFieldDataType.String,               retrievable=<span class="keyword">True</span>),
+            SimpleField(   name=<span class="string">"category"</span>,      type=SearchFieldDataType.String,  filterable=<span class="keyword">True</span>,  facetable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+            SimpleField(   name=<span class="string">"page_number"</span>,   type=SearchFieldDataType.Int32,   filterable=<span class="keyword">True</span>,  sortable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+            SimpleField(   name=<span class="string">"chunk_index"</span>,   type=SearchFieldDataType.Int32,   filterable=<span class="keyword">True</span>,  sortable=<span class="keyword">True</span>,  retrievable=<span class="keyword">True</span>),
+            SimpleField(   name=<span class="string">"last_modified"</span>, type=SearchFieldDataType.DateTimeOffset, filterable=<span class="keyword">True</span>, sortable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+            SearchField(   name=<span class="string">"tags"</span>,          type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                           filterable=<span class="keyword">True</span>, facetable=<span class="keyword">True</span>, retrievable=<span class="keyword">True</span>),
+        ],
+        vector_search=VectorSearch(
+            algorithms=[HnswAlgorithmConfiguration(name=<span class="string">"hnsw"</span>, parameters=HnswParameters(m=<span class="number">16</span>, ef_construction=<span class="number">800</span>, metric=<span class="string">"cosine"</span>))],
+            profiles=[VectorSearchProfile(name=<span class="string">"hnsw-profile"</span>, algorithm_configuration_name=<span class="string">"hnsw"</span>)]
+        ),
+        semantic_search=SemanticSearch(configurations=[
+            SemanticConfiguration(name=<span class="string">"semantic-config"</span>,
+                prioritized_fields=SemanticPrioritizedFields(
+                    title_field=SemanticField(field_name=<span class="string">"title"</span>),
+                    content_fields=[SemanticField(field_name=<span class="string">"content"</span>)]))
+        ])
+    )
+    idx_client.create_or_update_index(index)
+    <span class="function">print</span>(<span class="string">f"✅ Index '{INDEX_NAME}' ready."</span>)
+
+<span class="comment"># ══ 2. Chunk ══════════════════════════════════════════</span>
+<span class="keyword">def</span> <span class="function">chunk_text</span>(text, chunk_size=<span class="number">512</span>, overlap=<span class="number">64</span>):
+    enc    = tiktoken.get_encoding(<span class="string">"cl100k_base"</span>)
+    tokens = enc.encode(text)
+    chunks, start = [], <span class="number">0</span>
+    <span class="keyword">while</span> start < len(tokens):
+        end = min(start + chunk_size, len(tokens))
+        chunks.append(enc.decode(tokens[start:end]))
+        <span class="keyword">if</span> end == len(tokens): <span class="keyword">break</span>
+        start += chunk_size - overlap
+    <span class="keyword">return</span> chunks
+
+<span class="comment"># ══ 3. Embed ══════════════════════════════════════════</span>
+<span class="keyword">def</span> <span class="function">embed_batch</span>(texts, batch_size=<span class="number">16</span>):
+    all_vecs = []
+    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(texts), batch_size):
+        resp = oai.embeddings.create(input=texts[i:i+batch_size], model=EMBED_MODEL)
+        all_vecs.extend([x.embedding <span class="keyword">for</span> x <span class="keyword">in</span> resp.data])
+        time.sleep(<span class="number">0.1</span>)
+    <span class="keyword">return</span> all_vecs
+
+<span class="comment"># ══ 4. Index ══════════════════════════════════════════</span>
+<span class="keyword">def</span> <span class="function">ingest</span>(text, source_file, title, category=<span class="string">"general"</span>, tags=<span class="keyword">None</span>):
+    chunks     = chunk_text(text)
+    embeddings = embed_batch(chunks)
+    now        = datetime.now(timezone.utc).isoformat()
+    docs = [{
+        <span class="string">"id"</span>:             hashlib.md5(<span class="string">f"{source_file}_{i}"</span>.encode()).hexdigest(),
+        <span class="string">"content"</span>:        c,
+        <span class="string">"content_vector"</span>: v,
+        <span class="string">"title"</span>:          title,
+        <span class="string">"source_file"</span>:    source_file,
+        <span class="string">"source_url"</span>:     <span class="string">f"https://storage.example.com/{source_file}"</span>,
+        <span class="string">"category"</span>:       category,
+        <span class="string">"tags"</span>:           tags <span class="keyword">or</span> [],
+        <span class="string">"page_number"</span>:    <span class="number">0</span>,
+        <span class="string">"chunk_index"</span>:    i,
+        <span class="string">"last_modified"</span>:  now
+    } <span class="keyword">for</span> i, (c, v) <span class="keyword">in</span> enumerate(zip(chunks, embeddings))]
+    srch_client.merge_or_upload_documents(docs)
+    <span class="function">print</span>(<span class="string">f"✅ Indexed {len(docs)} chunks from '{source_file}'"</span>)
+
+<span class="comment"># ══ 5. Search ═════════════════════════════════════════</span>
+<span class="keyword">def</span> <span class="function">search</span>(query, top=<span class="number">5</span>, filter_expr=<span class="keyword">None</span>):
+    vec = oai.embeddings.create(input=[query], model=EMBED_MODEL).data[<span class="number">0</span>].embedding
+    res = srch_client.search(
+        search_text=query,
+        vector_queries=[VectorizedQuery(vector=vec, k_nearest_neighbors=<span class="number">50</span>, fields=<span class="string">"content_vector"</span>)],
+        query_type=QueryType.SEMANTIC,
+        semantic_configuration_name=<span class="string">"semantic-config"</span>,
+        filter=filter_expr, top=top,
+        select=[<span class="string">"id"</span>, <span class="string">"content"</span>, <span class="string">"title"</span>, <span class="string">"source_file"</span>, <span class="string">"source_url"</span>, <span class="string">"page_number"</span>]
+    )
+    <span class="keyword">return</span> [dict(r) <span class="keyword">for</span> r <span class="keyword">in</span> res]
+
+<span class="comment"># ══ 6. RAG Answer ═════════════════════════════════════</span>
+<span class="keyword">def</span> <span class="function">ask</span>(question, filter_expr=<span class="keyword">None</span>):
+    chunks  = search(question, filter_expr=filter_expr)
+    context = <span class="string">"\n\n---\n\n"</span>.join([<span class="string">f"[Source {i+1}: {c['title']}]\n{c['content']}"</span> <span class="keyword">for</span> i, c <span class="keyword">in</span> enumerate(chunks)])
+    messages = [
+        {<span class="string">"role"</span>: <span class="string">"system"</span>, <span class="string">"content"</span>: <span class="string">f"Answer ONLY from the context below. Cite [Source N].\n\n{context}"</span>},
+        {<span class="string">"role"</span>: <span class="string">"user"</span>,   <span class="string">"content"</span>: question}
+    ]
+    ans = oai.chat.completions.create(model=CHAT_MODEL, messages=messages, temperature=<span class="number">0.1</span>)
+    <span class="function">print</span>(<span class="string">"\n🤖 Answer:\n"</span>, ans.choices[<span class="number">0</span>].message.content)
+    <span class="function">print</span>(<span class="string">"\n📚 Sources:"</span>, [{<span class="string">"title"</span>: c[<span class="string">"title"</span>], <span class="string">"url"</span>: c[<span class="string">"source_url"</span>]} <span class="keyword">for</span> c <span class="keyword">in</span> chunks])
+
+<span class="comment"># ══ Main ══════════════════════════════════════════════</span>
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    create_index()
+    ingest(open(<span class="string">"sample.txt"</span>).read(), <span class="string">"sample.txt"</span>, <span class="string">"Sample Document"</span>, tags=[<span class="string">"demo"</span>])
+    ask(<span class="string">"Summarise the main points of the document."</span>)</pre>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 15 — KEY TAKEAWAYS
+════════════════════════════════════════════════════ -->
+<section class="section" id="s15">
+  <div class="section-number">15</div>
+  <h2>Key Takeaways &amp; Next Steps</h2>
+
+  <h3>✅ What We Covered</h3>
+  <ul class="steps">
+    <li><strong>Index design</strong> — field types, attributes, and the metadata schema a RAG system needs.</li>
+    <li><strong>Chunking</strong> — token-aware splitting with overlap for coherent, LLM-sized chunks.</li>
+    <li><strong>Embeddings</strong> — batch generation with Azure OpenAI's embedding models.</li>
+    <li><strong>Ingestion</strong> — uploading documents as structured records with idempotent IDs.</li>
+    <li><strong>Querying</strong> — hybrid BM25 + vector search with semantic reranking and metadata filtering.</li>
+    <li><strong>RAG generation</strong> — prompt construction and grounded LLM responses with citations.</li>
+    <li><strong>Production concerns</strong> — security (RBAC, managed identity), monitoring, and cost control.</li>
+  </ul>
+
+  <h3>🔮 Further Topics to Explore</h3>
+  <div class="card-grid">
+    <div class="card"><h4>🔁 Multi-turn RAG</h4><p>Maintain conversation history; rephrase follow-up questions before retrieval.</p></div>
+    <div class="card"><h4>🧮 Query Expansion</h4><p>Use an LLM to generate multiple queries from one user question (HyDE, step-back prompting).</p></div>
+    <div class="card"><h4>📊 Evaluation</h4><p>Measure RAG quality with RAGAS — faithfulness, answer relevancy, context recall.</p></div>
+    <div class="card"><h4>🕸️ Knowledge Graphs</h4><p>Combine Azure AI Search with Azure Cosmos DB for GraphRAG on connected entities.</p></div>
+    <div class="card"><h4>🤖 Agentic RAG</h4><p>Let an LLM agent decide when to search, what filters to apply, and how many rounds to retrieve.</p></div>
+    <div class="card"><h4>🗜️ Prompt Compression</h4><p>Use LLMLingua or similar to compress retrieved chunks before sending to the LLM.</p></div>
+  </div>
+
+  <h3>📚 Official References</h3>
+  <ul style="padding-left: 20px; margin-top: 12px;">
+    <li><a href="https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search" style="color: var(--azure-blue);">Azure AI Search Documentation</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/azure/search/vector-search-overview" style="color: var(--azure-blue);">Vector Search Overview</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/azure/search/semantic-search-overview" style="color: var(--azure-blue);">Semantic Search Overview</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/azure/search/search-get-started-rag" style="color: var(--azure-blue);">Quickstart: RAG with Azure AI Search</a></li>
+    <li><a href="https://github.com/Azure/azure-search-openai-demo" style="color: var(--azure-blue);">Azure Search OpenAI Demo (GitHub)</a></li>
+  </ul>
+</section>
+
+</div><!-- end page-wrapper -->
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════ -->
+<footer>
+  <div class="page-wrapper">
+    <p>
+      Written by <strong>arup-j-hui_met</strong> · Published April 28, 2026<br>
+      <a href="https://learn.microsoft.com/en-us/azure/search/">Azure AI Search Docs</a> ·
+      <a href="https://learn.microsoft.com/en-us/azure/ai-services/openai/">Azure OpenAI Docs</a>
+    </p>
+    <p style="margin-top:10px; font-size:12px; opacity:.7;">
+      Code examples are for educational purposes. Always follow your organisation's security policies in production.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

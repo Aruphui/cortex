@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Python Study Notes – Sessions 7 to 11</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0f0;
+      line-height: 1.75;
+    }
+
+    /* ── Sidebar Navigation ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 260px; height: 100vh;
+      background: #13132b;
+      border-right: 2px solid #2e2e5e;
+      overflow-y: auto;
+      padding: 20px 12px;
+      z-index: 100;
+    }
+    .sidebar h2 {
+      font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;
+      color: #7c6aff; margin-bottom: 16px;
+    }
+    .sidebar a {
+      display: block; padding: 7px 10px; margin-bottom: 3px;
+      color: #b0aee8; text-decoration: none;
+      border-radius: 6px; font-size: 0.82rem;
+      transition: background 0.2s;
+    }
+    .sidebar a:hover { background: #2a2a5e; color: #fff; }
+    .sidebar .section-head {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px;
+      color: #6060a8; margin: 14px 0 4px 8px;
+    }
+
+    /* ── Main Content ── */
+    .main { margin-left: 260px; padding: 40px 48px; max-width: 1100px; }
+
+    /* ── Top Banner ── */
+    .banner {
+      background: linear-gradient(135deg, #1a1a3e 0%, #2d1b69 100%);
+      border: 1px solid #4a3aff44;
+      border-radius: 16px; padding: 36px 40px; margin-bottom: 48px;
+    }
+    .banner h1 { font-size: 2rem; color: #a89eff; margin-bottom: 8px; }
+    .banner p  { color: #8888bb; font-size: 0.95rem; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .badge {
+      background: #2a2060; border: 1px solid #5040c0;
+      color: #c0b8ff; padding: 4px 14px; border-radius: 20px; font-size: 0.78rem;
+    }
+
+    /* ── Session Card ── */
+    .session-card {
+      background: #16163a; border: 1px solid #2e2e5e;
+      border-radius: 14px; margin-bottom: 56px; overflow: hidden;
+    }
+    .session-header {
+      background: linear-gradient(90deg, #1e1e50, #2a1a6e);
+      padding: 22px 32px; display: flex; align-items: center; gap: 16px;
+    }
+    .session-num {
+      background: #5540d0; color: #fff;
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .session-header h2 { font-size: 1.35rem; color: #d0c8ff; }
+    .session-header p  { color: #8888bb; font-size: 0.85rem; margin-top: 2px; }
+    .session-body { padding: 30px 32px; }
+
+    /* ── Section Titles ── */
+    .concept {
+      border-left: 4px solid #5540d0; padding-left: 16px;
+      margin: 36px 0 14px;
+    }
+    .concept h3 { font-size: 1.1rem; color: #b0a8ff; }
+    .concept p  { color: #9090b8; font-size: 0.82rem; margin-top: 2px; }
+
+    /* ── Theory Box ── */
+    .theory {
+      background: #1c1c44; border: 1px solid #303068;
+      border-radius: 10px; padding: 18px 22px; margin-bottom: 18px;
+      color: #d0d0ee;
+    }
+    .theory h4 { color: #a0a0e8; margin-bottom: 8px; font-size: 0.95rem; }
+    .theory ul { padding-left: 20px; }
+    .theory li { margin-bottom: 5px; color: #b0b0d8; font-size: 0.9rem; }
+
+    /* ── Code Block ── */
+    .code-block {
+      background: #0d0d20; border: 1px solid #2a2a50;
+      border-radius: 10px; margin-bottom: 10px; overflow: hidden;
+    }
+    .code-header {
+      background: #1a1a3c; padding: 8px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .code-label { font-size: 0.75rem; color: #6868aa; font-family: monospace; }
+    .lang-tag {
+      background: #2d2060; color: #9888ff;
+      padding: 2px 10px; border-radius: 10px; font-size: 0.7rem;
+    }
+    pre {
+      padding: 18px 20px; overflow-x: auto;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.85rem; line-height: 1.6;
+    }
+    /* Syntax colours */
+    .kw  { color: #c792ea; font-weight: 600; }  /* keywords */
+    .fn  { color: #82aaff; }                     /* function names */
+    .st  { color: #c3e88d; }                     /* strings */
+    .cm  { color: #546e7a; font-style: italic; } /* comments */
+    .nm  { color: #f78c6c; }                     /* numbers / class names */
+    .op  { color: #89ddff; }                     /* operators / symbols */
+    .err { color: #ff5370; }                     /* errors */
+    .hl  { background: #1e2a3a; display: block; } /* highlighted line */
+
+    /* ── Explanation Box ── */
+    .explain {
+      background: #151530; border-left: 3px solid #5040b8;
+      border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 22px;
+    }
+    .explain p { color: #a8a8d0; font-size: 0.88rem; margin-bottom: 6px; }
+    .explain .line-note {
+      font-size: 0.82rem; color: #8888b8;
+      padding: 4px 0; border-bottom: 1px solid #22225a;
+    }
+    .explain .line-note:last-child { border-bottom: none; }
+    .line-num { color: #5540d0; font-weight: 700; margin-right: 8px; font-family: monospace; }
+
+    /* ── Info / Warning / Note Callouts ── */
+    .callout {
+      border-radius: 10px; padding: 14px 18px; margin-bottom: 18px;
+      font-size: 0.88rem; display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout .icon { font-size: 1.2rem; flex-shrink: 0; }
+    .callout.info    { background: #132040; border: 1px solid #2060a0; color: #90c0ff; }
+    .callout.warning { background: #2a1a10; border: 1px solid #a06020; color: #ffb060; }
+    .callout.success { background: #0f2a1a; border: 1px solid #207040; color: #70e0a0; }
+    .callout.danger  { background: #2a1020; border: 1px solid #8020a0; color: #e090f0; }
+
+    /* ── Key Points Summary ── */
+    .key-points {
+      background: linear-gradient(135deg, #1a1060, #100a30);
+      border: 1px solid #3a2880; border-radius: 12px;
+      padding: 20px 24px; margin-top: 28px;
+    }
+    .key-points h4 { color: #9a86ff; margin-bottom: 12px; font-size: 0.95rem; }
+    .key-points li { color: #b0a8e0; margin-bottom: 6px; font-size: 0.88rem; }
+
+    /* ── Error Output ── */
+    .error-out {
+      background: #1a0a0a; border: 1px solid #5a1a1a;
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    }
+    .error-out .err-label { color: #ff6060; font-size: 0.78rem; margin-bottom: 6px; font-weight: 700; }
+    .error-out pre { color: #ff9090; font-size: 0.8rem; padding: 0; }
+
+    /* ── Output Block ── */
+    .output {
+      background: #0a1020; border: 1px solid #1a3060;
+      border-radius: 8px; padding: 10px 16px; margin-bottom: 16px;
+    }
+    .output .out-label { color: #4488aa; font-size: 0.75rem; margin-bottom: 4px; }
+    .output pre { color: #80d0ff; font-size: 0.83rem; padding: 0; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.88rem; }
+    th { background: #1e1e4e; color: #a0a0e8; padding: 10px 14px; text-align: left; border-bottom: 2px solid #3a3a6e; }
+    td { padding: 9px 14px; border-bottom: 1px solid #22224a; color: #c0c0e0; }
+    tr:hover td { background: #1a1a3a; }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid #2a2a4e; margin: 30px 0; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f0f1a; }
+    ::-webkit-scrollbar-thumb { background: #3a2880; border-radius: 4px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<nav class="sidebar">
+  <h2>📘 Python Notes</h2>
+
+  <div class="section-head">Session 7</div>
+  <a href="#s7-oop">OOP Basics</a>
+  <a href="#s7-class">Class & Object</a>
+  <a href="#s7-constructor">Constructor</a>
+  <a href="#s7-dunder">Dunder Methods</a>
+
+  <div class="section-head">Session 8</div>
+  <a href="#s8-attr">Attribute Access</a>
+  <a href="#s8-encap">Encapsulation</a>
+  <a href="#s8-static">Static Variables</a>
+  <a href="#s8-collection">Collection of Objects</a>
+
+  <div class="section-head">Session 9</div>
+  <a href="#s9-aggregation">Aggregation</a>
+  <a href="#s9-inheritance">Inheritance</a>
+  <a href="#s9-super">super()</a>
+  <a href="#s9-types">Types of Inheritance</a>
+  <a href="#s9-poly">Polymorphism</a>
+  <a href="#s9-abstract">Abstraction</a>
+
+  <div class="section-head">Session 10</div>
+  <a href="#s10-fileio">File I/O</a>
+  <a href="#s10-modes">File Modes</a>
+  <a href="#s10-context">Context Manager</a>
+  <a href="#s10-binary">Binary Files</a>
+  <a href="#s10-json">JSON</a>
+  <a href="#s10-pickle">Pickle</a>
+
+  <div class="section-head">Session 11</div>
+  <a href="#s11-syntax">Syntax Errors</a>
+  <a href="#s11-exceptions">Exceptions</a>
+  <a href="#s11-tryexcept">try / except</a>
+  <a href="#s11-raise">raise</a>
+  <a href="#s11-custom">Custom Exceptions</a>
+
+    <div class="section-head">Iterators</div>
+  <a href="#iter-what">What is Iteration?</a>
+  <a href="#iter-iterable">Iterable vs Iterator</a>
+  <a href="#iter-forloop">How for loop works</a>
+  <a href="#iter-custom">Custom range()</a>
+
+  <div class="section-head">Generators</div>
+  <a href="#gen-why">The Why</a>
+  <a href="#gen-yield">yield vs return</a>
+  <a href="#gen-examples">Examples</a>
+  <a href="#gen-expr">Generator Expression</a>
+  <a href="#gen-benefits">Benefits</a>
+
+  <div class="section-head">Recursion</div>
+  <a href="#rec-what">What is Recursion?</a>
+  <a href="#rec-anatomy">Anatomy of Recursion</a>
+  <a href="#rec-factorial">Factorial</a>
+  <a href="#rec-fibonacci">Fibonacci</a>
+  <a href="#rec-binary">Binary Search</a>
+  <a href="#rec-vs-iter">Recursion vs Iteration</a>
+
+  <div class="section-head">Session 12</div>
+  <a href="#s12-namespaces">Namespaces</a>
+  <a href="#s12-legb">LEGB Rule</a>
+  <a href="#s12-global">global / nonlocal</a>
+  <a href="#s12-decorators">Decorators</a>
+  <a href="#s12-timer">Timer Decorator</a>
+  <a href="#s12-args">Decorator with Args</a>
+</nav>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main class="main">
+
+  <!-- ── Banner ── -->
+  <div class="banner">
+    <h1>🐍 Python Study Notes</h1>
+    <p>Detailed theory + step-by-step code explanation for Sessions 7–11</p>
+    <div class="badge-row">
+      <span class="badge">Session 7 – OOP Basics</span>
+      <span class="badge">Session 8 – OOP Part 2</span>
+      <span class="badge">Session 9 – OOP Part 3</span>
+      <span class="badge">Session 10 – File Handling</span>
+      <span class="badge">Session 11 – Exception Handling</span>
+      <span class="badge">Iterators &amp; Iterables</span>
+      <span class="badge">Generators &amp; yield</span>
+      <span class="badge">Recursion (detailed)</span>
+      <span class="badge">Session 12 – Namespaces</span>
+      <span class="badge">Session 12 – Decorators</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 7 – OOP BASICS
+  ═══════════════════════════════════════════ -->
+  <div class="session-card" id="s7-oop">
+    <div class="session-header">
+      <div class="session-num">7</div>
+      <div>
+        <h2>Object-Oriented Programming – Basics</h2>
+        <p>Classes, Objects, Constructors, Dunder Methods</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── Theory: What is OOP ── -->
+      <div class="concept" id="s7-class">
+        <h3>What is OOP?</h3>
+        <p>Core idea: model the real world with objects that have data + behaviour</p>
+      </div>
+      <div class="theory">
+        <h4>Key Concepts</h4>
+        <ul>
+          <li><strong>Class</strong> – A blueprint / template. Like a cookie-cutter.</li>
+          <li><strong>Object (Instance)</strong> – A real thing made from the blueprint.</li>
+          <li><strong>Attribute</strong> – Data stored inside an object (state).</li>
+          <li><strong>Method</strong> – A function that belongs to a class (behaviour).</li>
+          <li><strong>self</strong> – A reference to the current object. Python passes it automatically.</li>
+        </ul>
+      </div>
+
+      <div class="callout info">
+        <span class="icon">💡</span>
+        <div>Everything in Python is an object — lists, strings, integers — all have a type (class) with attributes and methods. <br>
+        <code>type([1,2,3])</code> → <code>&lt;class 'list'&gt;</code></div>
+      </div>
+
+      <!-- ── Step 1: Creating a class ── -->
+      <div class="concept">
+        <h3>Step 1 – Defining a Class</h3>
+        <p>Use the <code>class</code> keyword with PascalCase naming</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">class_definition.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Atm</span><span class="op">:</span>
+
+    <span class="cm"># __init__ is the constructor – called automatically when object is created</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="fn">id</span>(<span class="kw">self</span>))     <span class="cm"># prints memory address of this object</span>
+        <span class="kw">self</span><span class="op">.</span>pin <span class="op">=</span> <span class="st">''</span>          <span class="cm"># instance attribute: PIN number</span>
+        <span class="kw">self</span><span class="op">.</span>balance <span class="op">=</span> <span class="nm">0</span>      <span class="cm"># instance attribute: account balance</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L1</span> <code>class Atm:</code> – declares a new class named <strong>Atm</strong>.</div>
+        <div class="line-note"><span class="line-num">L4</span> <code>def __init__(self):</code> – special constructor method. Python calls this automatically every time you write <code>Atm()</code>.</div>
+        <div class="line-note"><span class="line-num">L5</span> <code>print(id(self))</code> – <code>id()</code> returns the memory address. Each object has a unique address.</div>
+        <div class="line-note"><span class="line-num">L6-7</span> <code>self.pin</code> and <code>self.balance</code> – instance attributes. Each object gets its own copy.</div>
+      </div>
+
+      <!-- ── Step 2: Creating an object ── -->
+      <div class="concept" id="s7-constructor">
+        <h3>Step 2 – Creating Objects</h3>
+        <p>Syntax: <code>objectname = ClassName()</code></p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">creating_objects.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="nm">obj1</span> <span class="op">=</span> <span class="nm">Atm</span><span class="op">()</span>   <span class="cm"># creates object 1 – prints its memory address</span>
+<span class="nm">obj2</span> <span class="op">=</span> <span class="nm">Atm</span><span class="op">()</span>   <span class="cm"># creates object 2 – different memory address</span>
+
+<span class="fn">print</span>(<span class="fn">id</span>(<span class="nm">obj1</span>))  <span class="cm"># e.g. 140289660099024</span>
+<span class="fn">print</span>(<span class="fn">id</span>(<span class="nm">obj2</span>))  <span class="cm"># e.g. 140289660586384  ← different!</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L1-2</span> Each call to <code>Atm()</code> creates a <strong>new, independent object</strong> in memory.</div>
+        <div class="line-note"><span class="line-num">L4-5</span> The two IDs are different, proving two separate objects exist.</div>
+      </div>
+
+      <div class="callout warning">
+        <span class="icon">⚠️</span>
+        <div><strong>self is not a keyword</strong> — it's a convention. Python automatically passes the current object as the first argument to every method. You could name it anything, but <code>self</code> is universal.</div>
+      </div>
+
+      <!-- ── Step 3: Parameterized Constructor ── -->
+      <div class="concept">
+        <h3>Step 3 – Parameterized Constructor</h3>
+        <p>Pass data when creating an object</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">parameterized_constructor.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Fraction</span><span class="op">:</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, x, y)<span class="op">:</span>   <span class="cm"># accepts numerator x, denominator y</span>
+        <span class="kw">self</span><span class="op">.</span>num <span class="op">=</span> x
+        <span class="kw">self</span><span class="op">.</span>den <span class="op">=</span> y
+
+    <span class="kw">def</span> <span class="fn">convert_to_decimal</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">return</span> <span class="kw">self</span><span class="op">.</span>num <span class="op">/</span> <span class="kw">self</span><span class="op">.</span>den
+
+fr1 <span class="op">=</span> <span class="nm">Fraction</span>(<span class="nm">3</span>, <span class="nm">4</span>)    <span class="cm"># numerator=3, denominator=4</span>
+<span class="fn">print</span>(fr1<span class="op">.</span>convert_to_decimal())  <span class="cm"># Output: 0.75</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L3</span> <code>def __init__(self, x, y)</code> – the constructor now takes two extra arguments.</div>
+        <div class="line-note"><span class="line-num">L4-5</span> They are stored as instance attributes, so every fraction object remembers its own numerator and denominator.</div>
+        <div class="line-note"><span class="line-num">L9</span> <code>Fraction(3, 4)</code> – Python calls <code>__init__(self=fr1, x=3, y=4)</code> internally.</div>
+      </div>
+
+      <!-- ── Step 4: Dunder methods ── -->
+      <div class="concept" id="s7-dunder">
+        <h3>Step 4 – Dunder (Magic) Methods</h3>
+        <p>Special methods surrounded by double underscores that enable built-in Python behaviour</p>
+      </div>
+      <div class="theory">
+        <h4>Common Dunder Methods</h4>
+        <ul>
+          <li><code>__init__</code> – constructor, called on object creation</li>
+          <li><code>__str__</code> – defines what <code>print(obj)</code> shows</li>
+          <li><code>__add__</code> – defines behaviour of <code>+</code> operator</li>
+          <li><code>__sub__</code> – defines behaviour of <code>-</code> operator</li>
+          <li><code>__mul__</code> – defines behaviour of <code>*</code> operator</li>
+          <li><code>__truediv__</code> – defines behaviour of <code>/</code> operator</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">dunder_methods.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Fraction</span><span class="op">:</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, x, y)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>num <span class="op">=</span> x
+        <span class="kw">self</span><span class="op">.</span>den <span class="op">=</span> y
+
+    <span class="cm"># __str__ controls how the object is displayed when printed</span>
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">return</span> <span class="st">'{}/{}'</span><span class="op">.</span><span class="fn">format</span>(<span class="kw">self</span><span class="op">.</span>num, <span class="kw">self</span><span class="op">.</span>den)
+
+    <span class="cm"># __add__ enables: fraction1 + fraction2</span>
+    <span class="kw">def</span> <span class="fn">__add__</span>(<span class="kw">self</span>, other)<span class="op">:</span>
+        new_num <span class="op">=</span> <span class="kw">self</span><span class="op">.</span>num<span class="op">*</span>other<span class="op">.</span>den <span class="op">+</span> other<span class="op">.</span>num<span class="op">*</span><span class="kw">self</span><span class="op">.</span>den
+        new_den <span class="op">=</span> <span class="kw">self</span><span class="op">.</span>den<span class="op">*</span>other<span class="op">.</span>den
+        <span class="kw">return</span> <span class="st">'{}/{}'</span><span class="op">.</span><span class="fn">format</span>(new_num, new_den)
+
+fr1 <span class="op">=</span> <span class="nm">Fraction</span>(<span class="nm">3</span>, <span class="nm">4</span>)
+fr2 <span class="op">=</span> <span class="nm">Fraction</span>(<span class="nm">1</span>, <span class="nm">2</span>)
+
+<span class="fn">print</span>(fr1)          <span class="cm"># calls __str__ → Output: 3/4</span>
+<span class="fn">print</span>(fr1 <span class="op">+</span> fr2)   <span class="cm"># calls __add__ → Output: 10/8</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L8</span> <code>__str__</code> – without this, <code>print(fr1)</code> would show something like <code>&lt;__main__.Fraction object at 0x...&gt;</code>.</div>
+        <div class="line-note"><span class="line-num">L12</span> <code>__add__(self, other)</code> – <code>self</code> = left operand (<code>fr1</code>), <code>other</code> = right operand (<code>fr2</code>).</div>
+        <div class="line-note"><span class="line-num">L13</span> Cross-multiplication formula: <code>(a/b) + (c/d) = (a*d + c*b) / (b*d)</code>.</div>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Session 7 Key Takeaways</h4>
+        <ul>
+          <li>A <strong>class</strong> is a blueprint; an <strong>object</strong> is a real instance of that blueprint.</li>
+          <li><code>__init__</code> is the constructor – runs automatically when an object is created.</li>
+          <li><code>self</code> always refers to the current object inside a method.</li>
+          <li>Dunder methods let you define how operators like <code>+</code>, <code>-</code>, <code>*</code> work for your class.</li>
+          <li>Every variable in Python (int, str, list…) is an object of some class.</li>
+        </ul>
+      </div>
+
+    </div><!-- /session-body -->
+  </div><!-- /session-card -->
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 8 – OOP PART 2
+  ═══════════════════════════════════════════ -->
+  <div class="session-card" id="s8-attr">
+    <div class="session-header">
+      <div class="session-num">8</div>
+      <div>
+        <h2>OOP – Part 2</h2>
+        <p>Attribute Access, Encapsulation, Static Variables &amp; Methods</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── Accessing Attributes ── -->
+      <div class="concept">
+        <h3>Accessing Attributes &amp; Methods</h3>
+        <p>Dot notation: <code>object.attribute</code> or <code>object.method()</code></p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">attribute_access.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Person</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, name, country)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>name    <span class="op">=</span> name
+        <span class="kw">self</span><span class="op">.</span>country <span class="op">=</span> country
+
+    <span class="kw">def</span> <span class="fn">greet</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">if</span> <span class="kw">self</span><span class="op">.</span>country <span class="op">==</span> <span class="st">'india'</span><span class="op">:</span>
+            <span class="fn">print</span>(<span class="st">'Namaste'</span>, <span class="kw">self</span><span class="op">.</span>name)
+        <span class="kw">else</span><span class="op">:</span>
+            <span class="fn">print</span>(<span class="st">'Hello'</span>, <span class="kw">self</span><span class="op">.</span>name)
+
+p <span class="op">=</span> <span class="nm">Person</span>(<span class="st">'nitish'</span>, <span class="st">'india'</span>)
+<span class="fn">print</span>(p<span class="op">.</span>name)     <span class="cm"># → nitish</span>
+p<span class="op">.</span><span class="fn">greet</span>()          <span class="cm"># → Namaste nitish</span>
+p<span class="op">.</span>gender           <span class="cm"># → AttributeError! 'gender' doesn't exist</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L13</span> <code>p.name</code> reads the <code>name</code> attribute stored in the object.</div>
+        <div class="line-note"><span class="line-num">L14</span> <code>p.greet()</code> calls the method; Python passes <code>p</code> as <code>self</code> automatically.</div>
+        <div class="line-note"><span class="line-num">L15</span> Accessing a non-existent attribute raises <code>AttributeError</code>.</div>
+      </div>
+
+      <!-- ── Adding attributes from outside ── -->
+      <div class="concept">
+        <h3>Adding Attributes from Outside the Class</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">outside_attributes.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre>p<span class="op">.</span>gender <span class="op">=</span> <span class="st">'male'</span>   <span class="cm"># dynamically add attribute to existing object</span>
+<span class="fn">print</span>(p<span class="op">.</span>gender)       <span class="cm"># → male</span></pre>
+      </div>
+      <div class="callout warning">
+        <span class="icon">⚠️</span>
+        <div>Python allows adding attributes to an object from outside the class. This is powerful but can lead to bugs if not used carefully. Prefer defining all attributes in <code>__init__</code>.</div>
+      </div>
+
+      <!-- ── Reference Variables ── -->
+      <div class="concept">
+        <h3>Reference Variables</h3>
+        <p>Multiple references pointing to the same object</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">reference_variables.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre>p <span class="op">=</span> <span class="nm">Person</span>()    <span class="cm"># create object</span>
+q <span class="op">=</span> p            <span class="cm"># q points to the SAME object, not a new one</span>
+
+<span class="fn">print</span>(<span class="fn">id</span>(p))  <span class="cm"># e.g. 140655538334992</span>
+<span class="fn">print</span>(<span class="fn">id</span>(q))  <span class="cm"># SAME id – same object in memory</span>
+
+q<span class="op">.</span>name <span class="op">=</span> <span class="st">'ankit'</span>
+<span class="fn">print</span>(p<span class="op">.</span>name)  <span class="cm"># → ankit  (p sees the change too!)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2</span> <code>q = p</code> does NOT copy the object. Both variables reference the same memory location.</div>
+        <div class="line-note"><span class="line-num">L7-8</span> Changing the object via <code>q</code> is visible through <code>p</code> as well — they are two names for the same thing.</div>
+      </div>
+
+      <!-- ── Encapsulation ── -->
+      <div class="concept" id="s8-encap">
+        <h3>Encapsulation – Private Attributes</h3>
+        <p>Hiding internal data using <code>__</code> (double underscore) prefix</p>
+      </div>
+      <div class="theory">
+        <h4>Why Encapsulation?</h4>
+        <ul>
+          <li>Protects data from accidental modification from outside the class.</li>
+          <li>Provides controlled access through <strong>getters</strong> and <strong>setters</strong>.</li>
+          <li>A private attribute <code>__balance</code> gets name-mangled to <code>_ClassName__balance</code>.</li>
+          <li>Private methods use the same <code>__</code> prefix: <code>__menu()</code>.</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">encapsulation.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Atm</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>pin <span class="op">=</span> <span class="st">''</span>
+        <span class="kw">self</span><span class="op">.</span>__balance <span class="op">=</span> <span class="nm">0</span>   <span class="cm"># PRIVATE – cannot access as obj.__balance</span>
+
+    <span class="cm"># Getter – safe read access</span>
+    <span class="kw">def</span> <span class="fn">get_balance</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">return</span> <span class="kw">self</span><span class="op">.</span>__balance
+
+    <span class="cm"># Setter – safe write access with validation</span>
+    <span class="kw">def</span> <span class="fn">set_balance</span>(<span class="kw">self</span>, new_value)<span class="op">:</span>
+        <span class="kw">if</span> <span class="fn">type</span>(new_value) <span class="op">==</span> <span class="nm">int</span><span class="op">:</span>
+            <span class="kw">self</span><span class="op">.</span>__balance <span class="op">=</span> new_value
+        <span class="kw">else</span><span class="op">:</span>
+            <span class="fn">print</span>(<span class="st">'Only integers allowed!'</span>)
+
+obj <span class="op">=</span> <span class="nm">Atm</span>()
+obj<span class="op">.</span><span class="fn">set_balance</span>(<span class="nm">1000</span>)       <span class="cm"># OK</span>
+<span class="fn">print</span>(obj<span class="op">.</span><span class="fn">get_balance</span>())      <span class="cm"># → 1000</span>
+obj<span class="op">.</span><span class="fn">set_balance</span>(<span class="st">'abc'</span>)       <span class="cm"># → Only integers allowed!</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4</span> <code>self.__balance</code> – the <code>__</code> prefix makes it private. Python renames it internally to <code>_Atm__balance</code>.</div>
+        <div class="line-note"><span class="line-num">L7-8</span> <strong>Getter</strong>: a public method that reads the private attribute safely.</div>
+        <div class="line-note"><span class="line-num">L11-15</span> <strong>Setter</strong>: a public method that writes the private attribute but only after validation.</div>
+      </div>
+
+      <!-- ── Static Variables ── -->
+      <div class="concept" id="s8-static">
+        <h3>Static (Class) Variables</h3>
+        <p>Shared across ALL objects of a class — defined at class level</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">static_variable.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Atm</span><span class="op">:</span>
+    __counter <span class="op">=</span> <span class="nm">1</span>   <span class="cm"># CLASS-LEVEL (static) variable – shared by all objects</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>cid <span class="op">=</span> <span class="nm">Atm</span><span class="op">.</span>__counter       <span class="cm"># assign current counter as customer ID</span>
+        <span class="nm">Atm</span><span class="op">.</span>__counter <span class="op">+=</span> <span class="nm">1</span>             <span class="cm"># increment the shared counter</span>
+
+    <span class="cm"># @staticmethod – can be called on class without an object</span>
+    <span class="op">@</span><span class="kw">staticmethod</span>
+    <span class="kw">def</span> <span class="fn">get_counter</span>()<span class="op">:</span>
+        <span class="kw">return</span> <span class="nm">Atm</span><span class="op">.</span>__counter
+
+c1 <span class="op">=</span> <span class="nm">Atm</span>()                     <span class="cm"># c1.cid = 1</span>
+c2 <span class="op">=</span> <span class="nm">Atm</span>()                     <span class="cm"># c2.cid = 2</span>
+c3 <span class="op">=</span> <span class="nm">Atm</span>()                     <span class="cm"># c3.cid = 3</span>
+<span class="fn">print</span>(<span class="nm">Atm</span><span class="op">.</span><span class="fn">get_counter</span>())      <span class="cm"># → 4 (counter after 3 objects)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2</span> <code>__counter</code> is defined at class level — NOT inside <code>__init__</code>. All objects share the same counter.</div>
+        <div class="line-note"><span class="line-num">L5-6</span> On each object creation, the counter's current value is saved as the customer's ID, then incremented.</div>
+        <div class="line-note"><span class="line-num">L9-11</span> <code>@staticmethod</code> – a method that doesn't need <code>self</code>. Used for utility functions related to the class. Called as <code>Atm.get_counter()</code>.</div>
+      </div>
+
+      <div class="concept" id="s8-collection">
+        <h3>Collection of Objects</h3>
+        <p>Storing objects in lists or dictionaries</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">collection_of_objects.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre>p1 <span class="op">=</span> <span class="nm">Person</span>(<span class="st">'nitish'</span>, <span class="st">'male'</span>)
+p2 <span class="op">=</span> <span class="nm">Person</span>(<span class="st">'ankit'</span>,  <span class="st">'male'</span>)
+p3 <span class="op">=</span> <span class="nm">Person</span>(<span class="st">'ankita'</span>, <span class="st">'female'</span>)
+
+<span class="cm"># ── List of objects</span>
+L <span class="op">=</span> [p1, p2, p3]
+<span class="kw">for</span> person <span class="kw">in</span> L<span class="op">:</span>
+    <span class="fn">print</span>(person<span class="op">.</span>name, person<span class="op">.</span>gender)
+
+<span class="cm"># ── Dictionary of objects</span>
+d <span class="op">=</span> {<span class="st">'p1'</span><span class="op">:</span> p1, <span class="st">'p2'</span><span class="op">:</span> p2}
+<span class="kw">for</span> key <span class="kw">in</span> d<span class="op">:</span>
+    <span class="fn">print</span>(d[key]<span class="op">.</span>gender)</pre>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Session 8 Key Takeaways</h4>
+        <ul>
+          <li>Use <code>__</code> prefix to make attributes/methods private (encapsulation).</li>
+          <li>Always access private attributes through getters/setters for safety.</li>
+          <li><strong>Static variables</strong> are shared by all objects; <strong>instance variables</strong> are unique to each object.</li>
+          <li><code>@staticmethod</code> methods don't take <code>self</code> and can be called on the class directly.</li>
+          <li>Multiple reference variables pointing to the same object share the same memory — changes via one are visible through the other.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 9 – OOP PART 3
+  ═══════════════════════════════════════════ -->
+  <div class="session-card" id="s9-aggregation">
+    <div class="session-header">
+      <div class="session-num">9</div>
+      <div>
+        <h2>OOP – Part 3</h2>
+        <p>Aggregation, Inheritance, Polymorphism, Abstraction</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── Aggregation ── -->
+      <div class="concept">
+        <h3>Aggregation (Has-A Relationship)</h3>
+        <p>One class contains an object of another class as an attribute</p>
+      </div>
+      <div class="theory">
+        <h4>What is Aggregation?</h4>
+        <ul>
+          <li>A <strong>Customer</strong> object <em>has-a</em> <strong>Address</strong> object.</li>
+          <li>The two classes can exist independently.</li>
+          <li>The contained object is passed in during construction.</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">aggregation.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">Address</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, city, pin, state)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>__city <span class="op">=</span> city    <span class="cm"># private city attribute</span>
+        <span class="kw">self</span><span class="op">.</span>pin   <span class="op">=</span> pin
+        <span class="kw">self</span><span class="op">.</span>state <span class="op">=</span> state
+
+    <span class="kw">def</span> <span class="fn">edit_address</span>(<span class="kw">self</span>, new_city, new_pin, new_state)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>__city  <span class="op">=</span> new_city
+        <span class="kw">self</span><span class="op">.</span>pin    <span class="op">=</span> new_pin
+        <span class="kw">self</span><span class="op">.</span>state  <span class="op">=</span> new_state
+
+<span class="kw">class</span> <span class="nm">Customer</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, name, gender, address)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>name    <span class="op">=</span> name
+        <span class="kw">self</span><span class="op">.</span>gender  <span class="op">=</span> gender
+        <span class="kw">self</span><span class="op">.</span>address <span class="op">=</span> address   <span class="cm"># HAS-A → an Address object stored here</span>
+
+    <span class="kw">def</span> <span class="fn">print_address</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="cm"># Access private city using name-mangled form</span>
+        <span class="fn">print</span>(<span class="kw">self</span><span class="op">.</span>address<span class="op">.</span>_Address__city,
+              <span class="kw">self</span><span class="op">.</span>address<span class="op">.</span>pin,
+              <span class="kw">self</span><span class="op">.</span>address<span class="op">.</span>state)
+
+add1 <span class="op">=</span> <span class="nm">Address</span>(<span class="st">'gurgaon'</span>, <span class="nm">122011</span>, <span class="st">'haryana'</span>)
+cust <span class="op">=</span> <span class="nm">Customer</span>(<span class="st">'nitish'</span>, <span class="st">'male'</span>, add1)   <span class="cm"># pass Address object to Customer</span>
+cust<span class="op">.</span><span class="fn">print_address</span>()   <span class="cm"># → gurgaon 122011 haryana</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L15</span> <code>self.address = address</code> – the Customer object <em>contains</em> an Address object. This is the Has-A relationship.</div>
+        <div class="line-note"><span class="line-num">L19</span> <code>_Address__city</code> – accessing a private attribute from outside requires the name-mangled form: <code>_ClassName__attr</code>.</div>
+        <div class="line-note"><span class="line-num">L23</span> <code>add1</code> (Address object) is created first, then passed into the Customer constructor.</div>
+      </div>
+
+      <!-- ── Inheritance ── -->
+      <div class="concept" id="s9-inheritance">
+        <h3>Inheritance (Is-A Relationship)</h3>
+        <p>A child class acquires attributes and methods of a parent class</p>
+      </div>
+      <div class="theory">
+        <h4>Why Inheritance?</h4>
+        <ul>
+          <li><strong>Code reuse</strong> – write once in parent, reuse in all children.</li>
+          <li>Represents a real-world hierarchy (e.g. SmartPhone IS-A Phone).</li>
+          <li>What gets inherited: constructor, non-private attributes, non-private methods.</li>
+          <li>Private attributes/methods (<code>__</code>) are NOT directly accessible in the child.</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">inheritance_basic.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># Parent class</span>
+<span class="kw">class</span> <span class="nm">Phone</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, price, brand, camera)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>price  <span class="op">=</span> price
+        <span class="kw">self</span><span class="op">.</span>brand  <span class="op">=</span> brand
+        <span class="kw">self</span><span class="op">.</span>camera <span class="op">=</span> camera
+
+    <span class="kw">def</span> <span class="fn">buy</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">"Buying a phone"</span>)
+
+<span class="cm"># Child class – inherits from Phone</span>
+<span class="kw">class</span> <span class="nm">SmartPhone</span>(<span class="nm">Phone</span>)<span class="op">:</span>
+    <span class="kw">pass</span>   <span class="cm"># no extra code – inherits everything from Phone</span>
+
+s <span class="op">=</span> <span class="nm">SmartPhone</span>(<span class="nm">20000</span>, <span class="st">"Apple"</span>, <span class="nm">13</span>)
+s<span class="op">.</span><span class="fn">buy</span>()   <span class="cm"># → Buying a phone   (inherited method)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L12</span> <code>class SmartPhone(Phone)</code> – the class in parentheses is the parent. SmartPhone inherits everything from Phone.</div>
+        <div class="line-note"><span class="line-num">L13</span> <code>pass</code> – SmartPhone adds nothing new yet, but still works as a full Phone.</div>
+        <div class="line-note"><span class="line-num">L15</span> SmartPhone uses Phone's constructor (<code>__init__</code>) because it doesn't have its own.</div>
+      </div>
+
+      <!-- ── Method Overriding ── -->
+      <div class="concept">
+        <h3>Method Overriding</h3>
+        <p>Child redefines a method from the parent to give it new behaviour</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">method_overriding.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">class</span> <span class="nm">SmartPhone</span>(<span class="nm">Phone</span>)<span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">buy</span>(<span class="kw">self</span>)<span class="op">:</span>   <span class="cm"># OVERRIDES the parent's buy()</span>
+        <span class="fn">print</span>(<span class="st">"Buying a smartphone"</span>)
+
+s <span class="op">=</span> <span class="nm">SmartPhone</span>(<span class="nm">20000</span>, <span class="st">"Apple"</span>, <span class="nm">13</span>)
+s<span class="op">.</span><span class="fn">buy</span>()   <span class="cm"># → Buying a smartphone  (child's version)</span></pre>
+      </div>
+
+      <!-- ── super() ── -->
+      <div class="concept" id="s9-super">
+        <h3>super() Keyword</h3>
+        <p>Call the parent class's method from inside the child class</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">super_keyword.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># ── Example 1: calling parent method</span>
+<span class="kw">class</span> <span class="nm">SmartPhone</span>(<span class="nm">Phone</span>)<span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">buy</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">"Buying a smartphone"</span>)
+        <span class="fn">super</span>()<span class="op">.</span><span class="fn">buy</span>()   <span class="cm"># also run parent's buy()</span>
+
+<span class="cm"># Output:
+# Buying a smartphone
+# Buying a phone</span>
+
+<span class="cm"># ── Example 2: calling parent constructor</span>
+<span class="kw">class</span> <span class="nm">SmartPhone</span>(<span class="nm">Phone</span>)<span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, price, brand, camera, os, ram)<span class="op">:</span>
+        <span class="fn">super</span>()<span class="op">.</span><span class="fn">__init__</span>(price, brand, camera)  <span class="cm"># call Phone's __init__</span>
+        <span class="kw">self</span><span class="op">.</span>os  <span class="op">=</span> os     <span class="cm"># add SmartPhone-specific attributes</span>
+        <span class="kw">self</span><span class="op">.</span>ram <span class="op">=</span> ram
+
+s <span class="op">=</span> <span class="nm">SmartPhone</span>(<span class="nm">20000</span>, <span class="st">"Samsung"</span>, <span class="nm">12</span>, <span class="st">"Android"</span>, <span class="nm">2</span>)
+<span class="fn">print</span>(s<span class="op">.</span>brand)  <span class="cm"># → Samsung (from Phone's __init__)</span>
+<span class="fn">print</span>(s<span class="op">.</span>os)     <span class="cm"># → Android (from SmartPhone's __init__)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L5</span> <code>super().buy()</code> – run the parent's version of <code>buy()</code> from within the child's override.</div>
+        <div class="line-note"><span class="line-num">L14</span> <code>super().__init__(price, brand, camera)</code> – call Phone's constructor to set up price/brand/camera, then add os/ram specific to SmartPhone.</div>
+      </div>
+
+      <!-- ── Types of Inheritance ── -->
+      <div class="concept" id="s9-types">
+        <h3>Types of Inheritance</h3>
+      </div>
+      <table>
+        <tr><th>Type</th><th>Description</th><th>Syntax Example</th></tr>
+        <tr><td><strong>Single</strong></td><td>One parent, one child</td><td><code>class B(A)</code></td></tr>
+        <tr><td><strong>Multilevel</strong></td><td>Chain: A → B → C</td><td><code>class C(B)</code> where <code>class B(A)</code></td></tr>
+        <tr><td><strong>Hierarchical</strong></td><td>One parent, multiple children</td><td><code>class B(A)</code>, <code>class C(A)</code></td></tr>
+        <tr><td><strong>Multiple</strong></td><td>Child inherits from multiple parents</td><td><code>class C(A, B)</code></td></tr>
+        <tr><td><strong>Hybrid</strong></td><td>Combination of the above</td><td>Mix of patterns</td></tr>
+      </table>
+      <div class="callout warning">
+        <span class="icon">⚠️</span>
+        <div><strong>Diamond Problem</strong> in Multiple Inheritance: if two parents define the same method, Python uses <strong>MRO (Method Resolution Order)</strong> — it checks from left to right in the class definition. <code>class C(A, B)</code> → checks A first, then B.</div>
+      </div>
+
+      <!-- ── Polymorphism ── -->
+      <div class="concept" id="s9-poly">
+        <h3>Polymorphism</h3>
+        <p>"Many forms" – same operation behaves differently based on object type</p>
+      </div>
+      <div class="theory">
+        <h4>Forms of Polymorphism</h4>
+        <ul>
+          <li><strong>Method Overriding</strong> – child redefines parent's method.</li>
+          <li><strong>Method Overloading</strong> – same method name, different behaviour based on arguments (achieved with default parameters in Python).</li>
+          <li><strong>Operator Overloading</strong> – same operator (<code>+</code>) works differently for int, str, list.</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">polymorphism.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># Operator Overloading – + means different things</span>
+<span class="nm">4</span>     <span class="op">+</span> <span class="nm">5</span>       <span class="cm"># → 9   (addition)</span>
+<span class="st">'hello'</span> <span class="op">+</span> <span class="st">'world'</span>  <span class="cm"># → 'helloworld' (concatenation)</span>
+[<span class="nm">1</span>,<span class="nm">2</span>]  <span class="op">+</span> [<span class="nm">3</span>,<span class="nm">4</span>]   <span class="cm"># → [1,2,3,4]  (list merge)</span>
+
+<span class="cm"># Method Overloading (using default params)</span>
+<span class="kw">class</span> <span class="nm">Shape</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="kw">self</span>, a, b<span class="op">=</span><span class="nm">0</span>)<span class="op">:</span>
+        <span class="kw">if</span> b <span class="op">==</span> <span class="nm">0</span><span class="op">:</span>
+            <span class="kw">return</span> <span class="nm">3.14</span> <span class="op">*</span> a <span class="op">*</span> a   <span class="cm"># circle area</span>
+        <span class="kw">else</span><span class="op">:</span>
+            <span class="kw">return</span> a <span class="op">*</span> b           <span class="cm"># rectangle area</span>
+
+s <span class="op">=</span> <span class="nm">Shape</span>()
+<span class="fn">print</span>(s<span class="op">.</span><span class="fn">area</span>(<span class="nm">2</span>))     <span class="cm"># → 12.56  (circle)</span>
+<span class="fn">print</span>(s<span class="op">.</span><span class="fn">area</span>(<span class="nm">3</span>, <span class="nm">4</span>))  <span class="cm"># → 12    (rectangle)</span></pre>
+      </div>
+
+      <!-- ── Abstraction ── -->
+      <div class="concept" id="s9-abstract">
+        <h3>Abstraction</h3>
+        <p>Force child classes to implement specific methods using Abstract Base Classes (ABC)</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">abstraction.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+
+<span class="kw">class</span> <span class="nm">BankApp</span>(<span class="nm">ABC</span>)<span class="op">:</span>   <span class="cm"># Abstract class – cannot be instantiated</span>
+
+    <span class="kw">def</span> <span class="fn">database</span>(<span class="kw">self</span>)<span class="op">:</span>          <span class="cm"># concrete method – has implementation</span>
+        <span class="fn">print</span>(<span class="st">'connected to database'</span>)
+
+    <span class="op">@</span><span class="kw">abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">security</span>(<span class="kw">self</span>)<span class="op">:</span>          <span class="cm"># abstract method – NO implementation</span>
+        <span class="kw">pass</span>                        <span class="cm"># child MUST implement this</span>
+
+    <span class="op">@</span><span class="kw">abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">display</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="nm">MobileApp</span>(<span class="nm">BankApp</span>)<span class="op">:</span>   <span class="cm"># concrete child – MUST implement abstract methods</span>
+    <span class="kw">def</span> <span class="fn">security</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">'mobile security'</span>)
+    <span class="kw">def</span> <span class="fn">display</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">'display'</span>)
+
+mob <span class="op">=</span> <span class="nm">MobileApp</span>()   <span class="cm"># OK – all abstract methods are implemented</span>
+mob<span class="op">.</span><span class="fn">security</span>()       <span class="cm"># → mobile security</span>
+
+<span class="nm">BankApp</span>()           <span class="cm"># → TypeError: Can't instantiate abstract class!</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L3</span> <code>class BankApp(ABC)</code> – inheriting from <code>ABC</code> makes this an abstract class.</div>
+        <div class="line-note"><span class="line-num">L8</span> <code>@abstractmethod</code> – marks the method as abstract. Any child class MUST implement it or Python will raise a <code>TypeError</code>.</div>
+        <div class="line-note"><span class="line-num">L17-21</span> <code>MobileApp</code> provides implementations for both abstract methods, so it can be instantiated.</div>
+        <div class="line-note"><span class="line-num">L24</span> Attempting to create a <code>BankApp</code> object directly raises <code>TypeError</code>.</div>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Session 9 Key Takeaways</h4>
+        <ul>
+          <li><strong>Aggregation (Has-A)</strong>: object contains another object as attribute.</li>
+          <li><strong>Inheritance (Is-A)</strong>: child class reuses parent's code and can override it.</li>
+          <li><code>super()</code> calls the parent's method/constructor from within the child.</li>
+          <li>Private members (<code>__</code>) are NOT directly accessible in child classes.</li>
+          <li><strong>Polymorphism</strong>: same interface, different implementations.</li>
+          <li><strong>Abstraction</strong>: use <code>ABC</code> + <code>@abstractmethod</code> to enforce method implementation in children.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 10 – FILE HANDLING
+  ═══════════════════════════════════════════ -->
+  <div class="session-card" id="s10-fileio">
+    <div class="session-header">
+      <div class="session-num">10</div>
+      <div>
+        <h2>File Handling</h2>
+        <p>Reading &amp; Writing files, Binary files, JSON, Pickle</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── File types theory ── -->
+      <div class="concept">
+        <h3>File Types &amp; I/O Basics</h3>
+      </div>
+      <div class="theory">
+        <h4>Types of Files</h4>
+        <ul>
+          <li><strong>Text files</strong> – content stored as Unicode characters (e.g. <code>.txt</code>, <code>.py</code>, <code>.csv</code>).</li>
+          <li><strong>Binary files</strong> – content stored as raw bytes (e.g. <code>.png</code>, <code>.mp3</code>, <code>.exe</code>).</li>
+        </ul>
+        <h4 style="margin-top:12px">Standard File I/O Workflow</h4>
+        <ul>
+          <li>1️⃣ <strong>Open</strong> the file</li>
+          <li>2️⃣ <strong>Read / Write</strong> data</li>
+          <li>3️⃣ <strong>Close</strong> the file (release OS resources)</li>
+        </ul>
+      </div>
+
+      <!-- ── File Modes ── -->
+      <div class="concept" id="s10-modes">
+        <h3>File Open Modes</h3>
+      </div>
+      <table>
+        <tr><th>Mode</th><th>Meaning</th><th>Creates if missing?</th><th>Overwrites?</th></tr>
+        <tr><td><code>'r'</code></td><td>Read text</td><td>No (error)</td><td>–</td></tr>
+        <tr><td><code>'w'</code></td><td>Write text</td><td>Yes</td><td>Yes ⚠️</td></tr>
+        <tr><td><code>'a'</code></td><td>Append text</td><td>Yes</td><td>No (adds at end)</td></tr>
+        <tr><td><code>'rb'</code></td><td>Read binary</td><td>No</td><td>–</td></tr>
+        <tr><td><code>'wb'</code></td><td>Write binary</td><td>Yes</td><td>Yes</td></tr>
+      </table>
+
+      <!-- ── Writing ── -->
+      <div class="concept">
+        <h3>Step 1 – Writing to a File</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">writing_file.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># Basic write</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'w'</span>)
+f<span class="op">.</span><span class="fn">write</span>(<span class="st">'Hello world'</span>)
+f<span class="op">.</span><span class="fn">close</span>()
+
+<span class="cm"># After close – cannot write:</span>
+f<span class="op">.</span><span class="fn">write</span>(<span class="st">'hello'</span>)   <span class="cm"># → ValueError: I/O operation on closed file</span>
+
+<span class="cm"># Multi-line write using \n</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample1.txt'</span>, <span class="st">'w'</span>)
+f<span class="op">.</span><span class="fn">write</span>(<span class="st">'hello world'</span>)
+f<span class="op">.</span><span class="fn">write</span>(<span class="st">'\nhow are you?'</span>)
+f<span class="op">.</span><span class="fn">close</span>()
+
+<span class="cm"># writelines() – write a list of strings</span>
+L <span class="op">=</span> [<span class="st">'hello\n'</span>, <span class="st">'hi\n'</span>, <span class="st">'how are you\n'</span>]
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'w'</span>)
+f<span class="op">.</span><span class="fn">writelines</span>(L)
+f<span class="op">.</span><span class="fn">close</span>()</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L7</span> Once <code>close()</code> is called, the file object is dead. Any further operation raises <code>ValueError</code>.</div>
+        <div class="line-note"><span class="line-num">L11</span> <code>\n</code> is the newline character — without it everything goes on one line.</div>
+        <div class="line-note"><span class="line-num">L16-18</span> <code>writelines()</code> writes each element of the list as-is (doesn't add newlines automatically — include <code>\n</code> in the strings).</div>
+      </div>
+
+      <!-- ── Append ── -->
+      <div class="concept">
+        <h3>Append Mode – Adding without Overwriting</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">append_mode.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># 'a' mode – opens file, cursor at END, existing content preserved</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample1.txt'</span>, <span class="st">'a'</span>)
+f<span class="op">.</span><span class="fn">write</span>(<span class="st">'\nI am fine'</span>)
+f<span class="op">.</span><span class="fn">close</span>()</pre>
+      </div>
+      <div class="callout warning">
+        <span class="icon">⚠️</span>
+        <div>Using <code>'w'</code> on an existing file <strong>erases all content</strong> and starts fresh. Use <code>'a'</code> to add content at the end.</div>
+      </div>
+
+      <!-- ── Reading ── -->
+      <div class="concept">
+        <h3>Step 2 – Reading from a File</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">reading_file.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># read() – reads entire file as one string</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'r'</span>)
+s <span class="op">=</span> f<span class="op">.</span><span class="fn">read</span>()
+<span class="fn">print</span>(s)
+f<span class="op">.</span><span class="fn">close</span>()
+
+<span class="cm"># read(n) – reads first n characters</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'r'</span>)
+s <span class="op">=</span> f<span class="op">.</span><span class="fn">read</span>(<span class="nm">10</span>)   <span class="cm"># first 10 characters only</span>
+f<span class="op">.</span><span class="fn">close</span>()
+
+<span class="cm"># readline() – reads one line at a time</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'r'</span>)
+<span class="fn">print</span>(f<span class="op">.</span><span class="fn">readline</span>(), end<span class="op">=</span><span class="st">''</span>)  <span class="cm"># line 1</span>
+<span class="fn">print</span>(f<span class="op">.</span><span class="fn">readline</span>(), end<span class="op">=</span><span class="st">''</span>)  <span class="cm"># line 2</span>
+f<span class="op">.</span><span class="fn">close</span>()
+
+<span class="cm"># Read all lines with a loop</span>
+f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'r'</span>)
+<span class="kw">while</span> <span class="kw">True</span><span class="op">:</span>
+    data <span class="op">=</span> f<span class="op">.</span><span class="fn">readline</span>()
+    <span class="kw">if</span> data <span class="op">==</span> <span class="st">''</span><span class="op">:</span>   <span class="cm"># empty string = end of file</span>
+        <span class="kw">break</span>
+    <span class="kw">else</span><span class="op">:</span>
+        <span class="fn">print</span>(data, end<span class="op">=</span><span class="st">''</span>)
+f<span class="op">.</span><span class="fn">close</span>()</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2-5</span> <code>read()</code> – reads the entire file into a single string, then prints it.</div>
+        <div class="line-note"><span class="line-num">L8-10</span> <code>read(10)</code> – reads only the first 10 characters. File cursor advances 10 positions.</div>
+        <div class="line-note"><span class="line-num">L13-16</span> <code>readline()</code> reads one line at a time. Each call moves the cursor to the next line.</div>
+        <div class="line-note"><span class="line-num">L19-24</span> Loop: keep calling <code>readline()</code> until it returns an empty string (meaning EOF — end of file).</div>
+      </div>
+
+      <!-- ── Context Manager ── -->
+      <div class="concept" id="s10-context">
+        <h3>Context Manager – <code>with</code> Statement</h3>
+        <p>Automatically closes the file — the recommended approach</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">context_manager.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># 'with' closes the file automatically at the end of the block</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'sample1.txt'</span>, <span class="st">'w'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    f<span class="op">.</span><span class="fn">write</span>(<span class="st">'selmon bhai'</span>)
+<span class="cm"># file is automatically closed here</span>
+
+f<span class="op">.</span><span class="fn">write</span>(<span class="st">'hello'</span>)   <span class="cm"># → ValueError: I/O operation on closed file</span>
+
+<span class="cm"># Reading with context manager</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'r'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    <span class="fn">print</span>(f<span class="op">.</span><span class="fn">readline</span>())   <span class="cm"># → first line</span></pre>
+      </div>
+      <div class="callout success">
+        <span class="icon">✅</span>
+        <div>Always use the <code>with</code> statement for file operations. It guarantees the file is closed even if an exception occurs inside the block.</div>
+      </div>
+
+      <!-- ── seek/tell ── -->
+      <div class="concept">
+        <h3>seek() and tell() – Cursor Control</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">seek_tell.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">with</span> <span class="fn">open</span>(<span class="st">'sample.txt'</span>, <span class="st">'r'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    f<span class="op">.</span><span class="fn">seek</span>(<span class="nm">15</span>)            <span class="cm"># move cursor to position 15</span>
+    <span class="fn">print</span>(f<span class="op">.</span><span class="fn">read</span>(<span class="nm">10</span>))    <span class="cm"># read 10 chars from position 15</span>
+    <span class="fn">print</span>(f<span class="op">.</span><span class="fn">tell</span>())       <span class="cm"># → 25  (current cursor position)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2</span> <code>seek(15)</code> – moves the read/write cursor to byte offset 15 from the start.</div>
+        <div class="line-note"><span class="line-num">L4</span> <code>tell()</code> – returns the current cursor position (15 + 10 = 25).</div>
+      </div>
+
+      <!-- ── Binary Files ── -->
+      <div class="concept" id="s10-binary">
+        <h3>Working with Binary Files</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">binary_file.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># WRONG – reading a PNG in text mode raises UnicodeDecodeError</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'screenshot1.png'</span>, <span class="st">'r'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    f<span class="op">.</span><span class="fn">read</span>()   <span class="cm"># → UnicodeDecodeError!</span>
+
+<span class="cm"># CORRECT – use binary mode 'rb' / 'wb'</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'screenshot1.png'</span>, <span class="st">'rb'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="st">'screenshot_copy.png'</span>, <span class="st">'wb'</span>) <span class="kw">as</span> wf<span class="op">:</span>
+        wf<span class="op">.</span><span class="fn">write</span>(f<span class="op">.</span><span class="fn">read</span>())   <span class="cm"># copy binary data byte-for-byte</span></pre>
+      </div>
+
+      <!-- ── JSON ── -->
+      <div class="concept" id="s10-json">
+        <h3>Serialization with JSON</h3>
+        <p>Convert Python objects ↔ human-readable JSON text</p>
+      </div>
+      <div class="theory">
+        <h4>Serialization vs Deserialization</h4>
+        <ul>
+          <li><strong>Serialization</strong> (dump) – Python object → JSON text in file.</li>
+          <li><strong>Deserialization</strong> (load) – JSON text from file → Python object.</li>
+          <li>JSON supports: dict, list, str, int, float, bool, None.</li>
+          <li>Tuples become lists in JSON (JSON has no tuple type).</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">json_serialization.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">import</span> json
+
+<span class="cm"># ── Serialize a dict to JSON file</span>
+d <span class="op">=</span> {<span class="st">'name'</span><span class="op">:</span> <span class="st">'nitish'</span>, <span class="st">'age'</span><span class="op">:</span> <span class="nm">33</span>, <span class="st">'gender'</span><span class="op">:</span> <span class="st">'male'</span>}
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'demo.json'</span>, <span class="st">'w'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    json<span class="op">.</span><span class="fn">dump</span>(d, f, indent<span class="op">=</span><span class="nm">4</span>)   <span class="cm"># indent=4 → pretty-printed JSON</span>
+
+<span class="cm"># ── Deserialize JSON file back to a Python dict</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'demo.json'</span>, <span class="st">'r'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    d <span class="op">=</span> json<span class="op">.</span><span class="fn">load</span>(f)
+    <span class="fn">print</span>(d)          <span class="cm"># → {'name': 'nitish', 'age': 33, 'gender': 'male'}</span>
+    <span class="fn">print</span>(<span class="fn">type</span>(d))    <span class="cm"># → &lt;class 'dict'&gt;</span>
+
+<span class="cm"># ── Serialize a custom object using 'default' parameter</span>
+<span class="kw">class</span> <span class="nm">Person</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, fname, lname, age, gender)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>fname  <span class="op">=</span> fname
+        <span class="kw">self</span><span class="op">.</span>lname  <span class="op">=</span> lname
+        <span class="kw">self</span><span class="op">.</span>age    <span class="op">=</span> age
+        <span class="kw">self</span><span class="op">.</span>gender <span class="op">=</span> gender
+
+<span class="kw">def</span> <span class="fn">show_object</span>(person)<span class="op">:</span>
+    <span class="kw">if</span> <span class="fn">isinstance</span>(person, <span class="nm">Person</span>)<span class="op">:</span>
+        <span class="kw">return</span> {
+            <span class="st">'name'</span><span class="op">:</span>   person<span class="op">.</span>fname <span class="op">+</span> <span class="st">' '</span> <span class="op">+</span> person<span class="op">.</span>lname,
+            <span class="st">'age'</span><span class="op">:</span>    person<span class="op">.</span>age,
+            <span class="st">'gender'</span><span class="op">:</span> person<span class="op">.</span>gender
+        }
+
+person <span class="op">=</span> <span class="nm">Person</span>(<span class="st">'Nitish'</span>, <span class="st">'Singh'</span>, <span class="nm">33</span>, <span class="st">'male'</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'demo.json'</span>, <span class="st">'w'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    json<span class="op">.</span><span class="fn">dump</span>(person, f, default<span class="op">=</span>show_object, indent<span class="op">=</span><span class="nm">4</span>)</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L6</span> <code>json.dump(d, f, indent=4)</code> – writes Python dict <code>d</code> to file <code>f</code> as formatted JSON. <code>indent=4</code> makes it human-readable.</div>
+        <div class="line-note"><span class="line-num">L10</span> <code>json.load(f)</code> – reads JSON from file and converts it back to the appropriate Python type.</div>
+        <div class="line-note"><span class="line-num">L24-29</span> JSON cannot serialize custom objects natively. We provide a <code>default</code> function that converts the object to a serializable dict first.</div>
+      </div>
+
+      <!-- ── Pickle ── -->
+      <div class="concept" id="s10-pickle">
+        <h3>Pickling – Python-native Binary Serialization</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">pickling.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">import</span> pickle
+
+<span class="kw">class</span> <span class="nm">Person</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, name, age)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>name <span class="op">=</span> name
+        <span class="kw">self</span><span class="op">.</span>age  <span class="op">=</span> age
+    <span class="kw">def</span> <span class="fn">display_info</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">'Hi my name is'</span>, <span class="kw">self</span><span class="op">.</span>name, <span class="st">'and I am'</span>, <span class="kw">self</span><span class="op">.</span>age, <span class="st">'years old'</span>)
+
+p <span class="op">=</span> <span class="nm">Person</span>(<span class="st">'nitish'</span>, <span class="nm">33</span>)
+
+<span class="cm"># Pickle dump – serialize object to binary file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'person.pkl'</span>, <span class="st">'wb'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    pickle<span class="op">.</span><span class="fn">dump</span>(p, f)
+
+<span class="cm"># Pickle load – deserialize binary file back to object</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">'person.pkl'</span>, <span class="st">'rb'</span>) <span class="kw">as</span> f<span class="op">:</span>
+    p <span class="op">=</span> pickle<span class="op">.</span><span class="fn">load</span>(f)
+
+p<span class="op">.</span><span class="fn">display_info</span>()   <span class="cm"># → Hi my name is nitish and I am 33 years old</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L13-14</span> <code>pickle.dump(p, f)</code> – serializes the entire Python object (including methods) to a binary <code>.pkl</code> file.</div>
+        <div class="line-note"><span class="line-num">L17-18</span> <code>pickle.load(f)</code> – reconstructs the exact Python object from the binary file.</div>
+        <div class="line-note"><span class="line-num">L20</span> The loaded object is fully functional — you can call its methods!</div>
+      </div>
+
+      <table>
+        <tr><th>Feature</th><th>JSON</th><th>Pickle</th></tr>
+        <tr><td>Format</td><td>Human-readable text</td><td>Binary (not readable)</td></tr>
+        <tr><td>Works with</td><td>Basic Python types</td><td>Any Python object</td></tr>
+        <tr><td>Language</td><td>Cross-language (universal)</td><td>Python only</td></tr>
+        <tr><td>Custom objects</td><td>Needs custom encoder</td><td>Works natively</td></tr>
+        <tr><td>Security</td><td>Safe</td><td>⚠️ Don't load untrusted pickles</td></tr>
+      </table>
+
+      <div class="key-points">
+        <h4>🔑 Session 10 Key Takeaways</h4>
+        <ul>
+          <li><code>open(file, mode)</code> — mode controls how the file is opened: <code>'r'</code>, <code>'w'</code>, <code>'a'</code>, <code>'rb'</code>, <code>'wb'</code>.</li>
+          <li>Always use <code>with open(...) as f:</code> — it closes the file automatically.</li>
+          <li><code>read()</code>, <code>readline()</code>, <code>writelines()</code> — different tools for different needs.</li>
+          <li>Binary files require <code>'rb'</code>/<code>'wb'</code> mode — never text mode.</li>
+          <li><strong>JSON</strong> = human-readable, cross-language. <strong>Pickle</strong> = Python-specific binary serialization.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SESSION 11 – EXCEPTION HANDLING
+  ═══════════════════════════════════════════ -->
+  <div class="session-card" id="s11-syntax">
+    <div class="session-header">
+      <div class="session-num">11</div>
+      <div>
+        <h2>Exception Handling</h2>
+        <p>Syntax Errors, Exceptions, try/except/else/finally, raise, Custom Exceptions</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── Two stages of errors ── -->
+      <div class="concept">
+        <h3>Two Stages Where Errors Occur</h3>
+      </div>
+      <div class="theory">
+        <h4>Error Timeline</h4>
+        <ul>
+          <li>🔴 <strong>During compilation (parsing)</strong> → <strong>Syntax Error</strong> – the code violates Python grammar. Caught before execution starts.</li>
+          <li>🔥 <strong>During execution (runtime)</strong> → <strong>Exception</strong> – the code ran but something went wrong (e.g. file not found, division by zero). Must be handled on-the-fly.</li>
+        </ul>
+      </div>
+
+      <!-- ── Syntax Errors ── -->
+      <div class="concept">
+        <h3>Syntax Errors – Examples</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">syntax_errors.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># 1. Missing parentheses (Python 2 style print)</span>
+<span class="fn">print</span> <span class="st">'hello world'</span>
+<span class="cm"># → SyntaxError: Missing parentheses in call to 'print'</span>
+
+<span class="cm"># 2. Missing colon after if</span>
+a <span class="op">=</span> <span class="nm">5</span>
+<span class="kw">if</span> a <span class="op">==</span> <span class="nm">3</span>       <span class="cm"># ← missing ':'</span>
+    <span class="fn">print</span>(<span class="st">'hello'</span>)
+<span class="cm"># → SyntaxError: invalid syntax</span>
+
+<span class="cm"># 3. Misspelled keyword</span>
+<span class="err">iff</span> a <span class="op">==</span> <span class="nm">3</span><span class="op">:</span>     <span class="cm"># 'iff' is not a keyword</span>
+    <span class="fn">print</span>(<span class="st">'hello'</span>)
+<span class="cm"># → SyntaxError: invalid syntax</span>
+
+<span class="cm"># 4. Incorrect indentation</span>
+<span class="kw">if</span> a <span class="op">==</span> <span class="nm">3</span><span class="op">:</span>
+<span class="fn">print</span>(<span class="st">'hello'</span>)   <span class="cm"># ← no indentation</span>
+<span class="cm"># → IndentationError: expected an indented block</span></pre>
+      </div>
+
+      <!-- ── Common Exception Types ── -->
+      <div class="concept" id="s11-exceptions">
+        <h3>Common Built-in Exceptions</h3>
+      </div>
+      <table>
+        <tr><th>Exception</th><th>Cause</th><th>Example</th></tr>
+        <tr><td><code>IndexError</code></td><td>Accessing invalid list index</td><td><code>L = [1,2,3]; L[100]</code></td></tr>
+        <tr><td><code>ModuleNotFoundError</code></td><td>Importing non-existent module</td><td><code>import mathi</code></td></tr>
+        <tr><td><code>KeyError</code></td><td>Key not found in dictionary</td><td><code>d['age']</code> when 'age' missing</td></tr>
+        <tr><td><code>TypeError</code></td><td>Wrong type for operation</td><td><code>1 + 'a'</code></td></tr>
+        <tr><td><code>ValueError</code></td><td>Correct type, wrong value</td><td><code>int('a')</code></td></tr>
+        <tr><td><code>NameError</code></td><td>Undefined variable</td><td><code>print(k)</code></td></tr>
+        <tr><td><code>AttributeError</code></td><td>Object has no such attribute</td><td><code>[1,2,3].upper()</code></td></tr>
+        <tr><td><code>FileNotFoundError</code></td><td>File does not exist</td><td><code>open('missing.txt','r')</code></td></tr>
+        <tr><td><code>ZeroDivisionError</code></td><td>Division by zero</td><td><code>5 / 0</code></td></tr>
+      </table>
+
+      <!-- ── try/except ── -->
+      <div class="concept" id="s11-tryexcept">
+        <h3>try / except Block</h3>
+        <p>Handle exceptions gracefully instead of crashing</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">try_except_basic.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># Basic try-except – catch ANY exception</span>
+<span class="kw">try</span><span class="op">:</span>
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="st">'sample1.txt'</span>, <span class="st">'r'</span>) <span class="kw">as</span> f<span class="op">:</span>
+        <span class="fn">print</span>(f<span class="op">.</span><span class="fn">read</span>())
+<span class="kw">except</span><span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'sorry file not found'</span>)
+<span class="cm"># → sorry file not found</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2-4</span> Code inside <code>try:</code> is monitored for exceptions.</div>
+        <div class="line-note"><span class="line-num">L5-6</span> If ANY exception occurs, the code in <code>except:</code> runs instead of crashing.</div>
+      </div>
+
+      <!-- ── Multiple except blocks ── -->
+      <div class="concept">
+        <h3>Catching Specific Exceptions</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">specific_exceptions.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">try</span><span class="op">:</span>
+    f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample1.txt'</span>, <span class="st">'r'</span>)  <span class="cm"># may raise FileNotFoundError</span>
+    <span class="fn">print</span>(f<span class="op">.</span><span class="fn">read</span>())
+    L <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]
+    L[<span class="nm">100</span>]                          <span class="cm"># may raise IndexError</span>
+
+<span class="kw">except</span> <span class="nm">FileNotFoundError</span><span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'file not found'</span>)
+
+<span class="kw">except</span> <span class="nm">NameError</span><span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'variable not defined'</span>)
+
+<span class="kw">except</span> <span class="nm">ZeroDivisionError</span><span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">"can't divide by 0"</span>)
+
+<span class="kw">except</span> <span class="nm">Exception</span> <span class="kw">as</span> e<span class="op">:</span>
+    <span class="fn">print</span>(e)    <span class="cm"># catches ANY other exception and prints its message</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L7-8</span> The first matching <code>except</code> block runs and the rest are skipped.</div>
+        <div class="line-note"><span class="line-num">L16-17</span> <code>except Exception as e</code> – a catch-all for any exception not handled above. <code>e</code> holds the error message.</div>
+      </div>
+
+      <!-- ── else / finally ── -->
+      <div class="concept">
+        <h3>else and finally Clauses</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">else_finally.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">try</span><span class="op">:</span>
+    f <span class="op">=</span> <span class="fn">open</span>(<span class="st">'sample1.txt'</span>, <span class="st">'r'</span>)
+
+<span class="kw">except</span> <span class="nm">FileNotFoundError</span><span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'file not found'</span>)
+
+<span class="kw">else</span><span class="op">:</span>
+    <span class="cm"># runs ONLY if no exception was raised in try</span>
+    <span class="fn">print</span>(f<span class="op">.</span><span class="fn">read</span>())
+
+<span class="kw">finally</span><span class="op">:</span>
+    <span class="cm"># runs ALWAYS – whether exception or not</span>
+    <span class="fn">print</span>(<span class="st">'this always prints'</span>)</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L7-9</span> <code>else</code> – runs only when the <code>try</code> block completes WITHOUT any exception.</div>
+        <div class="line-note"><span class="line-num">L11-13</span> <code>finally</code> – ALWAYS runs, no matter what. Perfect for cleanup (e.g. closing database connections).</div>
+      </div>
+
+      <!-- ── raise ── -->
+      <div class="concept" id="s11-raise">
+        <h3>raise – Manually Raising Exceptions</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">raise_exception.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># Manually raise a built-in exception</span>
+<span class="kw">raise</span> <span class="nm">ZeroDivisionError</span>(<span class="st">'trying to divide by zero'</span>)
+<span class="cm"># → ZeroDivisionError: trying to divide by zero</span>
+
+<span class="cm"># Practical example – Bank withdraw</span>
+<span class="kw">class</span> <span class="nm">Bank</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, balance)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>balance <span class="op">=</span> balance
+
+    <span class="kw">def</span> <span class="fn">withdraw</span>(<span class="kw">self</span>, amount)<span class="op">:</span>
+        <span class="kw">if</span> amount <span class="op">&lt;</span> <span class="nm">0</span><span class="op">:</span>
+            <span class="kw">raise</span> <span class="nm">Exception</span>(<span class="st">'amount cannot be negative'</span>)
+        <span class="kw">if</span> <span class="kw">self</span><span class="op">.</span>balance <span class="op">&lt;</span> amount<span class="op">:</span>
+            <span class="kw">raise</span> <span class="nm">Exception</span>(<span class="st">'insufficient funds'</span>)
+        <span class="kw">self</span><span class="op">.</span>balance <span class="op">-=</span> amount
+
+obj <span class="op">=</span> <span class="nm">Bank</span>(<span class="nm">10000</span>)
+<span class="kw">try</span><span class="op">:</span>
+    obj<span class="op">.</span><span class="fn">withdraw</span>(<span class="nm">15000</span>)
+<span class="kw">except</span> <span class="nm">Exception</span> <span class="kw">as</span> e<span class="op">:</span>
+    <span class="fn">print</span>(e)         <span class="cm"># → insufficient funds</span>
+<span class="kw">else</span><span class="op">:</span>
+    <span class="fn">print</span>(obj<span class="op">.</span>balance)</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2</span> <code>raise ExceptionType('message')</code> – intentionally triggers an exception with a custom message.</div>
+        <div class="line-note"><span class="line-num">L12-14</span> Business logic validation — raise exceptions when rules are violated so the caller can handle them with try/except.</div>
+      </div>
+
+      <!-- ── Custom Exceptions ── -->
+      <div class="concept" id="s11-custom">
+        <h3>Custom Exceptions</h3>
+        <p>Create your own exception classes for meaningful error handling</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">custom_exception.py</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># Step 1: Create custom exception by inheriting from Exception</span>
+<span class="kw">class</span> <span class="nm">SecurityError</span>(<span class="nm">Exception</span>)<span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, message)<span class="op">:</span>
+        <span class="fn">print</span>(message)   <span class="cm"># print alert immediately</span>
+
+    <span class="kw">def</span> <span class="fn">logout</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">'user logged out'</span>)
+
+<span class="cm"># Step 2: Use the custom exception in a class</span>
+<span class="kw">class</span> <span class="nm">Google</span><span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, name, email, password, device)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>name     <span class="op">=</span> name
+        <span class="kw">self</span><span class="op">.</span>email    <span class="op">=</span> email
+        <span class="kw">self</span><span class="op">.</span>password <span class="op">=</span> password
+        <span class="kw">self</span><span class="op">.</span>device   <span class="op">=</span> device
+
+    <span class="kw">def</span> <span class="fn">login</span>(<span class="kw">self</span>, email, password, device)<span class="op">:</span>
+        <span class="kw">if</span> device <span class="op">!=</span> <span class="kw">self</span><span class="op">.</span>device<span class="op">:</span>
+            <span class="kw">raise</span> <span class="nm">SecurityError</span>(<span class="st">'login from unknown device!'</span>)
+        <span class="kw">if</span> email <span class="op">==</span> <span class="kw">self</span><span class="op">.</span>email <span class="kw">and</span> password <span class="op">==</span> <span class="kw">self</span><span class="op">.</span>password<span class="op">:</span>
+            <span class="fn">print</span>(<span class="st">'welcome'</span>)
+
+<span class="cm"># Step 3: Handle the custom exception</span>
+obj <span class="op">=</span> <span class="nm">Google</span>(<span class="st">'nitish'</span>, <span class="st">'nitish@gmail.com'</span>, <span class="st">'1234'</span>, <span class="st">'android'</span>)
+<span class="kw">try</span><span class="op">:</span>
+    obj<span class="op">.</span><span class="fn">login</span>(<span class="st">'nitish@gmail.com'</span>, <span class="st">'1234'</span>, <span class="st">'windows'</span>)  <span class="cm"># wrong device!</span>
+<span class="kw">except</span> <span class="nm">SecurityError</span> <span class="kw">as</span> e<span class="op">:</span>
+    e<span class="op">.</span><span class="fn">logout</span>()   <span class="cm"># call custom method on the exception!</span>
+<span class="kw">else</span><span class="op">:</span>
+    <span class="fn">print</span>(obj<span class="op">.</span>name)
+<span class="kw">finally</span><span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'database connection closed'</span>)</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2</span> <code>class SecurityError(Exception)</code> – inherit from <code>Exception</code> to create a custom exception. This enables <code>raise SecurityError(...)</code>.</div>
+        <div class="line-note"><span class="line-num">L6-7</span> Custom exceptions can have their own methods (like <code>logout()</code>) — much more powerful than plain exceptions!</div>
+        <div class="line-note"><span class="line-num">L19</span> <code>raise SecurityError('...')</code> – raise our custom exception when login is from an unexpected device.</div>
+        <div class="line-note"><span class="line-num">L26</span> <code>except SecurityError as e</code> – catch our specific exception and call its <code>logout()</code> method.</div>
+        <div class="line-note"><span class="line-num">L30</span> <code>finally</code> always runs — perfect for closing DB connections regardless of login success/failure.</div>
+      </div>
+
+      <div class="callout info">
+        <span class="icon">📌</span>
+        <div>
+          <strong>Python vs Java terminology:</strong>
+          <br><code>try</code> → <code>try</code>
+          <br><code>except</code> → <code>catch</code>
+          <br><code>raise</code> → <code>throw</code>
+        </div>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Session 11 Key Takeaways</h4>
+        <ul>
+          <li><strong>Syntax errors</strong> happen at compile time; <strong>exceptions</strong> happen at runtime.</li>
+          <li><code>try / except</code> – the core structure for handling exceptions.</li>
+          <li>List specific exception types first; put generic <code>Exception</code> last.</li>
+          <li><code>else</code> – runs only when no exception occurred.</li>
+          <li><code>finally</code> – runs always (cleanup code: close files, DB connections).</li>
+          <li><code>raise ExceptionType('msg')</code> – manually throw an exception.</li>
+          <li>Custom exceptions inherit from <code>Exception</code> and can have their own attributes and methods.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ITERATORS
+  ══════════════════════════════════════════ -->
+  <div class="session-card" id="iter-what">
+    <div class="session-header">
+      <div class="session-num teal">IT</div>
+      <div>
+        <h2>Iterators &amp; Iterables</h2>
+        <p>Understanding how Python loops work under the hood</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── What is Iteration ── -->
+      <div class="concept">
+        <h3>What is Iteration?</h3>
+        <p>Going through a sequence of items, one after another</p>
+      </div>
+      <div class="theory">
+        <h4>Key Definitions</h4>
+        <ul>
+          <li><strong>Iteration</strong> – the process of taking each item from a collection one at a time.</li>
+          <li><strong>Iterable</strong> – any object that <em>can be iterated over</em>. It has a <code>__iter__</code> method. Examples: list, tuple, str, dict, set, range.</li>
+          <li><strong>Iterator</strong> – an object that <em>does the iterating</em>. It has both <code>__iter__</code> AND <code>__next__</code> methods.</li>
+        </ul>
+      </div>
+
+      <div class="concept" id="iter-iterable">
+        <h3>Iterable vs Iterator – The Key Difference</h3>
+      </div>
+      <div class="diagram-box">
+        <div class="d-title">Relationship Diagram</div>
+        L = [1, 2, 3]          ← ITERABLE (has __iter__, but NO __next__)
+             │
+             │  iter(L)
+             ▼
+        iter_L = iter(L)       ← ITERATOR  (has __iter__ AND __next__)
+             │
+             │  next(iter_L)
+             ▼
+          1 → 2 → 3 → StopIteration
+      </div>
+
+      <div class="callout info">
+        <span class="icon">💡</span>
+        <div>
+          <strong>Memory trick:</strong><br>
+          • Every <strong>Iterator</strong> is also an <strong>Iterable</strong> (it has <code>__iter__</code> too).<br>
+          • NOT all <strong>Iterables</strong> are <strong>Iterators</strong> (a list has no <code>__next__</code>).
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">iterable_vs_iterator.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="nm">L</span> <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]
+
+<span class="cm"># L is an ITERABLE</span>
+<span class="fn">type</span>(<span class="nm">L</span>)           <span class="cm"># &lt;class 'list'&gt;</span>
+
+<span class="cm"># Convert iterable to iterator using iter()</span>
+iter_L <span class="op">=</span> <span class="fn">iter</span>(<span class="nm">L</span>)
+<span class="fn">type</span>(iter_L)      <span class="cm"># &lt;class 'list_iterator'&gt;</span>
+
+<span class="cm"># Check: iterable has __iter__ but NOT __next__</span>
+<span class="st">'__iter__'</span> <span class="kw">in</span> <span class="fn">dir</span>(<span class="nm">L</span>)      <span class="cm"># True</span>
+<span class="st">'__next__'</span> <span class="kw">in</span> <span class="fn">dir</span>(<span class="nm">L</span>)      <span class="cm"># False  ← NOT an iterator</span>
+
+<span class="cm"># iterator has BOTH __iter__ AND __next__</span>
+<span class="st">'__iter__'</span> <span class="kw">in</span> <span class="fn">dir</span>(iter_L)  <span class="cm"># True</span>
+<span class="st">'__next__'</span> <span class="kw">in</span> <span class="fn">dir</span>(iter_L)  <span class="cm"># True  ← IS an iterator</span>
+
+<span class="cm"># integers are NOT iterables (no __iter__)</span>
+a <span class="op">=</span> <span class="nm">2</span>
+<span class="st">'__iter__'</span> <span class="kw">in</span> <span class="fn">dir</span>(a)       <span class="cm"># False – can't iterate over an int</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L7</span> <code>iter(L)</code> calls <code>L.__iter__()</code> and returns a new iterator object.</div>
+        <div class="line-note"><span class="line-num">L11-12</span> A plain list has <code>__iter__</code> (you can get an iterator from it) but NO <code>__next__</code> (you can't directly call <code>next(L)</code>).</div>
+        <div class="line-note"><span class="line-num">L15-16</span> The iterator has both — it keeps track of position via <code>__next__</code>.</div>
+      </div>
+
+      <!-- ── How for loop works ── -->
+      <div class="concept" id="iter-forloop">
+        <h3>How the for Loop Works Internally</h3>
+      </div>
+      <div class="diagram-box">
+        <div class="d-title">for loop = iter() + next() + StopIteration</div>
+        for i in [1, 2, 3]:          ← Python does this automatically:
+            print(i)
+                                       1. iter_obj = iter([1,2,3])
+                                       2. while True:
+                                              try:
+                                                  i = next(iter_obj)
+                                                  print(i)
+                                              except StopIteration:
+                                                  break
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">for_loop_internals.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Simulating a for loop manually</span>
+num <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]
+
+<span class="cm"># Step 1: get the iterator</span>
+iter_num <span class="op">=</span> <span class="fn">iter</span>(num)
+
+<span class="cm"># Step 2: call next() repeatedly</span>
+<span class="fn">next</span>(iter_num)   <span class="cm"># → 1</span>
+<span class="fn">next</span>(iter_num)   <span class="cm"># → 2</span>
+<span class="fn">next</span>(iter_num)   <span class="cm"># → 3</span>
+<span class="fn">next</span>(iter_num)   <span class="cm"># → StopIteration (list exhausted)</span>
+
+<span class="cm"># ── Build our own for loop ──</span>
+<span class="kw">def</span> <span class="fn">mera_for_loop</span>(iterable)<span class="op">:</span>
+    iterator <span class="op">=</span> <span class="fn">iter</span>(iterable)      <span class="cm"># Step 1</span>
+    <span class="kw">while</span> <span class="kw">True</span><span class="op">:</span>
+        <span class="kw">try</span><span class="op">:</span>
+            <span class="fn">print</span>(<span class="fn">next</span>(iterator))   <span class="cm"># Step 2</span>
+        <span class="kw">except</span> <span class="nm">StopIteration</span><span class="op">:</span>
+            <span class="kw">break</span>                    <span class="cm"># Step 3: stop when exhausted</span>
+
+mera_for_loop([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>])  <span class="cm"># → 1  2  3</span>
+mera_for_loop({<span class="nm">0</span><span class="op">:</span><span class="nm">1</span>, <span class="nm">1</span><span class="op">:</span><span class="nm">1</span>})  <span class="cm"># → 0  1  (iterates over keys)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L15</span> <code>iter(iterable)</code> – every for loop starts by getting an iterator.</div>
+        <div class="line-note"><span class="line-num">L18</span> <code>next(iterator)</code> – gets the next value. The iterator remembers where it left off.</div>
+        <div class="line-note"><span class="line-num">L20</span> <code>StopIteration</code> – the signal that the sequence is exhausted. The for loop catches this and stops.</div>
+      </div>
+
+      <!-- ── Custom range ── -->
+      <div class="concept" id="iter-custom">
+        <h3>Building a Custom range() – Iterator Pattern</h3>
+        <p>Two-class pattern: one Iterable + one Iterator</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">custom_range.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># ── Class 1: The ITERABLE ──</span>
+<span class="kw">class</span> <span class="nm">mera_range</span><span class="op">:</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, start, end)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>start <span class="op">=</span> start
+        <span class="kw">self</span><span class="op">.</span>end   <span class="op">=</span> end
+
+    <span class="kw">def</span> <span class="fn">__iter__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">return</span> <span class="nm">mera_range_iterator</span>(<span class="kw">self</span>)  <span class="cm"># returns an iterator</span>
+
+
+<span class="cm"># ── Class 2: The ITERATOR ──</span>
+<span class="kw">class</span> <span class="nm">mera_range_iterator</span><span class="op">:</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, iterable_obj)<span class="op">:</span>
+        <span class="kw">self</span><span class="op">.</span>iterable <span class="op">=</span> iterable_obj
+
+    <span class="kw">def</span> <span class="fn">__iter__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="kw">return</span> <span class="kw">self</span>          <span class="cm"># iterators return themselves from __iter__</span>
+
+    <span class="kw">def</span> <span class="fn">__next__</span>(<span class="kw">self</span>)<span class="op">:</span>
+        <span class="cm"># Check if we've reached the end</span>
+        <span class="kw">if</span> <span class="kw">self</span><span class="op">.</span>iterable<span class="op">.</span>start <span class="op">&gt;=</span> <span class="kw">self</span><span class="op">.</span>iterable<span class="op">.</span>end<span class="op">:</span>
+            <span class="kw">raise</span> <span class="nm">StopIteration</span>    <span class="cm"># signals: no more items</span>
+
+        current <span class="op">=</span> <span class="kw">self</span><span class="op">.</span>iterable<span class="op">.</span>start
+        <span class="kw">self</span><span class="op">.</span>iterable<span class="op">.</span>start <span class="op">+=</span> <span class="nm">1</span>    <span class="cm"># advance the cursor</span>
+        <span class="kw">return</span> current
+
+
+<span class="cm"># ── Usage ──</span>
+x <span class="op">=</span> <span class="nm">mera_range</span>(<span class="nm">1</span>, <span class="nm">11</span>)   <span class="cm"># create iterable (like range(1,11))</span>
+<span class="kw">for</span> i <span class="kw">in</span> x<span class="op">:</span>
+    <span class="fn">print</span>(i)               <span class="cm"># → 1 2 3 4 5 6 7 8 9 10</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L8</span> <code>__iter__</code> of mera_range creates and returns a NEW iterator each time — this allows multiple independent loops over the same range.</div>
+        <div class="line-note"><span class="line-num">L17</span> An iterator's <code>__iter__</code> returns <code>self</code> — meaning you can use an iterator directly in a for loop too.</div>
+        <div class="line-note"><span class="line-num">L21</span> The boundary check is the stopping condition. Without it you'd loop forever.</div>
+        <div class="line-note"><span class="line-num">L22</span> <code>raise StopIteration</code> – how iterators signal "I'm done".</div>
+        <div class="line-note"><span class="line-num">L24-25</span> Save current value, then increment counter for next call.</div>
+      </div>
+
+      <div class="callout warning">
+        <span class="icon">⚠️</span>
+        <div>
+          <strong>Confusing point:</strong> calling <code>iter()</code> on an already-existing iterator returns the SAME object (same memory address). Iterators don't reset — they are single-use. Once exhausted, you need a new one.
+        </div>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Iterator Key Takeaways</h4>
+        <ul>
+          <li>An <strong>Iterable</strong> has <code>__iter__</code> — you can loop over it.</li>
+          <li>An <strong>Iterator</strong> has <code>__iter__</code> + <code>__next__</code> — it actually does the traversal.</li>
+          <li>Every <code>for</code> loop internally calls <code>iter()</code> then <code>next()</code> until <code>StopIteration</code>.</li>
+          <li>Iterators are memory-efficient — they generate values on demand, not all at once.</li>
+          <li>Integers, floats, booleans are NOT iterable (no <code>__iter__</code>).</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       GENERATORS
+  ══════════════════════════════════════════ -->
+  <div class="session-card" id="gen-why">
+    <div class="session-header">
+      <div class="session-num orange">GN</div>
+      <div>
+        <h2>Generators</h2>
+        <p>Python's elegant way to create iterators using <code>yield</code></p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── The Why ── -->
+      <div class="concept">
+        <h3>The Why – Memory Problem</h3>
+        <p>Why not just use a list for everything?</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">memory_comparison.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">import</span> sys
+
+<span class="cm"># LIST – stores ALL values in memory at once</span>
+L <span class="op">=</span> [x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">100000</span>)]
+<span class="fn">print</span>(sys<span class="op">.</span><span class="fn">getsizeof</span>(L))   <span class="cm"># → 824,456 bytes (~800 KB)</span>
+
+<span class="cm"># RANGE OBJECT – doesn't store values, generates on demand</span>
+x <span class="op">=</span> <span class="fn">range</span>(<span class="nm">10000000</span>)
+<span class="fn">print</span>(sys<span class="op">.</span><span class="fn">getsizeof</span>(x))   <span class="cm"># → 48 bytes  (same size regardless of range!)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4-5</span> The list materializes all 100,000 integers into RAM immediately — uses 800 KB.</div>
+        <div class="line-note"><span class="line-num">L8-9</span> <code>range(10000000)</code> is an iterable that only stores start, end, step — always 48 bytes no matter how large the range.</div>
+      </div>
+      <div class="callout info">
+        <span class="icon">💡</span>
+        <div>A generator is like a <strong>recipe</strong> — it knows <em>how</em> to produce values but doesn't make them all at once. A list is like a <strong>fully cooked meal</strong> — everything is ready and sitting in memory.</div>
+      </div>
+
+      <!-- ── yield vs return ── -->
+      <div class="concept" id="gen-yield">
+        <h3>yield vs return – The Core Difference</h3>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-box">
+          <h5>return</h5>
+          <ul>
+            <li>Exits the function completely</li>
+            <li>Returns a single value</li>
+            <li>Function state is lost</li>
+            <li>Next call starts fresh from line 1</li>
+          </ul>
+        </div>
+        <div class="compare-box">
+          <h5>yield</h5>
+          <ul>
+            <li>Pauses the function, saves state</li>
+            <li>Returns one value at a time</li>
+            <li>Function state is preserved</li>
+            <li>Next call resumes from after yield</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Simple Generator ── -->
+      <div class="concept" id="gen-examples">
+        <h3>Step 1 – A Simple Generator Function</h3>
+        <p>Any function with <code>yield</code> is a generator</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">simple_generator.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">gen_demo</span>()<span class="op">:</span>
+    <span class="kw">yield</span> <span class="st">"first statement"</span>    <span class="cm"># pause here, return "first statement"</span>
+    <span class="kw">yield</span> <span class="st">"second statement"</span>   <span class="cm"># pause here next time</span>
+    <span class="kw">yield</span> <span class="st">"third statement"</span>    <span class="cm"># pause here last time</span>
+
+<span class="cm"># Calling the function returns a GENERATOR OBJECT, does NOT run the body</span>
+gen <span class="op">=</span> <span class="fn">gen_demo</span>()
+<span class="fn">type</span>(gen)   <span class="cm"># &lt;class 'generator'&gt;</span>
+
+<span class="cm"># Iterate using for loop</span>
+<span class="kw">for</span> i <span class="kw">in</span> gen<span class="op">:</span>
+    <span class="fn">print</span>(i)
+<span class="cm"># → first statement</span>
+<span class="cm"># → second statement</span>
+<span class="cm"># → third statement</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L1-4</span> A normal function with <code>yield</code> instead of <code>return</code> — this makes it a generator function.</div>
+        <div class="line-note"><span class="line-num">L7</span> <code>gen_demo()</code> does NOT execute the function body. It returns a generator object (lazy iterator).</div>
+        <div class="line-note"><span class="line-num">L11-15</span> The for loop calls <code>next(gen)</code> repeatedly. Each call runs until the next <code>yield</code>, pauses, returns the value.</div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="d-title">Execution Flow of a Generator</div>
+gen = gen_demo()         ← generator created, body NOT yet executed
+
+next(gen) called:        → runs to "yield first statement"
+                           pauses here, returns "first statement"
+                           state SAVED (knows it's at line 2)
+
+next(gen) called:        → resumes from line 2
+                           runs to "yield second statement"
+                           pauses, returns "second statement"
+
+next(gen) called:        → resumes from line 3
+                           yields "third statement"
+
+next(gen) called:        → function body ends → raises StopIteration
+      </div>
+
+      <!-- ── Square Generator ── -->
+      <div class="concept">
+        <h3>Step 2 – Generator with a Loop</h3>
+        <p>Using yield inside a for loop</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">square_generator.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">square</span>(num)<span class="op">:</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, num<span class="op">+</span><span class="nm">1</span>)<span class="op">:</span>
+        <span class="kw">yield</span> i<span class="op">**</span><span class="nm">2</span>      <span class="cm"># yields one square at a time</span>
+
+gen <span class="op">=</span> <span class="fn">square</span>(<span class="nm">10</span>)
+
+<span class="cm"># Can mix next() calls and for loops on the same generator</span>
+<span class="fn">print</span>(<span class="fn">next</span>(gen))   <span class="cm"># → 1  (i=1: 1**2)</span>
+<span class="fn">print</span>(<span class="fn">next</span>(gen))   <span class="cm"># → 4  (i=2: 2**2)</span>
+<span class="fn">print</span>(<span class="fn">next</span>(gen))   <span class="cm"># → 9  (i=3: 3**2)</span>
+
+<span class="cm"># Continue with for loop from where we left off (i=4)</span>
+<span class="kw">for</span> i <span class="kw">in</span> gen<span class="op">:</span>
+    <span class="fn">print</span>(i)   <span class="cm"># → 16, 25, 36, 49, 64, 81, 100</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2-3</span> Each loop iteration runs to the <code>yield</code>, pauses and returns <code>i**2</code>. State (value of <code>i</code>) is preserved.</div>
+        <div class="line-note"><span class="line-num">L8-10</span> Three manual <code>next()</code> calls consume the first three values (i=1,2,3).</div>
+        <div class="line-note"><span class="line-num">L13-14</span> The for loop resumes from exactly where we paused (i=4) — the generator remembers its state!</div>
+      </div>
+
+      <!-- ── mera_range generator ── -->
+      <div class="concept">
+        <h3>Step 3 – Recreating range() as a Generator</h3>
+        <p>Compare: 30+ lines of class code → 3 lines with generator</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">generator_range.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Using generator – 3 lines vs 30+ lines of iterator class!</span>
+<span class="kw">def</span> <span class="fn">mera_range</span>(start, end)<span class="op">:</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(start, end)<span class="op">:</span>
+        <span class="kw">yield</span> i
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">mera_range</span>(<span class="nm">15</span>, <span class="nm">26</span>)<span class="op">:</span>
+    <span class="fn">print</span>(i)   <span class="cm"># → 15, 16, 17, ..., 25</span></pre>
+      </div>
+
+      <!-- ── Generator Expression ── -->
+      <div class="concept" id="gen-expr">
+        <h3>Generator Expression</h3>
+        <p>Like list comprehension, but with <code>( )</code> instead of <code>[ ]</code></p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">generator_expression.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># List comprehension – creates all values IMMEDIATELY in memory</span>
+L <span class="op">=</span> [i<span class="op">**</span><span class="nm">2</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">101</span>)]   <span class="cm"># ALL 100 values in RAM</span>
+
+<span class="cm"># Generator expression – LAZY, creates values on demand</span>
+gen <span class="op">=</span> (i<span class="op">**</span><span class="nm">2</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">101</span>))  <span class="cm"># ← round brackets = generator</span>
+
+<span class="kw">import</span> sys
+<span class="fn">print</span>(sys<span class="op">.</span><span class="fn">getsizeof</span>(L))    <span class="cm"># → 920 bytes</span>
+<span class="fn">print</span>(sys<span class="op">.</span><span class="fn">getsizeof</span>(gen))  <span class="cm"># → 112 bytes  ← much smaller!</span>
+
+<span class="cm"># Use exactly like a list comprehension result</span>
+<span class="kw">for</span> i <span class="kw">in</span> gen<span class="op">:</span>
+    <span class="fn">print</span>(i)</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L2</span> Square brackets <code>[ ]</code> → list comprehension → all items stored in memory at once.</div>
+        <div class="line-note"><span class="line-num">L5</span> Round brackets <code>( )</code> → generator expression → only stores the logic, not the values.</div>
+        <div class="line-note"><span class="line-num">L7-8</span> The generator is ~8x smaller despite representing the same 100 values.</div>
+      </div>
+
+      <!-- ── Benefits ── -->
+      <div class="concept" id="gen-benefits">
+        <h3>4 Key Benefits of Generators</h3>
+      </div>
+
+      <div class="theory">
+        <h4>Benefit 1 – Ease of Implementation</h4>
+        <ul>
+          <li>Writing a custom iterator requires 2 classes (~30 lines).</li>
+          <li>A generator function achieves the same in 3–5 lines.</li>
+          <li>Python handles state management, <code>StopIteration</code>, etc. automatically.</li>
+        </ul>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">memory_efficient.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Benefit 2: Memory Efficiency</span>
+L   <span class="op">=</span> [x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">100000</span>)]
+gen <span class="op">=</span> (x <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">100000</span>))
+
+<span class="kw">import</span> sys
+<span class="fn">print</span>(<span class="st">'List size:'</span>, sys<span class="op">.</span><span class="fn">getsizeof</span>(L))    <span class="cm"># → 824,456 bytes</span>
+<span class="fn">print</span>(<span class="st">'Gen size: '</span>, sys<span class="op">.</span><span class="fn">getsizeof</span>(gen))  <span class="cm"># → 112 bytes</span>
+<span class="cm"># Generator uses ~7000x LESS memory!</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">infinite_stream.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Benefit 3: Representing Infinite Streams</span>
+<span class="kw">def</span> <span class="fn">all_even</span>()<span class="op">:</span>
+    n <span class="op">=</span> <span class="nm">0</span>
+    <span class="kw">while</span> <span class="kw">True</span><span class="op">:</span>      <span class="cm"># infinite loop!</span>
+        <span class="kw">yield</span> n
+        n <span class="op">+=</span> <span class="nm">2</span>
+
+<span class="cm"># A list of ALL even numbers would be infinite → impossible</span>
+<span class="cm"># A generator can do it because it's lazy!</span>
+even_gen <span class="op">=</span> <span class="fn">all_even</span>()
+<span class="fn">next</span>(even_gen)   <span class="cm"># → 0</span>
+<span class="fn">next</span>(even_gen)   <span class="cm"># → 2</span>
+<span class="fn">next</span>(even_gen)   <span class="cm"># → 4  (can go on forever)</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">chaining_generators.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Benefit 4: Chaining Generators (pipeline pattern)</span>
+<span class="kw">def</span> <span class="fn">fibonacci_numbers</span>(nums)<span class="op">:</span>
+    x, y <span class="op">=</span> <span class="nm">0</span>, <span class="nm">1</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(nums)<span class="op">:</span>
+        x, y <span class="op">=</span> y, x<span class="op">+</span>y
+        <span class="kw">yield</span> x
+
+<span class="kw">def</span> <span class="fn">square</span>(nums)<span class="op">:</span>
+    <span class="kw">for</span> num <span class="kw">in</span> nums<span class="op">:</span>   <span class="cm"># nums is a generator!</span>
+        <span class="kw">yield</span> num<span class="op">**</span><span class="nm">2</span>
+
+<span class="cm"># Chain: fibonacci → square → sum</span>
+<span class="cm"># No intermediate lists created!</span>
+result <span class="op">=</span> <span class="fn">sum</span>(<span class="fn">square</span>(<span class="fn">fibonacci_numbers</span>(<span class="nm">10</span>)))
+<span class="fn">print</span>(result)   <span class="cm"># → 4895</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L9</span> <code>square()</code> accepts a generator as input — it doesn't need to know it's a generator, just something iterable.</div>
+        <div class="line-note"><span class="line-num">L14</span> The entire pipeline processes one value at a time, left to right: fib → square → sum. No intermediate list is ever created.</div>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Generator Key Takeaways</h4>
+        <ul>
+          <li>Any function with <code>yield</code> is a generator function. Calling it returns a generator object.</li>
+          <li><code>yield</code> pauses execution and saves state; <code>return</code> exits forever.</li>
+          <li>Generator expressions use <code>( )</code> — lazy evaluation, memory efficient.</li>
+          <li>Use generators when: data is large, data is infinite, or processing in a pipeline.</li>
+          <li>A generator is a lazy iterator — values are produced only when requested via <code>next()</code>.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       RECURSION
+  ══════════════════════════════════════════ -->
+  <div class="session-card" id="rec-what">
+    <div class="session-header">
+      <div class="session-num rose">RC</div>
+      <div>
+        <h2>Recursion – Detailed Notes</h2>
+        <p>Functions that call themselves to solve sub-problems</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── What is Recursion ── -->
+      <div class="concept">
+        <h3>What is Recursion?</h3>
+      </div>
+      <div class="theory">
+        <h4>Core Idea</h4>
+        <ul>
+          <li>A function is <strong>recursive</strong> if it calls itself as part of its own definition.</li>
+          <li>Every recursive solution breaks a big problem into a <strong>smaller version of the same problem</strong>.</li>
+          <li>It must eventually reach a <strong>base case</strong> — a condition where it stops calling itself.</li>
+          <li>Without a base case → <strong>infinite recursion</strong> → <code>RecursionError: maximum recursion depth exceeded</code>.</li>
+        </ul>
+      </div>
+
+      <!-- ── Anatomy ── -->
+      <div class="concept" id="rec-anatomy">
+        <h3>Anatomy of Every Recursive Function</h3>
+      </div>
+      <div class="diagram-box">
+        <div class="d-title">Template</div>
+def recursive_function(input):
+
+    # 1. BASE CASE — stop condition (MUST exist)
+    if (smallest/simplest version):
+        return answer_directly    ← NO recursive call here
+
+    # 2. RECURSIVE CASE — reduce problem, call self
+    smaller_input = reduce(input)
+    return recursive_function(smaller_input)   ← calls itself
+      </div>
+      <div class="callout danger">
+        <span class="icon">🔴</span>
+        <div>Always define the <strong>base case first</strong>. Every recursive call must move CLOSER to the base case. Python's default recursion limit is 1000 calls (<code>sys.setrecursionlimit()</code> can change it).</div>
+      </div>
+
+      <!-- ── Factorial ── -->
+      <div class="concept" id="rec-factorial">
+        <h3>Example 1 – Factorial (n!)</h3>
+        <p>n! = n × (n-1) × (n-2) × ... × 1</p>
+      </div>
+      <div class="theory">
+        <h4>Mathematical Definition</h4>
+        <ul>
+          <li><code>0! = 1</code> (base case)</li>
+          <li><code>n! = n × (n-1)!</code> (recursive case)</li>
+          <li>Example: <code>5! = 5 × 4! = 5 × 4 × 3! = 5×4×3×2×1 = 120</code></li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">factorial.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">factorial</span>(n)<span class="op">:</span>
+
+    <span class="cm"># BASE CASE: factorial of 0 is 1</span>
+    <span class="kw">if</span> n <span class="op">==</span> <span class="nm">0</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="nm">1</span>
+
+    <span class="cm"># RECURSIVE CASE: n! = n * (n-1)!</span>
+    <span class="kw">return</span> n <span class="op">*</span> <span class="fn">factorial</span>(n <span class="op">-</span> <span class="nm">1</span>)   <span class="cm"># calls itself with n-1</span>
+
+<span class="fn">print</span>(<span class="fn">factorial</span>(<span class="nm">5</span>))   <span class="cm"># → 120</span>
+<span class="fn">print</span>(<span class="fn">factorial</span>(<span class="nm">0</span>))   <span class="cm"># → 1</span></pre>
+      </div>
+      <div class="diagram-box">
+        <div class="d-title">Call Stack for factorial(5)</div>
+factorial(5)
+  └─ 5 * factorial(4)
+           └─ 4 * factorial(3)
+                    └─ 3 * factorial(2)
+                             └─ 2 * factorial(1)
+                                      └─ 1 * factorial(0)
+                                                └─ returns 1   ← BASE CASE
+
+Now unwind (return upward):
+  factorial(1) = 1 * 1 = 1
+  factorial(2) = 2 * 1 = 2
+  factorial(3) = 3 * 2 = 6
+  factorial(4) = 4 * 6 = 24
+  factorial(5) = 5 * 24 = 120  ✓
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4-5</span> <strong>Base case</strong> — when <code>n == 0</code>, stop recursing and return 1 directly.</div>
+        <div class="line-note"><span class="line-num">L8</span> <strong>Recursive case</strong> — each call reduces <code>n</code> by 1, guaranteeing we eventually reach <code>n == 0</code>.</div>
+      </div>
+
+      <!-- ── Fibonacci ── -->
+      <div class="concept" id="rec-fibonacci">
+        <h3>Example 2 – Fibonacci Sequence</h3>
+        <p>0, 1, 1, 2, 3, 5, 8, 13, 21, ...</p>
+      </div>
+      <div class="theory">
+        <h4>Definition</h4>
+        <ul>
+          <li><code>fib(0) = 0</code> (base case)</li>
+          <li><code>fib(1) = 1</code> (base case)</li>
+          <li><code>fib(n) = fib(n-1) + fib(n-2)</code> for n ≥ 2 (recursive)</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">fibonacci.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">fibonacci</span>(n)<span class="op">:</span>
+
+    <span class="cm"># TWO base cases</span>
+    <span class="kw">if</span> n <span class="op">==</span> <span class="nm">0</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="nm">0</span>
+    <span class="kw">if</span> n <span class="op">==</span> <span class="nm">1</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="nm">1</span>
+
+    <span class="cm"># RECURSIVE CASE: sum of two preceding numbers</span>
+    <span class="kw">return</span> <span class="fn">fibonacci</span>(n<span class="op">-</span><span class="nm">1</span>) <span class="op">+</span> <span class="fn">fibonacci</span>(n<span class="op">-</span><span class="nm">2</span>)
+
+<span class="cm"># Print first 10 Fibonacci numbers</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">10</span>)<span class="op">:</span>
+    <span class="fn">print</span>(<span class="fn">fibonacci</span>(i), end<span class="op">=</span><span class="st">' '</span>)
+<span class="cm"># → 0 1 1 2 3 5 8 13 21 34</span></pre>
+      </div>
+      <div class="diagram-box">
+        <div class="d-title">Call tree for fibonacci(4) — exponential branching!</div>
+              fib(4)
+             /      \
+          fib(3)   fib(2)
+          /   \    /    \
+       fib(2) fib(1) fib(1) fib(0)
+       /   \
+    fib(1) fib(0)
+
+Total calls: 9 calls just for fib(4)
+For fib(40): ~2 billion calls!  ← performance problem
+      </div>
+      <div class="callout warning">
+        <span class="icon">⚠️</span>
+        <div>
+          <strong>Performance Problem</strong>: Plain recursive Fibonacci has <strong>O(2ⁿ) time complexity</strong> because it recalculates the same values repeatedly (e.g. <code>fib(2)</code> is computed multiple times).
+          <br><br>Solution: <strong>Memoization</strong> (cache results) using <code>@functools.lru_cache</code> or a dictionary.
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">fibonacci_memoized.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">import</span> functools
+
+<span class="op">@</span>functools<span class="op">.</span><span class="fn">lru_cache</span>(maxsize<span class="op">=</span><span class="kw">None</span>)   <span class="cm"># cache decorator</span>
+<span class="kw">def</span> <span class="fn">fibonacci</span>(n)<span class="op">:</span>
+    <span class="kw">if</span> n <span class="op">==</span> <span class="nm">0</span><span class="op">:</span> <span class="kw">return</span> <span class="nm">0</span>
+    <span class="kw">if</span> n <span class="op">==</span> <span class="nm">1</span><span class="op">:</span> <span class="kw">return</span> <span class="nm">1</span>
+    <span class="kw">return</span> <span class="fn">fibonacci</span>(n<span class="op">-</span><span class="nm">1</span>) <span class="op">+</span> <span class="fn">fibonacci</span>(n<span class="op">-</span><span class="nm">2</span>)
+
+<span class="fn">print</span>(<span class="fn">fibonacci</span>(<span class="nm">100</span>))  <span class="cm"># Now fast! O(n) with cache</span></pre>
+      </div>
+
+      <!-- ── Sum of list ── -->
+      <div class="concept">
+        <h3>Example 3 – Sum of a List</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">recursive_sum.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">recursive_sum</span>(L)<span class="op">:</span>
+
+    <span class="cm"># BASE CASE: empty list → sum is 0</span>
+    <span class="kw">if</span> <span class="fn">len</span>(L) <span class="op">==</span> <span class="nm">0</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="nm">0</span>
+
+    <span class="cm"># RECURSIVE CASE: first element + sum of rest</span>
+    <span class="kw">return</span> L[<span class="nm">0</span>] <span class="op">+</span> <span class="fn">recursive_sum</span>(L[<span class="nm">1</span><span class="op">:</span>])
+
+<span class="fn">print</span>(<span class="fn">recursive_sum</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>]))   <span class="cm"># → 15</span>
+
+<span class="cm"># Call trace:
+# recursive_sum([1,2,3,4,5])
+#   = 1 + recursive_sum([2,3,4,5])
+#   = 1 + 2 + recursive_sum([3,4,5])
+#   = 1 + 2 + 3 + recursive_sum([4,5])
+#   = 1 + 2 + 3 + 4 + recursive_sum([5])
+#   = 1 + 2 + 3 + 4 + 5 + recursive_sum([])
+#   = 1 + 2 + 3 + 4 + 5 + 0 = 15</span></pre>
+      </div>
+
+      <!-- ── Binary Search ── -->
+      <div class="concept" id="rec-binary">
+        <h3>Example 4 – Binary Search</h3>
+        <p>Efficiently find an element in a sorted list — O(log n)</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">binary_search.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">binary_search</span>(arr, target, low, high)<span class="op">:</span>
+
+    <span class="cm"># BASE CASE 1: not found</span>
+    <span class="kw">if</span> low <span class="op">&gt;</span> high<span class="op">:</span>
+        <span class="kw">return</span> <span class="op">-</span><span class="nm">1</span>
+
+    mid <span class="op">=</span> (low <span class="op">+</span> high) <span class="op">//</span> <span class="nm">2</span>
+
+    <span class="cm"># BASE CASE 2: found!</span>
+    <span class="kw">if</span> arr[mid] <span class="op">==</span> target<span class="op">:</span>
+        <span class="kw">return</span> mid
+
+    <span class="cm"># RECURSIVE CASE: search left half</span>
+    <span class="kw">elif</span> arr[mid] <span class="op">&gt;</span> target<span class="op">:</span>
+        <span class="kw">return</span> <span class="fn">binary_search</span>(arr, target, low, mid<span class="op">-</span><span class="nm">1</span>)
+
+    <span class="cm"># RECURSIVE CASE: search right half</span>
+    <span class="kw">else</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="fn">binary_search</span>(arr, target, mid<span class="op">+</span><span class="nm">1</span>, high)
+
+
+arr <span class="op">=</span> [<span class="nm">1</span>, <span class="nm">3</span>, <span class="nm">5</span>, <span class="nm">7</span>, <span class="nm">9</span>, <span class="nm">11</span>, <span class="nm">13</span>]
+<span class="fn">print</span>(<span class="fn">binary_search</span>(arr, <span class="nm">7</span>,  <span class="nm">0</span>, <span class="fn">len</span>(arr)<span class="op">-</span><span class="nm">1</span>))  <span class="cm"># → 3</span>
+<span class="fn">print</span>(<span class="fn">binary_search</span>(arr, <span class="nm">10</span>, <span class="nm">0</span>, <span class="fn">len</span>(arr)<span class="op">-</span><span class="nm">1</span>))  <span class="cm"># → -1 (not found)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4-5</span> Base case 1: search space is empty (<code>low > high</code>) → target not in list.</div>
+        <div class="line-note"><span class="line-num">L10-11</span> Base case 2: middle element IS the target → return its index.</div>
+        <div class="line-note"><span class="line-num">L14-15</span> If middle is too large, target must be in the LEFT half — recurse there.</div>
+        <div class="line-note"><span class="line-num">L18-19</span> If middle is too small, target must be in the RIGHT half — recurse there.</div>
+      </div>
+
+      <!-- ── Recursion vs Iteration ── -->
+      <div class="concept" id="rec-vs-iter">
+        <h3>Recursion vs Iteration</h3>
+      </div>
+      <table>
+        <tr><th>Aspect</th><th>Recursion</th><th>Iteration</th></tr>
+        <tr><td>Code style</td><td>Elegant, close to math</td><td>More verbose but straightforward</td></tr>
+        <tr><td>Memory</td><td>Uses call stack (each call = stack frame)</td><td>Uses only loop variables</td></tr>
+        <tr><td>Speed</td><td>Slower (function call overhead)</td><td>Faster (no overhead)</td></tr>
+        <tr><td>Stack overflow</td><td>Possible if too deep</td><td>Not applicable</td></tr>
+        <tr><td>Best for</td><td>Trees, graphs, divide-and-conquer</td><td>Simple loops, counters</td></tr>
+        <tr><td>Debugging</td><td>Harder (call stack can be deep)</td><td>Easier</td></tr>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">recursion_vs_iteration.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Same problem – factorial – solved two ways</span>
+
+<span class="cm"># ITERATIVE VERSION</span>
+<span class="kw">def</span> <span class="fn">factorial_iter</span>(n)<span class="op">:</span>
+    result <span class="op">=</span> <span class="nm">1</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, n<span class="op">+</span><span class="nm">1</span>)<span class="op">:</span>
+        result <span class="op">*=</span> i
+    <span class="kw">return</span> result
+
+<span class="cm"># RECURSIVE VERSION</span>
+<span class="kw">def</span> <span class="fn">factorial_rec</span>(n)<span class="op">:</span>
+    <span class="kw">if</span> n <span class="op">==</span> <span class="nm">0</span><span class="op">:</span> <span class="kw">return</span> <span class="nm">1</span>
+    <span class="kw">return</span> n <span class="op">*</span> <span class="fn">factorial_rec</span>(n<span class="op">-</span><span class="nm">1</span>)
+
+<span class="cm"># Both return the same result</span>
+<span class="fn">print</span>(<span class="fn">factorial_iter</span>(<span class="nm">5</span>))   <span class="cm"># → 120</span>
+<span class="fn">print</span>(<span class="fn">factorial_rec</span>(<span class="nm">5</span>))    <span class="cm"># → 120</span></pre>
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Recursion Key Takeaways</h4>
+        <ul>
+          <li>Every recursive function MUST have a <strong>base case</strong> to stop recursion.</li>
+          <li>Each recursive call must bring the input <strong>closer to the base case</strong>.</li>
+          <li>Python's default recursion limit is <strong>1000</strong>. Use iteration for deep recursion.</li>
+          <li>The <strong>call stack</strong> grows with each recursive call — each function gets its own stack frame.</li>
+          <li>Fibonacci naive recursion is O(2ⁿ) — use <strong>memoization</strong> to speed it up to O(n).</li>
+          <li>Best applications: tree traversal, divide-and-conquer (merge sort, binary search), mathematical sequences.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SESSION 12 – NAMESPACES & DECORATORS
+  ══════════════════════════════════════════ -->
+  <div class="session-card" id="s12-namespaces">
+    <div class="session-header">
+      <div class="session-num blue">12</div>
+      <div>
+        <h2>Session 12 – Namespaces &amp; Decorators</h2>
+        <p>LEGB Rule, global/nonlocal, First-Class Functions, Decorators</p>
+      </div>
+    </div>
+    <div class="session-body">
+
+      <!-- ── Namespaces ── -->
+      <div class="concept">
+        <h3>What is a Namespace?</h3>
+      </div>
+      <div class="theory">
+        <h4>Definition</h4>
+        <ul>
+          <li>A <strong>namespace</strong> is a mapping from names (identifiers) to objects.</li>
+          <li>Think of it as a <strong>dictionary</strong> where keys are variable names and values are the objects they point to.</li>
+          <li>Namespaces prevent name collisions — two variables in different scopes can have the same name without interfering.</li>
+        </ul>
+        <h4 style="margin-top:12px">4 Types of Namespaces</h4>
+        <ul>
+          <li>🔵 <strong>Built-in</strong> – Python's built-in functions/exceptions: <code>print</code>, <code>len</code>, <code>int</code>, <code>Exception</code>, etc.</li>
+          <li>🟢 <strong>Global</strong> – Names defined at the top level of a module/script.</li>
+          <li>🟡 <strong>Enclosing</strong> – Names in the scope of an outer (enclosing) function.</li>
+          <li>🔴 <strong>Local</strong> – Names defined inside the currently running function.</li>
+        </ul>
+      </div>
+
+      <!-- ── LEGB ── -->
+      <div class="concept" id="s12-legb">
+        <h3>The LEGB Rule – Search Order</h3>
+        <p>When Python looks up a name, it searches in this order</p>
+      </div>
+      <div class="diagram-box">
+        <div class="d-title">LEGB Search Order (inside-out)</div>
+  L → Local        (current function)
+  E → Enclosing    (outer function, if any)
+  G → Global       (module level)
+  B → Built-in     (Python's built-ins)
+
+  If not found in any scope → NameError!
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">legb_rule.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># ── L and G: Local has priority over Global ──</span>
+a <span class="op">=</span> <span class="nm">2</span>       <span class="cm"># GLOBAL</span>
+
+<span class="kw">def</span> <span class="fn">temp</span>()<span class="op">:</span>
+    b <span class="op">=</span> <span class="nm">3</span>   <span class="cm"># LOCAL</span>
+    <span class="fn">print</span>(b)   <span class="cm"># found in Local → 3</span>
+
+<span class="fn">temp</span>()
+<span class="fn">print</span>(a)    <span class="cm"># found in Global → 2</span>
+<span class="cm"># print(b)  ← NameError! b only lives inside temp()</span>
+
+<span class="cm"># ── Function parameter is also Local ──</span>
+<span class="kw">def</span> <span class="fn">temp2</span>(z)<span class="op">:</span>
+    <span class="fn">print</span>(z)   <span class="cm"># z is LOCAL to temp2</span>
+
+<span class="fn">temp2</span>(<span class="nm">5</span>)
+<span class="cm"># print(z)  ← NameError! z doesn't exist in global scope</span>
+
+<span class="cm"># ── Global fallback: if not in Local, check Global ──</span>
+a <span class="op">=</span> <span class="nm">2</span>
+<span class="kw">def</span> <span class="fn">temp3</span>()<span class="op">:</span>
+    <span class="fn">print</span>(a)   <span class="cm"># NOT in local → found in Global → prints 2</span>
+<span class="fn">temp3</span>()</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L5-6</span> Python finds <code>b</code> in the local scope of <code>temp</code> — never checks global.</div>
+        <div class="line-note"><span class="line-num">L22-23</span> <code>a</code> is not in <code>temp3</code>'s local scope — Python escalates to the global scope and finds it there.</div>
+      </div>
+
+      <!-- ── global / nonlocal ── -->
+      <div class="concept" id="s12-global">
+        <h3>global and nonlocal Keywords</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">global_nonlocal.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># PROBLEM: trying to modify global variable inside function</span>
+a <span class="op">=</span> <span class="nm">2</span>
+<span class="kw">def</span> <span class="fn">temp</span>()<span class="op">:</span>
+    a <span class="op">+=</span> <span class="nm">1</span>   <span class="cm"># → UnboundLocalError!</span>
+<span class="cm"># Python sees 'a =' → treats a as LOCAL → but local a has no value yet</span>
+
+<span class="cm"># SOLUTION: declare 'global' to use the global variable</span>
+a <span class="op">=</span> <span class="nm">2</span>
+<span class="kw">def</span> <span class="fn">temp</span>()<span class="op">:</span>
+    <span class="kw">global</span> a    <span class="cm"># ← tell Python: 'a' refers to the GLOBAL a</span>
+    a <span class="op">+=</span> <span class="nm">1</span>
+    <span class="fn">print</span>(a)    <span class="cm"># → 3</span>
+<span class="fn">temp</span>()
+<span class="fn">print</span>(a)        <span class="cm"># → 3  (global is modified!)</span>
+
+<span class="cm"># ── Enclosing scope: nonlocal ──</span>
+<span class="kw">def</span> <span class="fn">outer</span>()<span class="op">:</span>
+    a <span class="op">=</span> <span class="nm">1</span>         <span class="cm"># ENCLOSING variable</span>
+    <span class="kw">def</span> <span class="fn">inner</span>()<span class="op">:</span>
+        <span class="kw">nonlocal</span> a  <span class="cm"># ← refers to outer's 'a'</span>
+        a <span class="op">+=</span> <span class="nm">1</span>
+        <span class="fn">print</span>(<span class="st">'inner'</span>, a)  <span class="cm"># → inner 2</span>
+    <span class="fn">inner</span>()
+    <span class="fn">print</span>(<span class="st">'outer'</span>, a)      <span class="cm"># → outer 2 (modified by inner!)</span>
+<span class="fn">outer</span>()</pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4</span> <code>a += 1</code> is equivalent to <code>a = a + 1</code>. The assignment makes Python treat <code>a</code> as local, but it has no local value yet → <code>UnboundLocalError</code>.</div>
+        <div class="line-note"><span class="line-num">L10</span> <code>global a</code> — now Python knows: don't create a local <code>a</code>, use the one in global scope.</div>
+        <div class="line-note"><span class="line-num">L20</span> <code>nonlocal a</code> — refers to the enclosing function's (<code>outer</code>'s) variable <code>a</code>, not global.</div>
+      </div>
+
+      <div class="callout info">
+        <span class="icon">💡</span>
+        <div>
+          <strong>Built-in namespace warning:</strong> If you define a function with the same name as a built-in (e.g. <code>def max():</code>), the global name shadows the built-in. Python finds your <code>max</code> in Global scope before reaching Built-in scope.
+        </div>
+      </div>
+
+      <!-- ── Decorators ── -->
+      <div class="concept" id="s12-decorators">
+        <h3>Decorators</h3>
+        <p>Functions that wrap other functions to add new behaviour</p>
+      </div>
+      <div class="theory">
+        <h4>Prerequisites: Functions are First-Class Citizens</h4>
+        <ul>
+          <li>In Python, functions are objects — they can be stored in variables, passed as arguments, and returned from other functions.</li>
+          <li>A <strong>decorator</strong> is a function that: (1) receives a function, (2) wraps it with extra logic, (3) returns the wrapped version.</li>
+        </ul>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">first_class_functions.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Functions as arguments</span>
+<span class="kw">def</span> <span class="fn">modify</span>(func, num)<span class="op">:</span>
+    <span class="kw">return</span> <span class="fn">func</span>(num)   <span class="cm"># call the passed-in function</span>
+
+<span class="kw">def</span> <span class="fn">square</span>(num)<span class="op">:</span>
+    <span class="kw">return</span> num<span class="op">**</span><span class="nm">2</span>
+
+<span class="fn">modify</span>(square, <span class="nm">2</span>)   <span class="cm"># → 4  (square is passed like any variable)</span></pre>
+      </div>
+
+      <div class="concept">
+        <h3>Step 1 – Building a Decorator Manually</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">decorator_manual.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">def</span> <span class="fn">my_decorator</span>(func)<span class="op">:</span>      <span class="cm"># 1. receives a function</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>()<span class="op">:</span>              <span class="cm"># 2. inner wrapper function</span>
+        <span class="fn">print</span>(<span class="st">'*****'</span>)
+        <span class="fn">func</span>()               <span class="cm"># 3. calls the original function</span>
+        <span class="fn">print</span>(<span class="st">'*****'</span>)
+    <span class="kw">return</span> wrapper              <span class="cm"># 4. returns wrapper (NOT calling it)</span>
+
+<span class="kw">def</span> <span class="fn">hello</span>()<span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'hello'</span>)
+
+<span class="cm"># Manually decorate</span>
+a <span class="op">=</span> <span class="fn">my_decorator</span>(hello)   <span class="cm"># a = wrapper function</span>
+<span class="fn">a</span>()
+<span class="cm"># → *****</span>
+<span class="cm"># → hello</span>
+<span class="cm"># → *****</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L1</span> <code>my_decorator(func)</code> – accepts ANY function as input.</div>
+        <div class="line-note"><span class="line-num">L2-5</span> <code>wrapper</code> is defined INSIDE — it captures <code>func</code> via closure (enclosing scope).</div>
+        <div class="line-note"><span class="line-num">L6</span> Returns <code>wrapper</code> (the function object, not its result). This is crucial.</div>
+        <div class="line-note"><span class="line-num">L12</span> <code>my_decorator(hello)</code> returns the <code>wrapper</code> function. Calling <code>a()</code> runs wrapper which calls <code>hello</code> inside it.</div>
+      </div>
+
+      <div class="concept">
+        <h3>Step 2 – The @ Syntax (Syntactic Sugar)</h3>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">decorator_syntax.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># @my_decorator on a function is EXACTLY the same as:</span>
+<span class="cm"># hello = my_decorator(hello)</span>
+
+<span class="kw">def</span> <span class="fn">my_decorator</span>(func)<span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>()<span class="op">:</span>
+        <span class="fn">print</span>(<span class="st">'*****'</span>)
+        <span class="fn">func</span>()
+        <span class="fn">print</span>(<span class="st">'*****'</span>)
+    <span class="kw">return</span> wrapper
+
+<span class="op">@</span><span class="fn">my_decorator</span>         <span class="cm"># ← shorthand for: hello = my_decorator(hello)</span>
+<span class="kw">def</span> <span class="fn">hello</span>()<span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'hello'</span>)
+
+<span class="fn">hello</span>()   <span class="cm"># actually calls wrapper() which calls original hello()</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L11</span> <code>@my_decorator</code> before a function definition is exactly equivalent to writing <code>hello = my_decorator(hello)</code> after it.</div>
+        <div class="line-note"><span class="line-num">L15</span> Now <code>hello</code> points to <code>wrapper</code>. The original <code>hello</code> function is captured inside <code>wrapper</code>'s closure.</div>
+      </div>
+
+      <!-- ── Timer decorator ── -->
+      <div class="concept" id="s12-timer">
+        <h3>Practical Example – Timer Decorator with *args</h3>
+        <p>Measure execution time of any function</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">timer_decorator.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">timer</span>(func)<span class="op">:</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="op">*</span>args)<span class="op">:</span>         <span class="cm"># *args accepts any number of arguments</span>
+        start <span class="op">=</span> time<span class="op">.</span><span class="fn">time</span>()
+        <span class="fn">func</span>(<span class="op">*</span>args)              <span class="cm"># unpack and pass args to original function</span>
+        elapsed <span class="op">=</span> time<span class="op">.</span><span class="fn">time</span>() <span class="op">-</span> start
+        <span class="fn">print</span>(<span class="st">f'Time taken by </span>{func<span class="op">.</span>__name__}<span class="st">: </span>{elapsed<span class="op">:.4f</span>}<span class="st"> secs'</span>)
+    <span class="kw">return</span> wrapper
+
+<span class="op">@</span><span class="fn">timer</span>
+<span class="kw">def</span> <span class="fn">hello</span>()<span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'hello world'</span>)
+    time<span class="op">.</span><span class="fn">sleep</span>(<span class="nm">2</span>)
+
+<span class="op">@</span><span class="fn">timer</span>
+<span class="kw">def</span> <span class="fn">square</span>(num)<span class="op">:</span>
+    time<span class="op">.</span><span class="fn">sleep</span>(<span class="nm">1</span>)
+    <span class="fn">print</span>(num<span class="op">**</span><span class="nm">2</span>)
+
+<span class="op">@</span><span class="fn">timer</span>
+<span class="kw">def</span> <span class="fn">power</span>(a, b)<span class="op">:</span>
+    <span class="fn">print</span>(a<span class="op">**</span>b)
+
+<span class="fn">hello</span>()       <span class="cm"># → hello world \n Time taken by hello: 2.00 secs</span>
+<span class="fn">square</span>(<span class="nm">2</span>)     <span class="cm"># → 4 \n Time taken by square: 1.00 secs</span>
+<span class="fn">power</span>(<span class="nm">2</span>, <span class="nm">3</span>)   <span class="cm"># → 8 \n Time taken by power: 0.00002 secs</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4</span> <code>*args</code> – the wrapper accepts any number of positional arguments, making the decorator work for functions with 0, 1, or more parameters.</div>
+        <div class="line-note"><span class="line-num">L6</span> <code>func(*args)</code> – unpacks the collected args and passes them to the original function.</div>
+        <div class="line-note"><span class="line-num">L8</span> <code>func.__name__</code> – accesses the original function's name (not "wrapper").</div>
+        <div class="line-note"><span class="line-num">L11-24</span> The SAME <code>@timer</code> decorator works on functions with 0, 1, and 2 arguments — thanks to <code>*args</code>.</div>
+      </div>
+
+      <!-- ── Decorator with arguments ── -->
+      <div class="concept" id="s12-args">
+        <h3>Decorator with Arguments</h3>
+        <p>Add parameters to a decorator using triple nesting</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-label">decorator_with_args.py</span><span class="lang-tag">Python</span></div>
+        <pre><span class="cm"># Goal: @sanity_check(int) validates that argument is an int</span>
+<span class="cm"># Pattern: outer factory → decorator → wrapper</span>
+
+<span class="kw">def</span> <span class="fn">sanity_check</span>(data_type)<span class="op">:</span>       <span class="cm"># Level 1: accepts decorator argument</span>
+    <span class="kw">def</span> <span class="fn">outer_wrapper</span>(func)<span class="op">:</span>        <span class="cm"># Level 2: actual decorator</span>
+        <span class="kw">def</span> <span class="fn">inner_wrapper</span>(<span class="op">*</span>args)<span class="op">:</span>   <span class="cm"># Level 3: wrapper around the function</span>
+            <span class="kw">if</span> <span class="fn">type</span>(<span class="op">*</span>args) <span class="op">==</span> data_type<span class="op">:</span>
+                <span class="fn">func</span>(<span class="op">*</span>args)         <span class="cm"># type check passes – run function</span>
+            <span class="kw">else</span><span class="op">:</span>
+                <span class="kw">raise</span> <span class="nm">TypeError</span>(<span class="st">'Wrong data type!'</span>)
+        <span class="kw">return</span> inner_wrapper
+    <span class="kw">return</span> outer_wrapper
+
+<span class="op">@</span><span class="fn">sanity_check</span>(<span class="nm">int</span>)      <span class="cm"># ← sanity_check(int) is called first → returns outer_wrapper</span>
+<span class="kw">def</span> <span class="fn">square</span>(num)<span class="op">:</span>          <span class="cm"># ← outer_wrapper(square) is called → returns inner_wrapper</span>
+    <span class="fn">print</span>(num<span class="op">**</span><span class="nm">2</span>)
+
+<span class="op">@</span><span class="fn">sanity_check</span>(<span class="nm">str</span>)
+<span class="kw">def</span> <span class="fn">greet</span>(name)<span class="op">:</span>
+    <span class="fn">print</span>(<span class="st">'hello'</span>, name)
+
+<span class="fn">square</span>(<span class="nm">2</span>)          <span class="cm"># → 4  (int ✓)</span>
+<span class="fn">square</span>(<span class="st">'hello'</span>)   <span class="cm"># → TypeError: Wrong data type!</span>
+<span class="fn">greet</span>(<span class="st">'nitish'</span>)   <span class="cm"># → hello nitish  (str ✓)</span></pre>
+      </div>
+      <div class="explain">
+        <div class="line-note"><span class="line-num">L4</span> <code>sanity_check(data_type)</code> – the outermost function captures the decorator's argument (<code>int</code> or <code>str</code>).</div>
+        <div class="line-note"><span class="line-num">L5</span> <code>outer_wrapper(func)</code> – the actual decorator that receives the function being decorated.</div>
+        <div class="line-note"><span class="line-num">L6-10</span> <code>inner_wrapper(*args)</code> – runs every time the decorated function is called. Does the type check.</div>
+        <div class="line-note"><span class="line-num">L14</span> <code>@sanity_check(int)</code> is equivalent to: <code>square = sanity_check(int)(square)</code> — two-step call.</div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="d-title">How @sanity_check(int) is resolved</div>
+@sanity_check(int)
+def square(num): ...
+
+Step 1: sanity_check(int) is called
+        → returns outer_wrapper  (with data_type=int baked in)
+
+Step 2: outer_wrapper(square) is called
+        → returns inner_wrapper  (with func=square and data_type=int baked in)
+
+Step 3: square now points to inner_wrapper
+        When square(2) is called → inner_wrapper(2) runs
+        → checks type(2) == int → True → calls original square(2)
+      </div>
+
+      <div class="key-points">
+        <h4>🔑 Session 12 Key Takeaways</h4>
+        <ul>
+          <li><strong>Namespace</strong> = dictionary of name→object mappings. 4 types: Built-in, Global, Enclosing, Local.</li>
+          <li><strong>LEGB</strong>: Python searches Local → Enclosing → Global → Built-in. First match wins.</li>
+          <li><code>global x</code> inside a function means: use the global variable <code>x</code>, not a local one.</li>
+          <li><code>nonlocal x</code> inside a nested function means: use the enclosing function's <code>x</code>.</li>
+          <li>A <strong>decorator</strong> is a function that takes a function and returns a modified version of it.</li>
+          <li><code>@my_decorator</code> is syntactic sugar for <code>func = my_decorator(func)</code>.</li>
+          <li>Use <code>*args</code> in the wrapper to make a decorator work for functions with any number of arguments.</li>
+          <li>Decorators with arguments require <strong>3 levels of nesting</strong>: factory → decorator → wrapper.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <div style="text-align:center; padding: 40px 0; color: #404060; font-size: 0.8rem; border-top: 1px solid #2a2a4e; margin-top: 20px;">
+    Python Study Notes — Sessions 7 to 11 &nbsp;|&nbsp; OOP • File Handling • Exception Handling
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,360 @@
+
+# ============================================
+# COMPLETE RAG PIPELINE
+# Azure OpenAI + Azure AI Search
+# ============================================
+
+import os
+from openai import AzureOpenAI
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
+from azure.search.documents import SearchClient
+from azure.search.documents.models import VectorizedQuery
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents.indexes import SearchIndexClient
+from azure.search.documents.indexes.models import (
+    SearchIndex,
+    SearchField,
+    SearchFieldDataType,
+    SimpleField,
+    SearchableField,
+    VectorSearch,
+    HnswAlgorithmConfiguration,
+    VectorSearchProfile,
+    SemanticConfiguration,
+    SemanticSearch,
+    SemanticPrioritizedFields,
+    SemanticField,
+)
+
+# Load environment variables
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
+# ============================================
+# CLIENTS & CONFIG
+# ============================================
+
+EMBEDDING_DIMENSIONS = 1536  # Standard for Azure OpenAI embeddings
+AZURE_SEARCH_ENDPOINT = os.environ["AZURE_SEARCH_ENDPOINT"]
+AZURE_SEARCH_API_KEY = os.environ["AZURE_SEARCH_API_KEY"]
+AZURE_SEARCH_INDEX_NAME = os.environ["AZURE_SEARCH_INDEX_NAME"]
+
+client = AzureOpenAI(
+    azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+    api_key=os.environ["AZURE_OPENAI_API_KEY"],
+    api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+)
+
+EMBED_DEPLOY = os.environ["AZURE_OPENAI_EMBEDDING_DEPLOYMENT"]
+CHAT_DEPLOY  = os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT"]
+
+search_client = SearchClient(
+    endpoint=AZURE_SEARCH_ENDPOINT,
+    index_name=AZURE_SEARCH_INDEX_NAME,
+    credential=AzureKeyCredential(AZURE_SEARCH_API_KEY)
+)
+
+text = """# Company Knowledge Base — Acme Corp
+
+## 1. Refund Policy
+
+At Acme Corp, customer satisfaction is our top priority. We offer a 30-day money-back guarantee on all products purchased through our official website or authorized resellers.
+
+To be eligible for a refund:
+- The request must be submitted within 30 days of the original purchase date.
+- The product must be unused or defective.
+- Proof of purchase (order confirmation email or receipt) is required.
+- Digital products such as software licenses and downloadable content are non-refundable once activated.
+
+To initiate a refund, contact our support team at refunds@acmecorp.com with your order number and reason for return. Refunds are processed within 5–7 business days and credited back to the original payment method.
+
+Partial refunds may be granted for items returned in a damaged condition or missing original packaging. Shipping and handling fees are non-refundable unless the return is due to our error.
+
+---
+
+## 2. Shipping Policy
+
+Acme Corp ships to over 50 countries worldwide. All orders are processed within 1–2 business days after payment confirmation.
+
+Shipping options:
+- **Standard Shipping**: 5–7 business days — Free on orders over $50.
+- **Express Shipping**: 2–3 business days — $12.99 flat rate.
+- **Overnight Shipping**: Next business day — $24.99 flat rate.
+
+International orders may be subject to customs duties and taxes, which are the responsibility of the customer. Acme Corp is not liable for delays caused by customs processing.
+
+Orders are shipped from our fulfillment centers in New York, USA and Frankfurt, Germany. You will receive a tracking number via email once your order has shipped.
+
+---
+
+## 3. Privacy Policy
+
+Acme Corp is committed to protecting your personal data. We collect the following types of information:
+- **Personal Identifiers**: Name, email address, phone number, billing and shipping address.
+- **Payment Information**: Processed securely via Stripe; Acme Corp does not store card details.
+- **Usage Data**: Pages visited, time spent, browser type, and IP address collected via cookies.
+
+We do not sell or rent your personal information to third parties. Data may be shared with trusted service providers (e.g., shipping carriers, payment processors) solely for order fulfillment.
+
+You have the right to request access to, correction of, or deletion of your personal data at any time by contacting privacy@acmecorp.com.
+
+We retain customer data for up to 7 years for accounting and legal compliance purposes. Our servers are hosted in ISO 27001-certified data centers.
+
+---
+
+## 4. Product Warranty
+
+All Acme Corp hardware products come with a limited 1-year manufacturer's warranty from the date of purchase. This warranty covers defects in materials and workmanship under normal use.
+
+The warranty does NOT cover:
+- Physical damage caused by accidents, misuse, or unauthorized modifications.
+- Damage caused by operating the product outside permitted environmental conditions.
+- Consumable parts such as batteries unless damage has occurred due to a product defect.
+
+To make a warranty claim, visit warranty.acmecorp.com and submit your serial number and a description of the defect. Our team will assess the claim within 3 business days.
+
+Approved warranty claims will result in a free repair, replacement, or store credit at Acme Corp's discretion. Extended warranty plans (up to 3 years) are available for purchase at checkout.
+
+---
+
+## 5. Customer Support
+
+Our customer support team is available Monday through Friday, 9:00 AM – 6:00 PM EST.
+
+Contact channels:
+- **Email**: support@acmecorp.com (response within 24 hours)
+- **Live Chat**: Available on our website during business hours.
+- **Phone**: +1-800-555-0199
+- **Help Center**: help.acmecorp.com (articles, FAQs, video guides)
+
+For urgent issues such as billing errors or account security concerns, please call our priority support line at +1-800-555-0200, available 24/7.
+
+---
+
+## 6. Account & Subscription Management
+
+Customers can manage their accounts at account.acmecorp.com. From the dashboard, you can:
+- Update personal information and billing details.
+- View order history and download invoices.
+- Manage active subscriptions and cancel at any time.
+
+Subscription cancellations take effect at the end of the current billing cycle. No partial refunds are issued for unused subscription days unless stated otherwise in the plan terms.
+
+If you forget your password, use the "Forgot Password" link on the login page. For account lockouts or suspected unauthorized access, contact security@acmecorp.com immediately.
+
+---
+
+## 7. Pricing & Promotions
+
+All prices on the Acme Corp website are listed in USD and are subject to change without notice. Taxes are calculated at checkout based on the shipping destination.
+
+Promotional discounts and coupon codes:
+- Only one coupon code can be applied per order.
+- Coupons cannot be combined with other offers unless explicitly stated.
+- Expired coupons will not be honored under any circumstances.
+
+Acme Corp runs seasonal sales events including Black Friday, Cyber Monday, and an annual Summer Sale in July. Subscribers to our newsletter receive early access and exclusive discount codes.
+
+Price matching is available within 7 days of purchase if the same product is found at a lower price on an authorized retailer's website.
+
+---
+
+## 8. Returns Process (Step-by-Step)
+
+1. Email refunds@acmecorp.com with subject line: "Return Request — Order #[your order number]".
+2. Include your reason for return and attach photos if the item is damaged.
+3. Our team will respond within 2 business days with a Return Merchandise Authorization (RMA) number.
+4. Pack the item securely and write the RMA number on the outside of the package.
+5. Ship the item to the address provided in the RMA email.
+6. Once received and inspected, your refund will be processed within 5–7 business days.
+
+---
+
+## 9. Compliance & Legal
+
+Acme Corp complies with:
+- **GDPR** (General Data Protection Regulation) for EU customers.
+- **CCPA** (California Consumer Privacy Act) for California residents.
+- **PCI-DSS** standards for all payment processing.
+
+Our Terms of Service and Privacy Policy are governed by the laws of the State of Delaware, USA. Any disputes shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
+
+---
+
+## 10. Environmental & Sustainability Policy
+
+Acme Corp is committed to reducing its environmental footprint. Our initiatives include:
+- **Packaging**: 100% recyclable packaging materials since 2022.
+- **Carbon Offsetting**: We offset 100% of shipping emissions through certified carbon offset programs.
+- **Product Take-Back Program**: Send back old Acme Corp devices for responsible recycling and receive a $10 store credit.
+- **Renewable Energy**: Our New York fulfillment center runs on 80% renewable energy.
+
+We publish an annual sustainability report at acmecorp.com/sustainability."""
+
+# Creating Chunks
+splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50,
+        separators=["\n\n", "\n", ". ", " ", ""]
+    )
+chunks = splitter.split_text(text)
+print(f"✅ Split into {len(chunks)} chunks")
+
+# Step 2: Embed all chunks
+resp = client.embeddings.create(model=EMBED_DEPLOY, input=chunks)
+vecs = [r.embedding for r in sorted(resp.data, key=lambda x: x.index)]
+print(f"✅ Generated {len(vecs)} embeddings")
+
+# ── Step 3: Create the Azure AI Search index ──────────────────────────────────
+def create_index():
+    index_client = SearchIndexClient(
+        endpoint=AZURE_SEARCH_ENDPOINT,
+        credential=AzureKeyCredential(AZURE_SEARCH_API_KEY),
+    )
+
+    fields = [
+        SimpleField(
+            name="id",
+            type=SearchFieldDataType.String,
+            key=True,
+            filterable=True,
+        ),
+        SearchableField(
+            name="title",
+            type=SearchFieldDataType.String,
+            filterable=True,
+            sortable=True,
+        ),
+        SearchableField(
+            name="content",
+            type=SearchFieldDataType.String,
+        ),
+        SearchField(
+            name="content_vector",
+            type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+            searchable=True,
+            vector_search_dimensions=EMBEDDING_DIMENSIONS,
+            vector_search_profile_name="acme-vector-profile",
+        ),
+    ]
+
+    vector_search = VectorSearch(
+        algorithms=[HnswAlgorithmConfiguration(name="acme-hnsw")],
+        profiles=[
+            VectorSearchProfile(
+                name="acme-vector-profile",
+                algorithm_configuration_name="acme-hnsw",
+            )
+        ],
+    )
+
+    semantic_config = SemanticConfiguration(
+        name="acme-semantic-config",
+        prioritized_fields=SemanticPrioritizedFields(
+            title_field=SemanticField(field_name="title"),
+            content_fields=[SemanticField(field_name="content")],
+        ),
+    )
+
+    index = SearchIndex(
+        name=AZURE_SEARCH_INDEX_NAME,
+        fields=fields,
+        vector_search=vector_search,
+        semantic_search=SemanticSearch(configurations=[semantic_config]),
+    )
+
+    result = index_client.create_or_update_index(index)
+    print(f"✅ Index '{result.name}' created/updated successfully.")
+
+
+# ── Step 4: Index documents ───────────────────────────────────────────────────
+def index_documents(chunks, vectors):
+    """Upload chunks and their embeddings to Azure AI Search"""
+    documents = []
+    for i, (chunk, vector) in enumerate(zip(chunks, vectors)):
+        documents.append({
+            "id": str(i),
+            "title": f"Acme Corp Policy {i+1}",
+            "content": chunk,
+            "content_vector": vector,
+        })
+    
+    try:
+        result = search_client.upload_documents(documents)
+        print(f"✅ Uploaded {len(documents)} documents to index")
+    except Exception as e:
+        print(f"❌ Error uploading documents: {e}")
+        raise
+
+
+# ── Step 5: RAG Query Function ────────────────────────────────────────────────
+def rag_query(user_query: str, top_k: int = 3) -> str:
+    """Execute RAG pipeline: embed query → search → generate response"""
+    
+    # Embed the user query
+    query_resp = client.embeddings.create(model=EMBED_DEPLOY, input=user_query)
+    query_vector = query_resp.data[0].embedding
+    
+    # Search Azure AI Search for relevant documents
+    search_results = search_client.search(
+        search_text=user_query,
+        vector_queries=[VectorizedQuery(vector=query_vector, k_nearest_neighbors=top_k, fields="content_vector")],
+        select=["id", "content"],
+    )
+    
+    # Extract relevant context from search results
+    context = ""
+    for result in search_results:
+        context += f"\n{result['content']}"
+    
+    if not context.strip():
+        context = "No relevant information found in knowledge base."
+    
+    # Generate response using Azure OpenAI
+    system_prompt = """You are a helpful customer service assistant for Acme Corp. 
+    Answer questions based on the provided company policies and knowledge base.
+    If you don't know the answer, say so clearly."""
+    
+    response = client.chat.completions.create(
+        model=CHAT_DEPLOY,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {user_query}"}
+        ],
+        temperature=0.7,
+        max_completion_tokens=500,
+    )
+    
+    return response.choices[0].message.content
+
+
+# ============================================
+# MAIN EXECUTION
+# ============================================
+
+if __name__ == "__main__":
+    try:
+        print("\n🚀 Starting RAG Pipeline Setup...\n")
+        
+        # Create index
+        print("Step 1: Creating Azure AI Search index...")
+        create_index()
+        
+        # Index documents
+        print("\nStep 2: Indexing documents...")
+        index_documents(chunks, vecs)
+        
+        # Example RAG query
+        print("\nStep 3: Testing RAG with sample query...")
+        query = "What is your refund policy?"
+        print(f"\nQuery: {query}")
+        response = rag_query(query)
+        print(f"\nResponse:\n{response}")
+        
+        print("\n✅ RAG Pipeline Setup Complete!")
+        
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        raise
+
+
