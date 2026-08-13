@@ -144,18 +144,12 @@ def login(req: AuthReq, response: Response):
 
 @app.post("/api/auth/register")
 def register(req: AuthReq, response: Response):
-    c = _conn()
-    count = c.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-    if count > 0:
-        c.close()
-        raise HTTPException(status_code=403, detail="Registration is closed. Use create_user.py to add users.")
     uname = req.username.strip()
     if len(uname) < 3:
-        c.close()
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
     if len(req.password) < 8:
-        c.close()
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    c = _conn()
     try:
         h = pwd_ctx.hash(req.password)
         c.execute("INSERT INTO users (username, password_hash) VALUES (?,?)", (uname, h))
