@@ -40,7 +40,7 @@ else:
     DB_PATH = BASE_DIR / "cortex.db"
 
 # ── Crypto ──────────────────────────────────────────────────────────────────────
-pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_ctx = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 bearer  = HTTPBearer(auto_error=False)
 
 # ── DB bootstrap ────────────────────────────────────────────────────────────────
