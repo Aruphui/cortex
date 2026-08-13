@@ -649,11 +649,11 @@ def _build_notes() -> list:
     return result
 
 @app.get("/api/notes")
-def list_notes(user: str = Depends(_require_user)):
+def list_notes():
     return _build_notes()
 
 @app.get("/api/notes/{note_id}/content", response_class=HTMLResponse)
-def get_note(note_id: str, user: str = Depends(_require_user_or_cookie)):
+def get_note(note_id: str):
     """Accepts Bearer header OR cookie — enables iframe src auth without token in URL."""
     if not note_id.isdigit():
         raise HTTPException(status_code=400, detail="Invalid note ID")

@@ -731,8 +731,8 @@
   let token    = localStorage.getItem('cortex_token') || '';
   let authUser = localStorage.getItem('cortex_user')  || '';
 
-  // Pre-hide landing page if cached token exists (avoid flash)
-  if (token) document.getElementById('authOverlay').style.display = 'none';
+  // Auth disabled — always hide the overlay
+  document.getElementById('authOverlay').style.display = 'none';
 
   // ── App state ──────────────────────────────────────────────
   let notes         = [];
@@ -788,7 +788,6 @@
       ...opts,
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? {'Authorization': `Bearer ${token}`} : {}),
         ...(opts.headers || {}),
       },
     });
@@ -900,34 +899,10 @@
     checkAuth();
   });
 
-  // Check auth state on boot
+  // Auth disabled — skip all auth checks
   async function checkAuth() {
-    // Show/hide register tab based on whether any user exists
-    try {
-      const st = await fetch('/api/auth/status');
-      if (st.ok) {
-        const {can_register} = await st.json();
-        registerTab.style.display = can_register ? '' : 'none';
-      }
-    } catch {}
-
-    if (!token) { showAuth(); return; }
-
-    // Validate stored token
-    try {
-      const r = await apiFetch('/api/auth/me');
-      if (!r.ok) {
-        token = '';
-        localStorage.removeItem('cortex_token');
-        showAuth();
-        return;
-      }
-      const {username} = await r.json();
-      authUser = username;
-      setUserUI(username);
-      hideAuth();
-      init();
-    } catch { showAuth(); }
+    hideAuth();
+    init();
   }
 
   // ── Theme ──────────────────────────────────────────────────
