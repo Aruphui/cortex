@@ -11,8 +11,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Cookie, Depends, FastAPI, HTTPException, Response, Query
-from fastapi.responses import HTMLResponse
+from fastapi import Cookie, Depends, FastAPI, HTTPException, Request, Response, Query
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -132,6 +132,10 @@ class AuthReq(BaseModel):
 
 # ── App ──────────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Cortex", docs_url=None, redoc_url=None)
+
+@app.exception_handler(Exception)
+async def _global_exc(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(status_code=500, content={"detail": f"Server error: {type(exc).__name__}: {exc}"})
 
 # ── Auth endpoints ────────────────────────────────────────────────────────────────
 @app.get("/api/auth/status")
