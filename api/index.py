@@ -6,7 +6,7 @@ Local dev  : uvicorn api.index:app --reload --port 8080  (run from Genai/ root)
 Vercel     : auto via vercel.json
 """
 from __future__ import annotations
-import os, re, shutil, sqlite3
+import base64, hashlib, os, re, secrets, shutil, sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -15,7 +15,6 @@ from fastapi import Cookie, Depends, FastAPI, HTTPException, Response, Query
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
-from passlib.context import CryptContext
 from pydantic import BaseModel
 from jose import JWTError, jwt
 
@@ -40,7 +39,22 @@ else:
     DB_PATH = BASE_DIR / "cortex.db"
 
 # ── Crypto ──────────────────────────────────────────────────────────────────────
-pwd_ctx = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+_ITERS = 260_000
+
+def _hash_password(password: str) -> str:
+    salt = secrets.token_bytes(16)
+    key  = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, _ITERS)
+    return base64.b64encode(salt + key).decode()
+
+def _verify_password(password: str, stored: str) -> bool:
+    try:
+        data = base64.b64decode(stored.encode())
+        salt, key = data[:16], data[16:]
+        new_key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, _ITERS)
+        return secrets.compare_digest(key, new_key)
+    except Exception:
+        return False
+
 bearer  = HTTPBearer(auto_error=False)
 
 # ── DB bootstrap ────────────────────────────────────────────────────────────────
@@ -68,7 +82,7 @@ def init_db() -> None:
         c.execute(
             "INSERT INTO users (username, password_hash) VALUES (?,?) "
             "ON CONFLICT(username) DO UPDATE SET password_hash=excluded.password_hash",
-            (admin_u, pwd_ctx.hash(admin_p)),
+            (admin_u, _hash_password(admin_p)),
         )
         c.commit()
     c.close()
@@ -132,7 +146,7 @@ def login(req: AuthReq, response: Response):
     c = _conn()
     user = c.execute("SELECT * FROM users WHERE username=?", (req.username.strip(),)).fetchone()
     c.close()
-    if not user or not pwd_ctx.verify(req.password, user["password_hash"]):
+    if not user or not _verify_password(req.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid username or password")
     token = make_token(req.username.strip())
     response.set_cookie(
@@ -151,7 +165,7 @@ def register(req: AuthReq, response: Response):
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     c = _conn()
     try:
-        h = pwd_ctx.hash(req.password)
+        h = _hash_password(req.password)
         c.execute("INSERT INTO users (username, password_hash) VALUES (?,?)", (uname, h))
         c.commit()
         c.close()
